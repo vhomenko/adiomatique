@@ -34,15 +34,6 @@ require_once( 'adi_admin_pages.php' );
 require_once( 'adi_admin_posts.php' );
 
 
-/*TODO
-
-for better output structure of terminübersicht:
-* a block for date line
-* a block for time and title
-* a block for special and the rest
-
- */
- 
 const ADI_ACTIVITY_PARENT_PAGE_ID = 553;
 const ADI_ACTIVITY_ARCHIVE_PAGE_ID = 388;
 
@@ -55,7 +46,7 @@ const ADI_INDEPENDENT_EVENTS_CAT_ID = 33;
 */
 
 
-// test values
+// dev values
 const ADI_NEWS_CAT_ID = 2;
 const ADI_EVENTS_CAT_ID = 5;
 const ADI_EVENTS_ARCHIVE_CAT_ID = 6;
@@ -95,7 +86,7 @@ function adi_display_page( $id, $titlepage_cat_id ) {
 			return;
 		}
 		
-		$output = '<p>' . $titlepage_cat_id;
+		$output = '<p>';
 		
 		foreach ( $events as $event ) {
 			$output .= $event['date'] . ', ';
