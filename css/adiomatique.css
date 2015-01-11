@@ -1,0 +1,49 @@
+
+#aditue {
+  /*border-top: 5px solid rgb(0, 128, 128);
+  border-left: 1px solid rgb(0, 128, 128);
+  border-right: 1px solid rgb(0, 128, 128);
+  border-radius: 5px 5px 0px 0px;*/
+  margin-bottom: 24px;
+}
+
+
+.adi_date {
+  font-weight: 700;
+  font-size: 1.2em;
+  background-color: rgb(0, 128, 128);
+  color: #F6F5C2;
+}
+
+.adi_time {
+  margin: 0.4em 0;
+}
+
+.adi_special {
+  font-size: 0.7em;
+  padding-bottom: 0.4em;
+  border-bottom: 1px solid rgb(0, 128, 128);
+}
+
+.adi_special_img {
+	max-height: 16px;
+	display: block;
+	margin: 0 auto;
+}
+
+.adi_date span:first-child,
+.adi_time span:first-child,
+.adi_special span:first-child {  
+  display: inline-block;
+  min-width: 80px;
+  text-align: center;
+}
+
+.adi_wichtig {
+	font-weight: 700;
+}
+
+.adi_geaendert {
+	font-style: italic;
+}
+
