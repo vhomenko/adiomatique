@@ -3,7 +3,7 @@ Adiomatique
 
 A WordPress plugin that builds upon custom fields of posts and pages, to provide some basic integrated event management.
 
-This work is not as presentable/usable as I'd like, yet. It here mostly for code review and backups. 
+This work is not as presentable/usable as I'd like, yet. It's here mostly for code review and backups. 
 
 Why
 ---
