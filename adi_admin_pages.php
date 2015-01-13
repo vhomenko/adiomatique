@@ -2,8 +2,6 @@
 
 defined( 'ABSPATH' ) or die( '' );
 
-/* This file provides internal functionality: only page title is sanitized on saving 
-WP doesn't save page title as sanitized, it just gets escaped on output */
 
 
 add_action( 'load-post.php', 'adi_page_meta_boxes_setup' );

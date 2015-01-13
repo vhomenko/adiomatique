@@ -57,7 +57,7 @@ function adi_post_meta_box( $post ) {
 	}
 	
 	$adi_event_period = get_post_meta( $post->ID, 'adi_event_periodicity', true );
-	$adi_event_special = get_post_meta( $post->ID, 'adi_event_special', true );
+	$adi_event_type = get_post_meta( $post->ID, 'adi_event_type', true );
 
 	$adi_event_titlepage_id = intval( get_post_meta( $post->ID, 'adi_event_titlepage_id', true ) );
 	
@@ -108,12 +108,12 @@ function adi_post_meta_box( $post ) {
 	</p>
 	<hr>
 	<p>
-		<select id="adi_event_special" name="adi_event_special">
-			<option value="50" <?php if ( empty( $adi_event_special ) ) $adi_event_special = 50; selected( $adi_event_special, 50 ); ?> >normal</option>
-			<option value="100" <?php selected( $adi_event_special, 100 ); ?> >wichtig</option>
-			<option value="75" <?php selected( $adi_event_special, 75 ); ?> >geändert</option>
-			<option value="25" <?php selected( $adi_event_special, 25 ); ?> >extern</option>
-			<option value="1" <?php selected( $adi_event_special, 1 ); ?> >inaktiv</option>
+		<select id="adi_event_type" name="adi_event_type">
+			<option value="50" <?php if ( empty( $adi_event_type ) ) $adi_event_type = 50; selected( $adi_event_type, 50 ); ?> >normal</option>
+			<option value="100" <?php selected( $adi_event_type, 100 ); ?> >wichtig</option>
+			<option value="75" <?php selected( $adi_event_type, 75 ); ?> >geändert</option>
+			<option value="25" <?php selected( $adi_event_type, 25 ); ?> >extern</option>
+			<option value="1" <?php selected( $adi_event_type, 1 ); ?> >inaktiv</option>
 		</select>
 
 		<a class="delete" href="javascript:;" id="adi_event_eraser" onclick="window.ADI.resetEvent()">zurücksetzen</a>
@@ -169,7 +169,7 @@ function adi_post_meta_box( $post ) {
 
 			document.getElementById( 'adi_event_periodicity' ).value = '0';
 			document.getElementById( 'adi_event_titlepage_id' ).value = '<?php echo "eigenstaendig"; ?>';
-			document.getElementById( 'adi_event_special' ).value = '50';
+			document.getElementById( 'adi_event_type' ).value = '50';
 		}
 		jQuery('#adi_event_time').timepicker({
 			defaultTime: '19:00',
@@ -202,7 +202,7 @@ function adi_save_meta( $post_id, $post ) {
 	
 	if ( empty( $time ) ) {
 		delete_post_meta( $post_id, 'adi_event_periodicity' );
-		delete_post_meta( $post_id, 'adi_event_special' );
+		delete_post_meta( $post_id, 'adi_event_type' );
 		delete_post_meta( $post_id, 'adi_event_timestamp' );
 		delete_post_meta( $post_id, 'adi_event_titlepage_id' );
 
@@ -225,10 +225,10 @@ function adi_save_meta( $post_id, $post ) {
 	update_post_meta( $post_id, 'adi_event_timestamp', $stamp );
 	
 	$periodicity = $_POST['adi_event_periodicity'];
-	$special = $_POST['adi_event_special'];
+	$type = $_POST['adi_event_type'];
 
 	update_post_meta( $post_id, 'adi_event_periodicity', $periodicity );
-	update_post_meta( $post_id, 'adi_event_special', $special );
+	update_post_meta( $post_id, 'adi_event_type', $type );
 
 	$t_id = $_POST['adi_event_titlepage_id'];
 	

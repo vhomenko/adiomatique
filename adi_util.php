@@ -35,16 +35,16 @@ function adi_get_events( $events_cat_id = ADI_EVENTS_CAT_ID, $limit = false ) {
 		// sort out passed non-periodic events
 		if ( $event_ts < $today_ts ) continue;
 
-		$event_special = intval( get_post_meta( $id, 'adi_event_special', true ) );
+		$event_type = intval( get_post_meta( $id, 'adi_event_type', true ) );
 
 		// sort out dates too far in the future
 		if ( false !== $limit && $event_ts > $upper_limit_ts ) {
 			// the important dates are kept
-			if ( 100 !== $event_special ) continue;
+			if ( 100 !== $event_type ) continue;
 		}
 		
 		// the inactive events are filtered
-		if ( 1 === $event_special ) continue;
+		if ( 1 === $event_type ) continue;
 
 		$datetime = new DateTime( '@' . $event_ts );
 		
@@ -55,10 +55,10 @@ function adi_get_events( $events_cat_id = ADI_EVENTS_CAT_ID, $limit = false ) {
 					'date' => $datetime->format( 'd.m' ),
 					'weekday' => $datetime->format( 'l' ),
 					'weeknum' => intval( $datetime->format( 'W' ) ),
-					'special' => $event_special,
+					'type' => $event_type,
 					'periodicity' => intval( get_post_meta( $id, 'adi_event_periodicity', true ) ),
 					'titlepage_id' => intval( get_post_meta( $id, 'adi_event_titlepage_id', true ) ),
-					'title' => $post->post_title,
+					'title' => htmlspecialchars( $post->post_title, ENT_QUOTES ),
 					'link' => '<a href="' . wp_get_shortlink( $id ) . '">' . $post->post_title . '</a>'
 				);
 
@@ -78,6 +78,11 @@ function adi_update_event( $id ) {
 
 	$event_ts = intval( get_post_meta( $id, 'adi_event_timestamp', true ) );	
 	$periodicity = intval( get_post_meta( $id, 'adi_event_periodicity', true ) );
+	
+	/////////
+	//$migrate = get_post_meta( $id, 'adi_event_special', true );
+	//update_post_meta( $id, 'adi_event_type', $migrate );
+	/////////
 	
 	$today_ts = mktime( 0, 0, 0, date( 'm' ), date( 'j' ), date( 'y' ) );
 
@@ -309,12 +314,12 @@ function adi_get_weekday_de( $weekday ) {
 
 
 
-function adi_get_event_special( $special ) {
+function adi_get_event_type( $type ) {
 
-	if ( 1 === $special ) return 'Inaktiv';
-	else if ( 25 === $special ) return 'Extern';
-	else if ( 100 === $special ) return 'Wichtig!';
-	else if ( 75 === $special ) return 'Geändert';
+	if ( 1 === $type ) return 'Inaktiv';
+	else if ( 25 === $type ) return 'Extern';
+	else if ( 100 === $type ) return 'Wichtig!';
+	else if ( 75 === $type ) return 'Geändert';
 
 }
 

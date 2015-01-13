@@ -19,13 +19,13 @@
   margin: 0.4em 0;
 }
 
-.adi_special {
+.adi_type {
   font-size: 0.7em;
   padding-bottom: 0.4em;
   border-bottom: 1px solid rgb(0, 128, 128);
 }
 
-.adi_special_img {
+.adi_type_img {
 	max-height: 16px;
 	display: block;
 	margin: 0 auto;
@@ -33,7 +33,7 @@
 
 .adi_date span:first-child,
 .adi_time span:first-child,
-.adi_special span:first-child {  
+.adi_type span:first-child {  
   display: inline-block;
   min-width: 80px;
   text-align: center;

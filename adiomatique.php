@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Adiomatique
  * Description: Einfache Terminverwaltung.
- * Version: 3
+ * Version: 4
  * Author: Vitali Homenko
  * Author URI: mailto:vitali.homenko@gmail.com
  * License: GPL-3.0
@@ -38,7 +38,7 @@ const ADI_ACTIVITY_PARENT_PAGE_ID = 553;
 const ADI_ACTIVITY_ARCHIVE_PAGE_ID = 388;
 
 /*
-// live values:
+// live values
 const ADI_NEWS_CAT_ID = 25;
 const ADI_EVENTS_CAT_ID = 26;
 const ADI_EVENTS_ARCHIVE_CAT_ID = 37;
@@ -92,7 +92,7 @@ function adi_display_page( $id, $titlepage_cat_id ) {
 			$output .= $event['date'] . ', ';
 			$output .= $event['time'] . ' Uhr &nbsp;&nbsp;&nbsp;' . $event['link'] . ' &nbsp;&nbsp;&nbsp;';
 		
-			if ( 25 == $event['special'] ) 
+			if ( 25 == $event['type'] ) 
 				$output .= '<i>extern</i>';
 			else if ( 0 < $event['periodicity'] ) 
 				$output .= '<i>regelmäßig</i>';
@@ -127,14 +127,14 @@ function adi_display_post( $id, $adi_event_timestamp ) {
 
 	$periodicity = adi_get_event_periodicity( $adi_event_timestamp, intval( get_post_meta( $id, 'adi_event_periodicity', true ) ) );
 
-	$special = adi_get_event_special( intval( get_post_meta( $id, 'adi_event_special', true ) ) );
+	$type = adi_get_event_type( intval( get_post_meta( $id, 'adi_event_type', true ) ) );
 
 	if ( in_category( ADI_EVENTS_ARCHIVE_CAT_ID, $id ) ) {
-		$special = 'Diese Terminankündigung ist archiviert.';
+		$type = 'Diese Terminankündigung ist archiviert.';
 	}
 
 	return 
-		'<p>' . $special . '</p>' .
+		'<p>' . $type . '</p>' .
 		'<p><strong>Termin:</strong> ' .
 		'am ' . $adi_event_date . ' um ' . $adi_event_time . ' Uhr' . '<i>' . $periodicity . '</i>.' . 
 		$parent_link . '</p>';
@@ -182,32 +182,32 @@ function adi_the_events( $atts ) {
 		}
 
 		
-		$special_style = '';
+		$type_style = '';
 		
-		if ( 100 == $event['special'] ) {
-			$special_style = ' adi_wichtig';
-		} else if ( 75 == $event['special'] ) {
-			$special_style = ' adi_geaendert';
+		if ( 100 == $event['type'] ) {
+			$type_style = ' adi_wichtig';
+		} else if ( 75 == $event['type'] ) {
+			$type_style = ' adi_geaendert';
 		}
 		
-		$output .= "<div class='adi_time" . $special_style . "'><span>" . $event['time'] . "</span><span>" . $event['link'] . "</span></div>";
+		$output .= "<div class='adi_time" . $type_style . "'><span>" . $event['time'] . "</span><span>" . $event['link'] . "</span></div>";
 		
 		
-		$special = '';
-		$special_fname = '';
+		$type = '';
+		$type_fname = '';
 		
-		if ( 25 == $event['special'] ) {
-			$special = "extern";
-			$special_fname = 'external.png';
+		if ( 25 == $event['type'] ) {
+			$type = "extern";
+			$type_fname = 'external.png';
 		} else if ( 0 < $event['periodicity'] ) {
-			$special = "regelmäßig";
-			$special_fname = 'periodic.png';
+			$type = "regelmäßig";
+			$type_fname = 'periodic.png';
 		}
 
-		$special_template = "<img class='" . ( '' !== $special ? 'adi_special_img' : '') . "' src='" . plugins_url() . "/adiomatique/images/" . $special_fname . "' alt='" . $special . "'>";
+		$type_template = "<img class='" . ( '' !== $type ? 'adi_type_img' : '') . "' src='" . plugins_url() . "/adiomatique/images/" . $type_fname . "' alt='" . $type . "'>";
 
-		if ( '' === $special ) 
-			$special_template = '';
+		if ( '' === $type ) 
+			$type_template = '';
 
 		$periodicity = adi_get_event_periodicity( $event['timestamp'], $event['periodicity'] );
 		$periodicity_click = " onclick=\"javascript:alert(' " . $event['title'] . ":\\n" . $periodicity . "')\"";
@@ -218,14 +218,14 @@ function adi_the_events( $atts ) {
 
 		$link = adi_get_titlepage_link( $event['id'] );
 
-		$sub = "<div class='adi_special'><span " . ( "" === $periodicity_click ? "" : "style='cursor:pointer;'" ) . $periodicity_click . ">" . $special_template . "</span><span>" . $link . "</span>";
+		$sub = "<div class='adi_type'><span " . ( "" === $periodicity_click ? "" : "style='cursor:pointer;'" ) . $periodicity_click . ">" . $type_template . "</span><span>" . $link . "</span>";
 
-		if ( 75 == $event['special'] ) 
+		if ( 75 == $event['type'] ) 
 			$sub .= "<span class='adi_geaendert'> Diese Ankündigung wurde geändert!</span>";
 		
 		$sub .= "</div>";
 
-		if ( '' !== $special || ! empty( $link ) || 75 == $event['special'] ) {
+		if ( '' !== $type || ! empty( $link ) || 75 == $event['type'] ) {
 			$output .= $sub;
 		}
 		
