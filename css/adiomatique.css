@@ -1,3 +1,11 @@
+#aditue div div:last-of-type {
+  padding-bottom: 5px;
+  border-bottom: 1px solid rgb(0, 128, 128);
+}
+
+#aditue div div:last-child {
+  margin-bottom: -5px;
+}
 
 #aditue {
   /*border-top: 5px solid rgb(0, 128, 128);
@@ -5,8 +13,8 @@
   border-right: 1px solid rgb(0, 128, 128);
   border-radius: 5px 5px 0px 0px;*/
   margin-bottom: 24px;
+  border: 0px;
 }
-
 
 .adi_date {
   font-weight: 700;
@@ -16,19 +24,17 @@
 }
 
 .adi_time {
-  margin: 0.4em 0;
+  margin: 6px 0;
 }
 
 .adi_type {
   font-size: 0.7em;
-  padding-bottom: 0.4em;
-  border-bottom: 1px solid rgb(0, 128, 128);
 }
 
 .adi_type_img {
-	max-height: 16px;
-	display: block;
-	margin: 0 auto;
+  max-height: 16px;
+  display: block;
+  margin: 0 auto;
 }
 
 .adi_date span:first-child,
@@ -46,4 +52,5 @@
 .adi_geaendert {
 	font-style: italic;
 }
+
 
