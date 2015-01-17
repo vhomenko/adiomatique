@@ -113,7 +113,6 @@ class nextDateTest extends PHPUnit_Framework_TestCase {
 		$this->assertSame( $expect, $result );
 	}
 
-
 	function testBiweeklyOddDateWhichIsToComeInTheCurrentOddWeek() {
 		$event = new DateTime( 'Thu 12-09-2013 12:00' );
 		$today = new DateTime( 'Wed 17-12-2014' );
@@ -202,7 +201,6 @@ class nextDateTest extends PHPUnit_Framework_TestCase {
 		$this->assertSame( $expect, $result );
 	}
 
-
 	function testEveryFirstWeekdayOfTheMonth() {
 		$event = new DateTime( 'Wed 04-09-2013 12:00' );
 		$today = new DateTime( 'Wed 10-12-2014' );
@@ -214,22 +212,7 @@ class nextDateTest extends PHPUnit_Framework_TestCase {
 		$this->assertSame( $expect, $result );
 	}
 
-
-
-	function testMofo() {
-		$event = new DateTime( 'Wed 14-01-2015 14:00' );
-		$today = new DateTime( );
-		$today->setTime( 0, 0 );
-		$expect = 'Wed 28-01-2015 14:00 Europe/Berlin';
-
-		echo PHP_EOL, 'today: ', $today->format( 'D d-m-Y G:i' ), PHP_EOL;
-		echo 'event: ', $event->format( 'D d-m-Y G:i' ), PHP_EOL;
-
-		$ret = adi_next_date( $event, $today, BIWEEKLY );
-		$result = $ret->format( 'D d-m-Y G:i e' );
-
-		$this->assertSame( $expect, $result );
-	}
 }
 
 ?>
+
