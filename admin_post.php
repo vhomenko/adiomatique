@@ -52,6 +52,8 @@ function adi_post_meta_box( $post ) {
 		$adi_event_time = '';
 	} else {
 		$datetime = new DateTime( '@' . $ts );
+		// convert from UTC back to our locale
+		$datetime->setTimezone( new DateTimeZone( 'Europe/Berlin' ) );
 		$adi_event_date = $datetime->format( 'j.m.y' );
 		$adi_event_time = $datetime->format( 'G:i' );
 	}
@@ -220,7 +222,9 @@ function adi_save_meta( $post_id, $post ) {
 	$hour = $b[0];
 	$min = $b[1];
 
-	$stamp = mktime( $hour, $min, 0, $month, $day, $year );
+	$datetime = DateTime::createFromFormat( 'j.m.y G:i', $date . ' ' . $time, new DateTimeZone( 'Europe/Berlin' ) );
+
+	$stamp = $datetime->getTimestamp();
 
 	update_post_meta( $post_id, 'adi_event_timestamp', $stamp );
 	
@@ -230,9 +234,11 @@ function adi_save_meta( $post_id, $post ) {
 	update_post_meta( $post_id, 'adi_event_periodicity', $periodicity );
 	update_post_meta( $post_id, 'adi_event_type', $type );
 
+	//update_post_meta( $post_id, 'done', print_r( $datetime, true ) );
+
 	$t_id = $_POST['adi_event_titlepage_id'];
 	
-	if ( $t_id !== 'eigenstaendig' ) {
+	if ( 'eigenstaendig' !== $t_id ) {
 		$titlepage_id = intval( $t_id );
 
 		update_post_meta( $post_id, 'adi_event_titlepage_id', $titlepage_id );

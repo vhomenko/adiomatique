@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Adiomatique
  * Description: Einfache Terminverwaltung.
- * Version: 4
+ * Version: 5
  * Author: Vitali Homenko
  * Author URI: mailto:vitali.homenko@gmail.com
  * License: GPL-3.0
@@ -29,28 +29,15 @@
  
 defined( 'ABSPATH' ) or die( '' );
 
-require_once( 'adi_util.php' );
-require_once( 'adi_admin_pages.php' );
-require_once( 'adi_admin_posts.php' );
+require_once( 'util.php' );
+require_once( 'admin_page.php' );
+require_once( 'admin_post.php' );
 
-
-const ADI_ACTIVITY_PARENT_PAGE_ID = 553;
-const ADI_ACTIVITY_ARCHIVE_PAGE_ID = 388;
-
-/*
-// live values
-const ADI_NEWS_CAT_ID = 25;
-const ADI_EVENTS_CAT_ID = 26;
-const ADI_EVENTS_ARCHIVE_CAT_ID = 37;
-const ADI_INDEPENDENT_EVENTS_CAT_ID = 33;
-*/
-
-
-// dev values
-const ADI_NEWS_CAT_ID = 2;
-const ADI_EVENTS_CAT_ID = 5;
-const ADI_EVENTS_ARCHIVE_CAT_ID = 6;
-const ADI_INDEPENDENT_EVENTS_CAT_ID = 9;
+if ( defined( 'ADIOMATIQUE_DEV' ) ) {
+	require_once( 'dev_settings.php' );
+} else {
+	require_once( 'settings.php' ); 
+}
 
 
 
@@ -60,10 +47,10 @@ function adi_add_event_data( $content ) {
 	
 	$id = get_the_ID();
 		
-	$adi_event_timestamp = intval( get_post_meta( $id, 'adi_event_timestamp', true ) );
-	
 	$titlepage_cat_id = intval( get_post_meta( $id, 'adi_titlepage_cat_id', true ) );
 
+	$adi_event_timestamp = intval( get_post_meta( $id, 'adi_event_timestamp', true ) );
+	
 	if ( 0 !== $titlepage_cat_id ) {
 		$content = adi_display_page( $id, $titlepage_cat_id ) . $content;
 	} else if ( 0 !== $adi_event_timestamp ) {
@@ -109,13 +96,15 @@ function adi_display_page( $id, $titlepage_cat_id ) {
 
 function adi_display_post( $id, $adi_event_timestamp ) {
 
-	$new_ts = adi_update_event( $id );
+	$new_date = adi_update_event( $id );
 	
-	if ( 0 !== $new_ts ) {
-		$adi_event_timestamp = $new_ts;
+	if ( $new_date ) {
+		$datetime = $new_date;
+	} else {
+		$datetime = new DateTime( '@' . $adi_event_timestamp );
+		$datetime->setTimezone( new DateTimeZone( 'Europe/Berlin' ) );
 	}
-	
-	$datetime = new DateTime( '@' . $adi_event_timestamp );
+
 	$adi_event_date = $datetime->format( 'd.m' );
 	$adi_event_time = $datetime->format( 'H:i' );
 
@@ -125,7 +114,7 @@ function adi_display_post( $id, $adi_event_timestamp ) {
 	
 	if ( empty( $link ) ) $parent_link = '';
 
-	$periodicity = adi_get_event_periodicity( $adi_event_timestamp, intval( get_post_meta( $id, 'adi_event_periodicity', true ) ) );
+	$periodicity = adi_get_event_periodicity( $datetime, intval( get_post_meta( $id, 'adi_event_periodicity', true ) ) );
 
 	$type = adi_get_event_type( intval( get_post_meta( $id, 'adi_event_type', true ) ) );
 
@@ -167,7 +156,6 @@ function adi_the_events( $atts ) {
 	$prev_event = null;
 
 	foreach ( $events as $event ) {
-		// TODO: make prepping of blocks into functions
 
 		$output .= '<div>';
 
@@ -209,7 +197,7 @@ function adi_the_events( $atts ) {
 		if ( '' === $type ) 
 			$type_template = '';
 
-		$periodicity = adi_get_event_periodicity( $event['timestamp'], $event['periodicity'] );
+		$periodicity = $event['periodicity_formatted'];
 		$periodicity_click = " onclick=\"javascript:alert(' " . $event['title'] . ":\\n" . $periodicity . "')\"";
 		
 		if ( 0 == $event['periodicity'] ) {
@@ -238,3 +226,51 @@ function adi_the_events( $atts ) {
 
 	return $output;
 }
+
+
+
+add_filter( 'hidden_meta_boxes', 'adi_hide_meta_boxes', 10, 2 );
+
+function adi_hide_meta_boxes( $hidden, $screen ) {
+	
+	global $post;
+	
+	if ( empty( $post ) ) return $hidden;
+
+	$adi_is_titlepage = get_post_meta( $post->ID, 'adi_is_titlepage', true );
+	$adi_event_timestamp = get_post_meta( $post->ID, 'adi_event_timestamp', true );
+
+	if ( 'post' == $screen->post_type && ! empty( $adi_event_timestamp ) ) {
+		$hidden = array('postexcerpt', 'slugdiv', 'trackbacksdiv', 'commentstatusdiv', 'commentsdiv', 'authordiv', 'revisionsdiv', 'categorydiv', 'postcustom');
+	} else if ( 'page' == $screen->post_type && ! empty( $adi_is_titlepage ) ) {
+		$hidden = array('postexcerpt', 'slugdiv', 'trackbacksdiv', 'commentstatusdiv', 'commentsdiv', 'authordiv', 'revisionsdiv', 'pageparentdiv', 'postcustom');
+	}
+	
+	return $hidden;
+	
+}
+
+
+
+add_filter( 'the_generator', 'wpgenny_remove_version' );
+
+function wpgenny_remove_version() {
+
+	return '';
+
+}
+
+
+
+add_filter( 'pre_get_posts', 'filterRSSQuery' );
+
+function filterRSSQuery( $query ) {
+
+   	if ( $query->is_feed ) {
+		$query->set( 'cat', ADI_NEWS_CAT_ID );
+ 	}
+
+	return $query;
+
+}
+

@@ -17,28 +17,36 @@ function adi_get_events( $events_cat_id = ADI_EVENTS_CAT_ID, $limit = false ) {
 	$event_posts = get_posts( $args );
 	
 	$events = array();
-
-	$today_ts = mktime( 0, 0, 0, date( 'm' ), date( 'j' ), date( 'y' ) );
+	
+	$today = new DateTime();
+	$today->setTime( 0, 0 );
 	
 	if ( false !== $limit ) {
-		$upper_limit_ts = $today_ts + 60 * 60 * 24 * $limit;
+		$upper_day_limit = clone $today;
+		$upper_day_limit->modify( $limit . ' days' );
 	}
 	
 	foreach ( $event_posts as $post ) {
 		
 		$id = $post->ID;
 	
-		adi_update_event( $id );
-	
-		$event_ts = intval( get_post_meta( $id, 'adi_event_timestamp', true ) );
+		$new_date = adi_update_event( $id );
+
+		if ( $new_date ) {
+			$datetime = $new_date;
+		} else {
+			$event_ts = intval( get_post_meta( $id, 'adi_event_timestamp', true ) );
+			$datetime = new DateTime( '@' . $event_ts );
+			$datetime->setTimezone( new DateTimeZone( 'Europe/Berlin' ) );
+		}
 	
 		// sort out passed non-periodic events
-		if ( $event_ts < $today_ts ) continue;
+		if ( $datetime < $today ) continue;
 
 		$event_type = intval( get_post_meta( $id, 'adi_event_type', true ) );
 
 		// sort out dates too far in the future
-		if ( false !== $limit && $event_ts > $upper_limit_ts ) {
+		if ( false !== $limit && $datetime > $upper_day_limit ) {
 			// the important dates are kept
 			if ( 100 !== $event_type ) continue;
 		}
@@ -46,17 +54,20 @@ function adi_get_events( $events_cat_id = ADI_EVENTS_CAT_ID, $limit = false ) {
 		// the inactive events are filtered
 		if ( 1 === $event_type ) continue;
 
-		$datetime = new DateTime( '@' . $event_ts );
-		
+		$periodicity = intval( get_post_meta( $id, 'adi_event_periodicity', true ) );
+		$periodicity_formatted = adi_get_event_periodicity( $datetime, $periodicity );
+
+
 		$event = array(
 					'id' => $id,
-					'timestamp' => $event_ts,
+					'timestamp' => $datetime->getTimestamp(),
 					'time' => $datetime->format( 'H:i' ),
 					'date' => $datetime->format( 'd.m' ),
 					'weekday' => $datetime->format( 'l' ),
 					'weeknum' => intval( $datetime->format( 'W' ) ),
 					'type' => $event_type,
-					'periodicity' => intval( get_post_meta( $id, 'adi_event_periodicity', true ) ),
+					'periodicity' => $periodicity,
+					'periodicity_formatted' => $periodicity_formatted,
 					'titlepage_id' => intval( get_post_meta( $id, 'adi_event_titlepage_id', true ) ),
 					'title' => htmlspecialchars( $post->post_title, ENT_QUOTES ),
 					'link' => '<a href="' . wp_get_shortlink( $id ) . '">' . $post->post_title . '</a>'
@@ -76,40 +87,69 @@ function adi_get_events( $events_cat_id = ADI_EVENTS_CAT_ID, $limit = false ) {
 
 function adi_update_event( $id ) {
 
-	$event_ts = intval( get_post_meta( $id, 'adi_event_timestamp', true ) );	
 	$periodicity = intval( get_post_meta( $id, 'adi_event_periodicity', true ) );
-	
-	/////////
-	//$migrate = get_post_meta( $id, 'adi_event_special', true );
-	//update_post_meta( $id, 'adi_event_type', $migrate );
-	/////////
-	
-	$today_ts = mktime( 0, 0, 0, date( 'm' ), date( 'j' ), date( 'y' ) );
 
-	if ( $event_ts < $today_ts ) {
-		if ( 0 == $periodicity ) {
+	$event_ts = intval( get_post_meta( $id, 'adi_event_timestamp', true ) );
+
+
+		
+		
+		
+		///////////////
+		// converting CET stamps to UTC
+		
+		$is_utc = get_post_meta( $id, 'adi_is_utc', true );
+		
+		if ( 0 < $periodicity && empty( $is_utc ) ) {
+			$datetime = new DateTime( '@' . $event_ts );
+//			$datetime->setTimezone( new DateTimeZone( 'Europe/Berlin' ) );
+			$datetime->modify( '-1 hour' );
+
+			update_post_meta( $id, 'adi_event_timestamp', $datetime->getTimestamp() );
+			add_post_meta( $id, 'adi_is_utc', 'true' );
+
+			$event_ts = intval( get_post_meta( $id, 'adi_event_timestamp', true ) );
+		}
+
+
+
+
+
+	$event = new DateTime( '@' . $event_ts );
+	$event->setTimezone( new DateTimeZone( 'Europe/Berlin' ) );
+
+	$today = new DateTime();
+	$event->setTimezone( new DateTimeZone( 'Europe/Berlin' ) );
+	$today->setTime( 0, 0 );
+
+	if ( $event < $today ) {
+		if ( 0 === $periodicity ) {
 		
 			// archivate old non periodic events
 			wp_set_post_terms( $id, array( ADI_EVENTS_ARCHIVE_CAT_ID ), 'category' );
 
 		} else {
-			$new_ts = adi_next_date( $event_ts, $today_ts, $periodicity );
-			
+			$nd = adi_next_date( $event, $today, $periodicity );
+	
+			$new_ts = $nd->getTimestamp();
+				
 			update_post_meta( $id, 'adi_event_timestamp', $new_ts );
 			
-			return $new_ts;
+			return $nd;
 		}
 	}
-	
-	return 0;
 	
 }
 
 
 
-function adi_next_date( $event_ts, $today_ts, $periodicity ) {
+function adi_next_date( $datetime, $today, $periodicity ) {
 
-	$datetime = new DateTime( '@' . $event_ts );
+	$today->setTime( 0, 0 );
+
+	if ( $datetime >= $today ) return false;
+
+	$next_date = clone $today;
 
 	$adi_event_weeknum = intval( $datetime->format( 'W' ) );
 	$adi_event_weekday = $datetime->format( 'l' );
@@ -119,71 +159,68 @@ function adi_next_date( $event_ts, $today_ts, $periodicity ) {
 	$week_index = adi_get_week_index( $day_of_month );
 	$week_index_word = adi_get_week_index( $day_of_month, true );
 
-	$event_weekday_index = intval( $datetime->format( 'N' ) );
-	$current_weekday_index = intval( date( 'N' ) );
+	$event_weekday = intval( $datetime->format( 'N' ) );
+	$current_weekday = intval( $today->format( 'N' ) );
 
-	$d = 0;
+	$t = explode( ':', $datetime->format( 'H:i' ) );
+	$hour = intval( $t[0] );
+	$min = intval( $t[1] );
 
-// ! strtotime: if todays is Fr and you want this Tu, you'll get next Tuesday
-	
-	if ( $event_ts < $today_ts ) {
-
-		if ( 1 == $periodicity ) {
-			// weekly
-
-			$d = strtotime( $adi_event_weekday );
+	if ( 0 === $periodicity ) {
+		return false;
+	} else if ( 1 === $periodicity ) {
+		// weekly
+		// ! strtotime/modify: if todays is Fr and you want this Tu, you'll get next Tuesday
+		$next_date->modify( $adi_event_weekday );
+	} else if ( 2 === $periodicity ) {
+		// biweekly
+		$is_event_weeknum_even = ( 0 == $adi_event_weeknum % 2 );
+		$current_weeknum = $today->format( 'W' );
+		$is_current_weeknum_even = ( 0 == $current_weeknum % 2 );
+		$both_are_on_even_weeks = $is_current_weeknum_even === $is_event_weeknum_even;
 		
-		} else if ( 2 == $periodicity ) {
-			// biweekly
+		$event_day_passed_in_current_week = $event_weekday < $current_weekday;
+		$event_day_to_come_in_current_week = $event_weekday > $current_weekday;
 
-			$is_event_weeknum_even = ( 0 == $adi_event_weeknum % 2 );
-			
-			$current_weeknum = date( 'W' );
-			$is_current_weeknum_even = ( 0 == $current_weeknum % 2 );
+		$next_date->modify( 'this ' . $adi_event_weekday );
 
-			if ( $event_weekday_index < $current_weekday_index ) {
-				if ( $is_current_weeknum_even == $is_event_weeknum_even ) {
-					$d = strtotime( '+1 week ' . $adi_event_weekday );
-				} else {
-					$d = strtotime( $adi_event_weekday );
-				}
-			} else if ( $event_weekday_index == $current_weekday_index ) {
-				if ( $is_current_weeknum_even == $is_event_weeknum_even ) {
-					$d = strtotime( $adi_event_weekday );
-				} else {
-					$d = strtotime( '+1 week ' . $adi_event_weekday );
-				}
-			} else if ( $event_weekday_index > $current_weekday_index ) {
-				if ( $is_current_weeknum_even == $is_event_weeknum_even ) {
-					$d = strtotime( $adi_event_weekday );
-				} else {
-					$d = strtotime( '+1 week ' . $adi_event_weekday );
-				}
+		if ( $event_day_passed_in_current_week ) {
+			if ( $both_are_on_even_weeks ) {
+				$next_date->modify( '+1 week' );
 			}
-
-		} else if ( 4 == $periodicity ) {
-			// monthly
-
-			if ( $week_index === false ) {
-				echo '<p style="color:#900">Im Februar wird dieser monatlicher Termin wohl weg fallen, was?</p>';
+		} else {
+			if ( ! $both_are_on_even_weeks ) {
+				$next_date->modify( '+1 week' );
 			}
-			
-			$d = strtotime( $week_index_word . ' ' . $adi_event_weekday . ' of this month' );
-
-			if ( $d < $today_ts ) {
-				$d = strtotime( $week_index_word . ' ' . $adi_event_weekday . ' of next month' );
-			}
-
 		}
 
-		$hour_in_sec = 60 * 60 * intval( $datetime->format( 'G' ) );
-		$min_in_sec = 60 * intval( $datetime->format( 'i' ) );
+	} else if ( 4 === $periodicity ) {
+		// monthly
+		if ( $week_index === false ) {
+			echo '<p style="color:#900">Im Februar wird dieser monatlicher Termin wohl weg fallen, was?</p>';
+		}
 		
-		$t = $hour_in_sec + $min_in_sec;
+		$next_date->modify( $week_index_word . ' ' . $adi_event_weekday . ' of this month' );
 
-		return $d + $t;
+		if ( $next_date < $today ) {
+			$next_date->modify( $week_index_word . ' ' . $adi_event_weekday . ' of next month' );
+		}
+
 	}
 
+	$next_date->setTime( $hour, $min );
+
+/*	$test1 = clone $datetime;
+
+	$d = $datetime->diff( $next_date );
+	if ( $d ) {
+		$output = date_default_timezone_get() . '<br><br>';
+		$output .= 'orig: ' . print_r( $test1, true ) . '<br><br>';
+		$output .= 'new: ' . print_r( $next_date, true ) . '<br><br>';
+		die( $output .'|'. $d->format('%d.%m.%y %h:%i') );
+	}
+*/
+	return $next_date;
 }
 
 
@@ -218,11 +255,9 @@ function adi_get_week_index( $day_of_month, $return_word = false ) {
 }
 
 
-function adi_get_event_periodicity( $ts, $periodicity ) {
+function adi_get_event_periodicity( $dt, $periodicity ) {
 
-	$datetime = new DateTime( '@' . $ts );
-		
-	$weekday = adi_get_weekday_de( $datetime->format( 'l' ) );
+	$weekday = adi_get_weekday_de( $dt->format( 'l' ) );
 
 	if ( 0 === $periodicity ) {
 	
@@ -234,7 +269,7 @@ function adi_get_event_periodicity( $ts, $periodicity ) {
 	
 	} else if ( 2 === $periodicity ) {
 	
-		$weeknum = intval( $datetime->format( 'W' ) );
+		$weeknum = intval( $dt->format( 'W' ) );
 	
 		$p = ' jede ';
 	
@@ -246,7 +281,7 @@ function adi_get_event_periodicity( $ts, $periodicity ) {
 	
 	} else if ( 4 === $periodicity ) {
 
-		$day_of_month = $datetime->format( 'j' );
+		$day_of_month = $dt->format( 'j' );
 
 		return ' jeden ' . adi_get_week_index( $day_of_month ) . '. ' . $weekday . ' des Monats';
 
@@ -339,51 +374,4 @@ function adi_page_is_in_archive( $id ) {
 }
 
 
-
-add_filter( 'hidden_meta_boxes', 'adi_hide_meta_boxes', 10, 2 );
-
-function adi_hide_meta_boxes( $hidden, $screen ) {
-	
-	//if ( $screen->in_admin() ) return $hidden;
-	
-	global $post;
-	
-	if ( empty( $post ) ) return $hidden;
-
-	$adi_is_titlepage = get_post_meta( $post->ID, 'adi_is_titlepage', true );
-	$adi_event_timestamp = get_post_meta( $post->ID, 'adi_event_timestamp', true );
-
-	if ( 'post' == $screen->post_type && ! empty( $adi_event_timestamp ) ) {
-		$hidden = array('postexcerpt', 'slugdiv', 'trackbacksdiv', 'commentstatusdiv', 'commentsdiv', 'authordiv', 'revisionsdiv', 'categorydiv', 'postcustom');
-	} else if ( 'page' == $screen->post_type && ! empty( $adi_is_titlepage ) ) {
-		$hidden = array('postexcerpt', 'slugdiv', 'trackbacksdiv', 'commentstatusdiv', 'commentsdiv', 'authordiv', 'revisionsdiv', 'pageparentdiv', 'postcustom');
-	}
-	
-	return $hidden;
-	
-}
-
-
-
-add_filter( 'the_generator', 'wpgenny_remove_version' );
-
-function wpgenny_remove_version() {
-
-	return '';
-
-}
-
-
-
-add_filter( 'pre_get_posts', 'filterRSSQuery' );
-
-function filterRSSQuery( $query ) {
-
-   	if ( $query->is_feed ) {
-		$query->set( 'cat', ADI_NEWS_CAT_ID );
- 	}
-
-	return $query;
-
-}
 
