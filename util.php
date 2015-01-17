@@ -91,30 +91,6 @@ function adi_update_event( $id ) {
 
 	$event_ts = intval( get_post_meta( $id, 'adi_event_timestamp', true ) );
 
-
-		
-		
-		
-		///////////////
-		// converting CET stamps to UTC
-		
-		$is_utc = get_post_meta( $id, 'adi_is_utc', true );
-		
-		if ( 0 < $periodicity && empty( $is_utc ) ) {
-			$datetime = new DateTime( '@' . $event_ts );
-//			$datetime->setTimezone( new DateTimeZone( 'Europe/Berlin' ) );
-			$datetime->modify( '-1 hour' );
-
-			update_post_meta( $id, 'adi_event_timestamp', $datetime->getTimestamp() );
-			add_post_meta( $id, 'adi_is_utc', 'true' );
-
-			$event_ts = intval( get_post_meta( $id, 'adi_event_timestamp', true ) );
-		}
-
-
-
-
-
 	$event = new DateTime( '@' . $event_ts );
 	$event->setTimezone( new DateTimeZone( 'Europe/Berlin' ) );
 
