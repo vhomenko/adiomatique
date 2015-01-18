@@ -67,10 +67,10 @@ function adi_post_meta_box( $post ) {
 
 <form method="post">
 	<p>
-		<input type="text" name="adi_event_date" id="adi_event_date" value="<?php echo $adi_event_date ?>" size="13" />
-		<input type="text" name="adi_event_time" id="adi_event_time" value="<?php echo $adi_event_time ?>" size="6" />
+		<input style="text-align:center;" type="text" name="adi_event_date" id="adi_event_date" value="<?php echo $adi_event_date ?>" size="8" />
+		<input style="text-align:center;" type="text" name="adi_event_time" id="adi_event_time" value="<?php echo $adi_event_time ?>" size="5" />
 		<br>
-		Die Terminseingaben werden gespeichert, wenn es eine Uhrzeit eingetragen wird!
+		<em>Die Terminseingaben werden gespeichert, wenn es eine <strong>Uhrzeit</strong> eingetragen wird!</em>
 	</p>
 	<hr>
 	<p>
@@ -105,8 +105,6 @@ function adi_post_meta_box( $post ) {
 		?>
 
 		</select>
-		<br>
-		Die Kategorie wird beim Speichern automatisch aktualisiert.
 	</p>
 	<hr>
 	<p>
