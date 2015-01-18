@@ -127,12 +127,13 @@ function adi_display_post( $id, $adi_event_timestamp ) {
 	$type = adi_get_event_type( intval( get_post_meta( $id, 'adi_event_type', true ) ) );
 
 	if ( in_category( ADI_EVENTS_ARCHIVE_CAT_ID, $id ) ) {
-		$type = 'Diese Terminankündigung ist archiviert.';
+		$type = 'Archivierter';
+	} else {
+		$type .= 'er';
 	}
 
 	return 
-		'<p>' . $type . '</p>' .
-		'<p><strong>Termin:</strong> ' .
+		'<p><strong>' . $type . ' Termin:</strong> ' .
 		'am ' . $adi_event_date . ' um ' . $adi_event_time . ' Uhr' . '<i>' . $periodicity . '</i>.' . 
 		$parent_link . '</p>';
 

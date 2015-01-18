@@ -330,7 +330,7 @@ function adi_get_event_type( $type ) {
 
 	if ( 1 === $type ) return 'Inaktiv';
 	else if ( 25 === $type ) return 'Extern';
-	else if ( 100 === $type ) return 'Wichtig!';
+	else if ( 100 === $type ) return 'Wichtig';
 	else if ( 75 === $type ) return 'Geändert';
 
 }
