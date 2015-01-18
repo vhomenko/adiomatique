@@ -253,6 +253,39 @@ class nextDateTest extends PHPUnit_Framework_TestCase {
 
 		$this->assertFalse( $result );
 	}
+
+	function testDateFromSummertime() {
+		$event = new DateTime( 'Fri 23-10-2015 12:00' );
+		$today = new DateTime( 'Mon 26-10-2015' );
+		$expect = 'Fri 30-10-2015 12:00';
+
+		$ret = adi_next_date( $event, $today, WEEKLY );
+		$result = $ret->format( 'D d-m-Y G:i' );
+
+		$this->assertSame( $expect, $result );
+	}
+
+	function testDateToSummertime() {
+		$event = new DateTime( 'Mon 23-03-2015 18:00' );
+		$today = new DateTime( 'Sun 29-03-2015' );
+		$expect = 'Mon 30-03-2015 18:00';
+
+		$ret = adi_next_date( $event, $today, WEEKLY );
+		$result = $ret->format( 'D d-m-Y G:i' );
+
+		$this->assertSame( $expect, $result );
+	}
+
+	function testLeapDate() {
+		$event = new DateTime( 'Mon 15-02-2016 22:00' );
+		$today = new DateTime( 'Wed 24-02-2016' );
+		$expect = 'Mon 29-02-2016 22:00';
+
+		$ret = adi_next_date( $event, $today, BIWEEKLY );
+		$result = $ret->format( 'D d-m-Y G:i' );
+
+		$this->assertSame( $expect, $result );
+	}
 }
 
 ?>
