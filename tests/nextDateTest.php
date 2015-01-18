@@ -212,6 +212,47 @@ class nextDateTest extends PHPUnit_Framework_TestCase {
 		$this->assertSame( $expect, $result );
 	}
 
+	function testEverySecondWeekdayOfTheMonth() {
+		$event = new DateTime( 'Wed 11-09-2013 12:00' );
+		$today = new DateTime( 'Wed 10-12-2014' );
+		$expect = '10-12-2014 12:00';
+
+		$ret = adi_next_date( $event, $today, MONTHLY );
+		$result = $ret->format( 'd-m-Y G:i' );
+
+		$this->assertSame( $expect, $result );
+	}
+
+	function testEveryThirdWeekdayOfTheMonth() {
+		$event = new DateTime( 'Wed 18-09-2013 12:00' );
+		$today = new DateTime( 'Wed 10-12-2014' );
+		$expect = '17-12-2014 12:00';
+
+		$ret = adi_next_date( $event, $today, MONTHLY );
+		$result = $ret->format( 'd-m-Y G:i' );
+
+		$this->assertSame( $expect, $result );
+	}
+
+	function testEveryFourthWeekdayOfTheMonth() {
+		$event = new DateTime( 'Wed 25-09-2013 12:00' );
+		$today = new DateTime( 'Wed 10-12-2014' );
+		$expect = '24-12-2014 12:00';
+
+		$ret = adi_next_date( $event, $today, MONTHLY );
+		$result = $ret->format( 'd-m-Y G:i' );
+
+		$this->assertSame( $expect, $result );
+	}
+
+	function testEveryFifthWeekdayOfTheMonth() {
+		$event = new DateTime( 'Sun 29-09-2013 12:00' );
+		$today = new DateTime( 'Wed 10-12-2014' );
+
+		$result = adi_next_date( $event, $today, MONTHLY );
+
+		$this->assertFalse( $result );
+	}
 }
 
 ?>
