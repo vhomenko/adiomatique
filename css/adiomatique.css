@@ -39,18 +39,18 @@
 
 .adi_date span:first-child,
 .adi_time span:first-child,
-.adi_type span:first-child {  
+.adi_type span:first-child {
   display: inline-block;
   min-width: 80px;
   text-align: center;
 }
 
 .adi_wichtig {
-	font-weight: 700;
+  font-weight: 700;
 }
 
 .adi_geaendert {
-	font-style: italic;
+  font-style: italic;
 }
 
 
