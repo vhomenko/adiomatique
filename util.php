@@ -173,7 +173,7 @@ function adi_next_date( $datetime, $today, $periodicity ) {
 		$week_index_word = adi_get_week_index( $day_of_month, true );
 
 		if ( false === $week_index ) {
-			echo '<p style="color:#900">Im Februar wird dieser monatlicher Termin wohl weg fallen, was?</p>';
+			//echo '<p style="color:#900">Im Februar wird dieser monatlicher Termin wohl weg fallen, was?</p>';
 			return false;
 		}
 		
