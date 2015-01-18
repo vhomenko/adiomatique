@@ -29,9 +29,17 @@
  
 defined( 'ABSPATH' ) or die( '' );
 
+date_default_timezone_set( 'Europe/Berlin' );
+
 require_once( 'util.php' );
 require_once( 'admin_page.php' );
 require_once( 'admin_post.php' );
+
+const ADI_ACTIVITY_PARENT_PAGE_ID = 553;
+const ADI_ACTIVITY_ARCHIVE_PAGE_ID = 388;
+const ADI_START_PAGE_ID = 17;
+const ADI_EVENTS_PAGE_ID = 1563;
+
 
 if ( defined( 'ADIOMATIQUE_DEV' ) ) {
 	require_once( 'dev_settings.php' );
