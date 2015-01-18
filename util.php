@@ -130,17 +130,11 @@ function adi_next_date( $datetime, $today, $periodicity ) {
 	$adi_event_weeknum = intval( $datetime->format( 'W' ) );
 	$adi_event_weekday = $datetime->format( 'l' );
 
-	$day_of_month = $datetime->format( 'j' );
-
-	$week_index = adi_get_week_index( $day_of_month );
-	$week_index_word = adi_get_week_index( $day_of_month, true );
-
 	$event_weekday = intval( $datetime->format( 'N' ) );
 	$current_weekday = intval( $today->format( 'N' ) );
 
-	$t = explode( ':', $datetime->format( 'H:i' ) );
-	$hour = intval( $t[0] );
-	$min = intval( $t[1] );
+	$hour = intval( $datetime->format( 'H' ) );
+	$min = intval( $datetime->format( 'i' ) );
 
 	if ( 0 === $periodicity ) {
 		return false;
@@ -172,6 +166,12 @@ function adi_next_date( $datetime, $today, $periodicity ) {
 
 	} else if ( 4 === $periodicity ) {
 		// monthly
+
+		$day_of_month = $datetime->format( 'j' );
+
+		$week_index = adi_get_week_index( $day_of_month );
+		$week_index_word = adi_get_week_index( $day_of_month, true );
+
 		if ( false === $week_index ) {
 			echo '<p style="color:#900">Im Februar wird dieser monatlicher Termin wohl weg fallen, was?</p>';
 			return false;
