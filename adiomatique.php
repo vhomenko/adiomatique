@@ -128,7 +128,7 @@ function adi_display_post( $id, $adi_event_timestamp ) {
 
 	if ( in_category( ADI_EVENTS_ARCHIVE_CAT_ID, $id ) ) {
 		$type = 'Archivierter';
-	} else {
+	} else if ( $type ) {
 		$type .= 'er';
 	}
 
