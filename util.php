@@ -172,8 +172,9 @@ function adi_next_date( $datetime, $today, $periodicity ) {
 
 	} else if ( 4 === $periodicity ) {
 		// monthly
-		if ( $week_index === false ) {
+		if ( false === $week_index ) {
 			echo '<p style="color:#900">Im Februar wird dieser monatlicher Termin wohl weg fallen, was?</p>';
+			return false;
 		}
 		
 		$next_date->modify( $week_index_word . ' ' . $adi_event_weekday . ' of this month' );
