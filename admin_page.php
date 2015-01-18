@@ -32,7 +32,7 @@ function adi_add_page_meta_boxes() {
 
 
 function adi_page_meta_box( $post ) {
- 
+
 	if ( adi_page_is_in_archive( $post->ID ) ) {
 		echo 'Diese Aktivität wurde archiviert.';
 		return;
@@ -101,7 +101,7 @@ function adi_page_meta_box( $post ) {
 		<p>Wenn du das Kästchen abwählst, wird diese Seite der Aktivitäten-Archiv Seite untergeordnet und die jeweiligen Veranstaltungsbeiträge ins Veranstaltungsarchiv verschoben.</p>
 		<p>Die Pflege des Navigationsmenüs (bzw. Inhalt der Aktivitäten-Archiv Seite) bleibt deine Aufgabe.</p>
 
-<?php 
+<?php
 	wp_nonce_field( basename( __FILE__ ), 'adi_page_nonce' );
 	echo '</form>';
 	
@@ -158,3 +158,4 @@ function adi_save_titlepage_meta( $page_id, $post ) {
 	update_post_meta( $page_id, 'adi_titlepage_title', $cur_title );
 
 }
+
