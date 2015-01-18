@@ -110,7 +110,7 @@ function adi_page_meta_box( $post ) {
 	<?php if ( $adi_is_titlepage ) : ?>
 
 		<input type="checkbox" id="adi_do_archivate" name="adi_do_archivate">
-		<label for="adi_do_archivate"><strong>Archivieren.</strong> <em>Titelseite sowie die jeweiligen Veranstaltungen.</em></label>
+		<label for="adi_do_archivate"><strong>Archivieren.</strong> <em>Titelseite sowie die jeweiligen Veranstaltungen</em></label>
 
 	<?php else : ?>
 	
