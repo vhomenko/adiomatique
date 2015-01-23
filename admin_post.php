@@ -70,7 +70,7 @@ function adi_post_meta_box( $post ) {
 		<input style="text-align:center;" type="text" name="adi_event_date" id="adi_event_date" value="<?php echo $adi_event_date ?>" size="8" />
 		<input style="text-align:center;" type="text" name="adi_event_time" id="adi_event_time" value="<?php echo $adi_event_time ?>" size="5" />
 		<br>
-		<em>Die Terminseingaben werden gespeichert, wenn es eine <strong>Uhrzeit</strong> eingetragen wird!</em>
+		<em>Die Termineingaben werden gespeichert, wenn eine <strong>Uhrzeit</strong> eingetragen wird!</em>
 	</p>
 	<hr>
 	<p>
