@@ -58,7 +58,7 @@ function adi_post_meta_box( $post ) {
 		$adi_event_time = $datetime->format( 'G:i' );
 	}
 	
-	$adi_event_period = get_post_meta( $post->ID, 'adi_event_periodicity', true );
+	$adi_event_periodicity = get_post_meta( $post->ID, 'adi_event_periodicity', true );
 	$adi_event_type = get_post_meta( $post->ID, 'adi_event_type', true );
 
 	$adi_event_titlepage_id = intval( get_post_meta( $post->ID, 'adi_event_titlepage_id', true ) );
@@ -69,18 +69,17 @@ function adi_post_meta_box( $post ) {
 	<p>
 		<input style="text-align:center;" type="text" name="adi_event_date" id="adi_event_date" value="<?php echo $adi_event_date ?>" size="8" />
 		<input style="text-align:center;" type="text" name="adi_event_time" id="adi_event_time" value="<?php echo $adi_event_time ?>" size="5" />
+		<select id="adi_event_periodicity" name="adi_event_periodicity">
+			<option value="0" <?php selected( $adi_event_periodicity, 0 ); ?>>einmalig</option>
+			<option value="1" <?php selected( $adi_event_periodicity, 1 ); ?>>wöchentlich</option>
+			<option value="2" <?php selected( $adi_event_periodicity, 2 ); ?>>zweiwöchentlich</option>
+			<option value="4" <?php selected( $adi_event_periodicity, 4 ); ?>>monatlich</option>
+		</select>
 		<br>
 		<em>Die Termineingaben werden gespeichert, wenn eine <strong>Uhrzeit</strong> eingetragen wird!</em>
 	</p>
 	<hr>
 	<p>
-		<select id="adi_event_periodicity" name="adi_event_periodicity">
-			<option value="0" <?php selected( $adi_event_period, 0 ); ?>>einmalig</option>
-			<option value="1" <?php selected( $adi_event_period, 1 ); ?>>wöchentlich</option>
-			<option value="2" <?php selected( $adi_event_period, 2 ); ?>>zweiwöchentlich</option>
-			<option value="4" <?php selected( $adi_event_period, 4 ); ?>>monatlich</option>
-		</select>
-
 		<select id="adi_event_titlepage_id" name="adi_event_titlepage_id">
 			<option value="eigenstaendig" <?php selected( $adi_event_titlepage_id, 0 ); ?>>eigenständig</option>
 		<?php
@@ -89,8 +88,7 @@ function adi_post_meta_box( $post ) {
 				'hierarchical' => 0,
 				'parent' => ADI_ACTIVITY_PARENT_PAGE_ID,
 				'post_type' => 'page',
-				'post_status' => 'publish'
-			); 
+				'post_status' => 'publish' ); 
 
 			$pages = get_pages( $args );
 
@@ -103,23 +101,12 @@ function adi_post_meta_box( $post ) {
 			}
 
 		?>
-
 		</select>
 	</p>
 	<hr>
 	<p>
-		<select id="adi_event_type" name="adi_event_type">
-			<option value="50" <?php if ( empty( $adi_event_type ) ) $adi_event_type = 50; selected( $adi_event_type, 50 ); ?> >normal</option>
-			<option value="100" <?php selected( $adi_event_type, 100 ); ?> >wichtig</option>
-			<option value="75" <?php selected( $adi_event_type, 75 ); ?> >geändert</option>
-			<option value="25" <?php selected( $adi_event_type, 25 ); ?> >extern</option>
-			<option value="1" <?php selected( $adi_event_type, 1 ); ?> >inaktiv</option>
-		</select>
-
-		<a class="delete" href="javascript:;" id="adi_event_eraser" onclick="window.ADI.resetEvent()">zurücksetzen</a>
-
+		<a class="delete" href="javascript:;" id="adi_event_eraser" onclick="window.ADI.resetEventData()">Alle Termineingaben zurücksetzen</a>
 		<?php wp_nonce_field( basename( __FILE__ ), 'adi_post_nonce' ); ?>
-
 	</p>
 </form>
 
@@ -156,7 +143,7 @@ function adi_post_meta_box( $post ) {
 			});
 			jQuery( "#adi_event_date" ).val( cur );
 		}
-		window.ADI.resetEvent = function () {
+		window.ADI.resetEventData = function () {
 			jQuery( "#adi_event_time" ).val("");
 
 			var cur = jQuery.datepicker.formatDate(dateFormat, new Date(), {
@@ -169,7 +156,6 @@ function adi_post_meta_box( $post ) {
 
 			document.getElementById( 'adi_event_periodicity' ).value = '0';
 			document.getElementById( 'adi_event_titlepage_id' ).value = '<?php echo "eigenstaendig"; ?>';
-			document.getElementById( 'adi_event_type' ).value = '50';
 		}
 		jQuery('#adi_event_time').timepicker({
 			defaultTime: '19:00',
@@ -231,8 +217,6 @@ function adi_save_meta( $post_id, $post ) {
 
 	update_post_meta( $post_id, 'adi_event_periodicity', $periodicity );
 	update_post_meta( $post_id, 'adi_event_type', $type );
-
-	//update_post_meta( $post_id, 'done', print_r( $datetime, true ) );
 
 	$t_id = $_POST['adi_event_titlepage_id'];
 	
