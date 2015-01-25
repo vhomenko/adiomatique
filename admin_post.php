@@ -81,7 +81,7 @@ function adi_post_meta_box( $post ) {
 	</p>
 	<hr>
 	<p>
-		<select id="adi_event_titlepage_id" name="adi_event_titlepage_id">
+		<select style="vertical_align:top;" id="adi_event_titlepage_id" name="adi_event_titlepage_id">
 			<option value="eigenstaendig" <?php selected( $adi_event_titlepage_id, 0 ); ?>>eigenständig</option>
 		<?php
 
