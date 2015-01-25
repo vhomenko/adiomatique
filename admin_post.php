@@ -8,9 +8,9 @@ add_action( 'load-post.php', 'adi_post_meta_boxes_setup' );
 add_action( 'load-post-new.php', 'adi_post_meta_boxes_setup' );
 
 function adi_post_meta_boxes_setup() {
-	
+
 	add_action( 'add_meta_boxes', 'adi_add_post_meta_boxes' );
-	
+
 	add_action( 'save_post', 'adi_save_meta', 10, 2 );
 
 	wp_enqueue_script( 'jquery-ui-core' );
@@ -39,14 +39,14 @@ function adi_add_post_meta_boxes() {
 
 
 function adi_post_meta_box( $post ) { 
-	
+
 	if ( in_category( ADI_EVENTS_ARCHIVE_CAT_ID, $post->ID ) ) {
 		echo 'Diese Terminankündigung ist archiviert.';
 		return;
 	}
 
 	$ts = get_post_meta( $post->ID, 'adi_event_timestamp', true );
-	
+
 	if ( empty( $ts ) ) {
 		$adi_event_date = date( 'j.m.y' );
 		$adi_event_time = '';
@@ -57,12 +57,12 @@ function adi_post_meta_box( $post ) {
 		$adi_event_date = $datetime->format( 'j.m.y' );
 		$adi_event_time = $datetime->format( 'G:i' );
 	}
-	
+
 	$adi_event_periodicity = get_post_meta( $post->ID, 'adi_event_periodicity', true );
 	$adi_event_location = sanitize_text_field( get_post_meta( $post->ID, 'adi_event_location', true ) );
 
 	$adi_event_titlepage_id = intval( get_post_meta( $post->ID, 'adi_event_titlepage_id', true ) );
-	
+
 ?>
 
 <form method="post">
@@ -117,7 +117,7 @@ function adi_post_meta_box( $post ) {
 <script>
 	jQuery(document).ready(function(){
 		window.ADI = window.ADI || {};
-		
+
 		var dateFormat = "d.mm.y";
 		var monthNames = ['Januar','Februar','März','April','Mai','Juni',
 		'Juli','August','September','Oktober','November','Dezember'];
@@ -156,7 +156,7 @@ function adi_post_meta_box( $post ) {
 				dayNames: dayNames,
 				dayNamesShort: dayNamesShort
 			});
-			jQuery( "#adi_event_date" ).val( cur );	
+			jQuery( "#adi_event_date" ).val( cur );
 
 			document.getElementById( 'adi_event_periodicity' ).value = '0';
 			document.getElementById( 'adi_event_location' ).value = '';
@@ -190,7 +190,7 @@ function adi_save_meta( $post_id, $post ) {
 	if ( ! current_user_can( 'edit_post', $post_id ) ) return;
 
 	$time = $_POST['adi_event_time'];
-	
+
 	if ( empty( $time ) ) {
 		delete_post_meta( $post_id, 'adi_event_periodicity' );
 		delete_post_meta( $post_id, 'adi_event_location' );
@@ -216,7 +216,7 @@ function adi_save_meta( $post_id, $post ) {
 	$stamp = $datetime->getTimestamp();
 
 	update_post_meta( $post_id, 'adi_event_timestamp', $stamp );
-	
+
 	$periodicity = $_POST['adi_event_periodicity'];
 	$location = sanitize_text_field( $_POST['adi_event_location'] );
 
@@ -224,18 +224,18 @@ function adi_save_meta( $post_id, $post ) {
 	update_post_meta( $post_id, 'adi_event_location', $location );
 
 	$t_id = $_POST['adi_event_titlepage_id'];
-	
+
 	if ( 'eigenstaendig' !== $t_id ) {
 		$titlepage_id = intval( $t_id );
 
 		update_post_meta( $post_id, 'adi_event_titlepage_id', $titlepage_id );
-	
+
 		$cat_id = intval( get_post_meta( $titlepage_id, 'adi_titlepage_cat_id', true ) );
 
-		// update the event's category		
+		// update the event's category
 		wp_set_post_terms( $post_id, array( $cat_id ), 'category' );
 	} else {
-		wp_set_post_terms( $post_id, array( ADI_INDEPENDENT_EVENTS_CAT_ID ), 'category' );	
+		wp_set_post_terms( $post_id, array( ADI_INDEPENDENT_EVENTS_CAT_ID ), 'category' );
 		delete_post_meta( $post_id, 'adi_event_titlepage_id' );
 	}
 
