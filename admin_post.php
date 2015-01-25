@@ -60,6 +60,7 @@ function adi_post_meta_box( $post ) {
 	
 	$adi_event_periodicity = get_post_meta( $post->ID, 'adi_event_periodicity', true );
 	$adi_event_type = get_post_meta( $post->ID, 'adi_event_type', true );
+	$adi_event_location = '';
 
 	$adi_event_titlepage_id = intval( get_post_meta( $post->ID, 'adi_event_titlepage_id', true ) );
 	
