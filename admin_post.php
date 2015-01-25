@@ -105,7 +105,7 @@ function adi_post_meta_box( $post ) {
 	</p>
 	<hr>
 	<p>
-		Ort: <input style="min-width: 80%;" type="text" name="adi_event_location" id="adi_event_location" value="<?php echo $adi_event_location; ?>" />
+		Externer Ort: <input style="min-width: 80%;" type="text" name="adi_event_location" id="adi_event_location" value="<?php echo $adi_event_location; ?>" />
 	</p>
 	<hr>
 	<p>
