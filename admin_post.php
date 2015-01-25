@@ -104,10 +104,10 @@ function adi_post_meta_box( $post ) {
 		</select>
 	</p>
 	<hr>
-	<p>
+	<!--<p>
 		<input type="text" name="adi_event_location" id="adi_event_location" value="<?php echo $adi_event_location; ?>" size="120" />
 	</p>
-	<hr>
+	<hr>-->
 	<p>
 		<a class="delete" href="javascript:;" id="adi_event_eraser" onclick="window.ADI.resetEventData()">Alle Termineingaben zurücksetzen</a>
 		<?php wp_nonce_field( basename( __FILE__ ), 'adi_post_nonce' ); ?>
