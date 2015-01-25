@@ -10,7 +10,7 @@ function adi_page_meta_boxes_setup( ) {
 
 	add_action( 'add_meta_boxes', 'adi_add_page_meta_boxes' );
 	add_action( 'save_post', 'adi_save_titlepage_meta', 10, 2 );
-	
+
 }
 
 
@@ -20,9 +20,9 @@ function adi_add_page_meta_boxes( $type ) {
 	if ( 'page' !== $type ) {
 		return;
 	}
-	
+
 	$id = intval( $_GET['post'] );
-	
+
 	if ( ADI_START_PAGE_ID === $id ||
 		ADI_EVENTS_PAGE_ID === $id ) {
 		return;
@@ -36,7 +36,7 @@ function adi_add_page_meta_boxes( $type ) {
 		'normal',
 		'high'
 	);
-	
+
 }
 
 
@@ -59,13 +59,13 @@ function adi_page_meta_box( $post ) {
 		$post_title = html_entity_decode( $post->post_title );
 
 		$cat_id = intval( get_post_meta( $post->ID, 'adi_titlepage_cat_id', true ) );
-	
+
 		$cat = get_category( $cat_id );
 
 		if ( empty( $cat ) ) {
-	
+
 			echo '<p>Warnung! Die Kategorie (ID:' . $cat_id . ') dieser Aktivität existiert nicht mehr!</p>';
-		
+
 			$args = array(
 				'type'                     => 'post',
 				'child_of'                 => ADI_EVENTS_CAT_ID,
@@ -73,11 +73,11 @@ function adi_page_meta_box( $post ) {
 				'hide_empty'               => 0,
 				'hierarchical'             => 0,
 				'taxonomy'                 => 'category' );
-		
+
 			$categories = get_categories( $args );
-		
+
 			$found_the_cat = false;
-		
+
 			foreach ( $categories as $category ) {
 				if ( $category->cat_name === $post_title ) {
 					update_post_meta( $post->ID, 'adi_titlepage_cat_id', $category->cat_ID );
@@ -86,39 +86,39 @@ function adi_page_meta_box( $post ) {
 					break;
 				}
 			}
-		
+
 			if ( ! $found_the_cat ) {
 				echo '<p>Leider ist weder der Name noch ID-Nummer ist zu finden.</p>';
 			}
 
 			echo '<hr>';
-		
+
 		} else if ( $post_title !== $cat->cat_name ) {
 			echo '<p>Warnung! Der Name dieser Titelseite stimmt nicht mehr mit dem Namen der jeweiligen Kategorie überein:<br>';
 			var_dump( $post_title );
 			var_dump( $cat->cat_name );
 			echo '<hr>';
 		}
-	
+
 	}
-	
+
 ?>
-	
+
 	<p><strong></strong></p>
 	<form method="post">
-	
+
 	<?php if ( $adi_is_titlepage ) : ?>
 
 		<input type="checkbox" id="adi_do_archivate" name="adi_do_archivate">
 		<label for="adi_do_archivate"><strong>Archivieren.</strong> <em>Titelseite sowie die jeweiligen Veranstaltungen</em></label>
 
 	<?php else : ?>
-	
+
 		<input type="checkbox" id="adi_is_titlepage" name="adi_is_titlepage">
 		<label for="adi_is_titlepage">Dies ist <strong>Titelseite</strong> eines Projektes mit mehreren Veranstaltungen.</label>
 
 	<?php endif ?>
-		
+
 		<?php wp_nonce_field( basename( __FILE__ ), 'adi_page_nonce' ); ?>
 	</form>
 
@@ -136,10 +136,10 @@ function adi_save_titlepage_meta( $page_id, $post ) {
 
 	$was_titlepage = get_post_meta( $page_id, 'adi_is_titlepage', true );
 	$is_normal_page = empty( $was_titlepage );
-	
+
 	$is_titlepage = isset( $_POST['adi_is_titlepage'] ) ? $_POST['adi_is_titlepage'] : NULL;
 	$keep_as_normal_page = empty( $is_titlepage );
-	
+
 	$do_archivate = isset( $_POST['adi_do_archivate'] ) ? $_POST['adi_do_archivate'] : NULL;
 
 	$new_title = sanitize_text_field( $post->post_title );
@@ -149,7 +149,7 @@ function adi_save_titlepage_meta( $page_id, $post ) {
 
 		// first run, create category, save metas
 		$new_cat_id = wp_create_category( $new_title, ADI_EVENTS_CAT_ID );
-		
+
 		update_post_meta( $page_id, 'adi_titlepage_cat_id', $new_cat_id );
 
 		update_post_meta( $page_id, 'adi_is_titlepage', $is_titlepage );
