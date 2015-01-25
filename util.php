@@ -15,21 +15,21 @@ function adi_get_events( $events_cat_id = ADI_EVENTS_CAT_ID, $limit = false ) {
 		'suppress_filters' => true );
 
 	$event_posts = get_posts( $args );
-	
+
 	$events = array();
-	
+
 	$today = new DateTime();
 	$today->setTime( 0, 0 );
-	
+
 	if ( false !== $limit ) {
 		$upper_day_limit = clone $today;
 		$upper_day_limit->modify( $limit . ' days' );
 	}
-	
+
 	foreach ( $event_posts as $post ) {
-		
+
 		$id = $post->ID;
-	
+
 		$new_date = adi_update_event( $id );
 
 		if ( $new_date ) {
@@ -39,21 +39,16 @@ function adi_get_events( $events_cat_id = ADI_EVENTS_CAT_ID, $limit = false ) {
 			$datetime = new DateTime( '@' . $event_ts );
 			$datetime->setTimezone( new DateTimeZone( 'Europe/Berlin' ) );
 		}
-	
+
 		// sort out passed non-periodic events
 		if ( $datetime < $today ) continue;
 
-		$event_type = intval( get_post_meta( $id, 'adi_event_type', true ) );
-
 		// sort out dates too far in the future
 		if ( false !== $limit && $datetime > $upper_day_limit ) {
-			// the important dates are kept
-			if ( 100 !== $event_type ) continue;
+			continue;
 		}
-		
-		// the inactive events are filtered
-		if ( 1 === $event_type ) continue;
 
+		$location = sanitize_text_field( get_post_meta( $id, 'adi_event_location', true ) );
 		$periodicity = intval( get_post_meta( $id, 'adi_event_periodicity', true ) );
 		$periodicity_formatted = adi_get_event_periodicity( $datetime, $periodicity );
 
@@ -65,7 +60,7 @@ function adi_get_events( $events_cat_id = ADI_EVENTS_CAT_ID, $limit = false ) {
 					'date' => $datetime->format( 'd.m' ),
 					'weekday' => $datetime->format( 'l' ),
 					'weeknum' => intval( $datetime->format( 'W' ) ),
-					'type' => $event_type,
+					'location' => $location,
 					'periodicity' => $periodicity,
 					'periodicity_formatted' => $periodicity_formatted,
 					'titlepage_id' => intval( get_post_meta( $id, 'adi_event_titlepage_id', true ) ),
@@ -77,7 +72,7 @@ function adi_get_events( $events_cat_id = ADI_EVENTS_CAT_ID, $limit = false ) {
 
 	}
 
-	ksort ( $events, SORT_NUMERIC );
+	ksort( $events, SORT_NUMERIC );
 
 	return $events;
 
@@ -100,21 +95,21 @@ function adi_update_event( $id ) {
 
 	if ( $event < $today ) {
 		if ( 0 === $periodicity ) {
-		
+
 			// archivate old non periodic events
 			wp_set_post_terms( $id, array( ADI_EVENTS_ARCHIVE_CAT_ID ), 'category' );
 
 		} else {
 			$nd = adi_next_date( $event, $today, $periodicity );
-	
+
 			$new_ts = $nd->getTimestamp();
-				
+
 			update_post_meta( $id, 'adi_event_timestamp', $new_ts );
-			
+
 			return $nd;
 		}
 	}
-	
+
 }
 
 
@@ -148,7 +143,7 @@ function adi_next_date( $datetime, $today, $periodicity ) {
 		$current_weeknum = $today->format( 'W' );
 		$is_current_weeknum_even = ( 0 == $current_weeknum % 2 );
 		$both_are_on_even_weeks = $is_current_weeknum_even === $is_event_weeknum_even;
-		
+
 		$event_day_passed_in_current_week = $event_weekday < $current_weekday;
 		$event_day_to_come_in_current_week = $event_weekday > $current_weekday;
 
@@ -176,7 +171,7 @@ function adi_next_date( $datetime, $today, $periodicity ) {
 			//echo '<p style="color:#900">Im Februar wird dieser monatlicher Termin wohl weg fallen, was?</p>';
 			return false;
 		}
-		
+
 		$next_date->modify( $week_index_word . ' ' . $adi_event_weekday . ' of this month' );
 
 		if ( $next_date < $today ) {
@@ -206,7 +201,7 @@ function adi_get_week_index( $day_of_month, $return_word = false ) {
 
 	$week_index = -1;
 	$week_index_word = '';
-	
+
 	if ( 8 > $day_of_month ) { 
 		$week_index = 1;
 		$week_index_word = 'first';
@@ -222,13 +217,13 @@ function adi_get_week_index( $day_of_month, $return_word = false ) {
 	} else { 
 		return false; 
 	}
-	
+
 	if ( $return_word ) {
 		return $week_index_word;
 	}
-	
-	return $week_index;	
-	
+
+	return $week_index;
+
 }
 
 
@@ -237,25 +232,25 @@ function adi_get_event_periodicity( $dt, $periodicity ) {
 	$weekday = adi_get_weekday_de( $dt->format( 'l' ) );
 
 	if ( 0 === $periodicity ) {
-	
+
 		return;
-	
+
 	} else if ( 1 === $periodicity ) {
-	
+
 		return ' jeden ' . $weekday;
-	
+
 	} else if ( 2 === $periodicity ) {
-	
+
 		$weeknum = intval( $dt->format( 'W' ) );
-	
+
 		$p = ' jede ';
-	
+
 		if ( 0 != $weeknum % 2 ) {
 			$p .= 'un';
 		}
-		
+
 		return $p . 'gerade Woche am ' . $weekday;
-	
+
 	} else if ( 4 === $periodicity ) {
 
 		$day_of_month = $dt->format( 'j' );
@@ -270,9 +265,9 @@ function adi_get_event_periodicity( $dt, $periodicity ) {
 function adi_get_titlepage_link( $id ) {
 
 	$adi_event_titlepage_id = intval( get_post_meta( $id, 'adi_event_titlepage_id', true ) );
-	
+
 	$link = '';
-	
+
 	if ( ! empty( $adi_event_titlepage_id ) ) {
 
 		$titlepage = get_post( $adi_event_titlepage_id );
@@ -280,18 +275,18 @@ function adi_get_titlepage_link( $id ) {
 		$link = '<a href="' . get_page_link( $titlepage->ID ) . '">' . $titlepage->post_title . '</a>';
 
 	}
-	
+
 	return $link;
-	
+
 }
 
 
 function adi_get_weekday_de( $weekday ) {
-	
+
 	$wochentag = '';
-	
+
 	if ( 'Monday' == $weekday ) {
-	
+
 		$wochentag = 'Montag';
 
 	} else if ( 'Tuesday' == $weekday ) {
@@ -325,7 +320,7 @@ function adi_get_weekday_de( $weekday ) {
 }
 
 
-
+/* @deprecated
 function adi_get_event_type( $type ) {
 
 	if ( 1 === $type ) return 'Inaktiv';
@@ -333,7 +328,7 @@ function adi_get_event_type( $type ) {
 	else if ( 100 === $type ) return 'Wichtig';
 	else if ( 75 === $type ) return 'Geändert';
 
-}
+}*/
 
 
 
@@ -346,8 +341,9 @@ function adi_page_is_in_archive( $id ) {
 	if ( ADI_ACTIVITY_ARCHIVE_PAGE_ID === $parent_id ) {
 		return true;
 	}
-	
-	return false;	
+
+	return false;
+
 }
 
 

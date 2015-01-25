@@ -87,7 +87,7 @@ function adi_display_page( $id, $titlepage_cat_id ) {
 			$output .= $event['date'] . ', ';
 			$output .= $event['time'] . ' Uhr &nbsp;&nbsp;&nbsp;' . $event['link'] . ' &nbsp;&nbsp;&nbsp;';
 		
-			if ( 25 == $event['type'] ) 
+			if ( ! empty( $event['location'] ) ) 
 				$output .= '<i>extern</i>';
 			else if ( 0 < $event['periodicity'] ) 
 				$output .= '<i>regelmäßig</i>';
@@ -124,17 +124,20 @@ function adi_display_post( $id, $adi_event_timestamp ) {
 
 	$periodicity = adi_get_event_periodicity( $datetime, intval( get_post_meta( $id, 'adi_event_periodicity', true ) ) );
 
-	$type = adi_get_event_type( intval( get_post_meta( $id, 'adi_event_type', true ) ) );
+	$location = sanitize_text_field( get_post_meta( $id, 'adi_event_location', true ) );
 
+	if ( ! empty( $location ) ) {
+		$location = '<br><strong>Ort:</strong> ' . $location . '';
+	}
+
+	$type = '';
 	if ( in_category( ADI_EVENTS_ARCHIVE_CAT_ID, $id ) ) {
-		$type = 'Archivierter';
-	} else if ( $type ) {
-		$type .= 'er';
+		$type = 'Archivierter ';
 	}
 
 	return 
-		'<p><strong>' . $type . ' Termin:</strong> ' .
-		'am ' . $adi_event_date . ' um ' . $adi_event_time . ' Uhr' . '<i>' . $periodicity . '</i>.' . 
+		'<p><strong>' . $type . 'Termin:</strong> ' .
+		'am ' . $adi_event_date . ' um ' . $adi_event_time . ' Uhr' . '<i>' . $periodicity . '</i>.' . $location .
 		$parent_link . '</p>';
 
 }
@@ -177,23 +180,16 @@ function adi_the_events( $atts ) {
 		if ( $display_date ) {
 			$output .= "<div class='adi_date'><span>" . $event['date'] . "</span><span>" . adi_get_weekday_de( $event['weekday'] ) . "</span></div>";
 		}
-
 		
-		$type_style = '';
-		
-		if ( 100 == $event['type'] ) {
-			$type_style = ' adi_wichtig';
-		} else if ( 75 == $event['type'] ) {
-			$type_style = ' adi_geaendert';
-		}
-		
-		$output .= "<div class='adi_time" . $type_style . "'><span>" . $event['time'] . "</span><span>" . $event['link'] . "</span></div>";
+		$output .= "<div class='adi_time'><span>" . $event['time'] . "</span><span>" . $event['link'] . "</span></div>";
 		
 		
 		$type = '';
 		$type_fname = '';
+
+		$output .= '<!-- huzza ' . $event['location'] . ' -->';
 		
-		if ( 25 == $event['type'] ) {
+		if ( ! empty( $event['location'] ) ) {
 			$type = "extern";
 			$type_fname = 'external.png';
 		} else if ( 0 < $event['periodicity'] ) {
@@ -201,10 +197,11 @@ function adi_the_events( $atts ) {
 			$type_fname = 'periodic.png';
 		}
 
-		$type_template = "<img class='" . ( '' !== $type ? 'adi_type_img' : '') . "' src='" . plugins_url() . "/adiomatique/images/" . $type_fname . "' alt='" . $type . "'>";
+		$type_template = '';
 
-		if ( '' === $type ) 
-			$type_template = '';
+		if ( '' !== $type ) {
+			$type_template = "<img class='" . ( '' !== $type ? 'adi_type_img' : '') . "' src='" . plugins_url() . "/adiomatique/images/" . $type_fname . "' alt='" . $type . "'>";
+		}
 
 		$periodicity = $event['periodicity_formatted'];
 		$periodicity_click = " onclick=\"javascript:alert(' " . $event['title'] . ":\\n" . $periodicity . "')\"";
@@ -216,13 +213,10 @@ function adi_the_events( $atts ) {
 		$link = adi_get_titlepage_link( $event['id'] );
 
 		$sub = "<div class='adi_type'><span " . ( "" === $periodicity_click ? "" : "style='cursor:pointer;'" ) . $periodicity_click . ">" . $type_template . "</span><span>" . $link . "</span>";
-
-		if ( 75 == $event['type'] ) 
-			$sub .= "<span class='adi_geaendert'> Diese Ankündigung wurde geändert!</span>";
 		
 		$sub .= "</div>";
 
-		if ( '' !== $type || ! empty( $link ) || 75 == $event['type'] ) {
+		if ( '' !== $type || ! empty( $link ) ) {
 			$output .= $sub;
 		}
 		

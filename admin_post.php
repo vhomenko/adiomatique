@@ -59,8 +59,7 @@ function adi_post_meta_box( $post ) {
 	}
 	
 	$adi_event_periodicity = get_post_meta( $post->ID, 'adi_event_periodicity', true );
-	$adi_event_type = get_post_meta( $post->ID, 'adi_event_type', true );
-	$adi_event_location = '';
+	$adi_event_location = sanitize_text_field( get_post_meta( $post->ID, 'adi_event_location', true ) );
 
 	$adi_event_titlepage_id = intval( get_post_meta( $post->ID, 'adi_event_titlepage_id', true ) );
 	
@@ -70,7 +69,7 @@ function adi_post_meta_box( $post ) {
 	<p>
 		<input style="text-align:center;" type="text" name="adi_event_date" id="adi_event_date" value="<?php echo $adi_event_date ?>" size="8" />
 		<input style="text-align:center;" type="text" name="adi_event_time" id="adi_event_time" value="<?php echo $adi_event_time ?>" size="5" />
-		<select id="adi_event_periodicity" name="adi_event_periodicity">
+		<select style="vertical-align:top;" id="adi_event_periodicity" name="adi_event_periodicity">
 			<option value="0" <?php selected( $adi_event_periodicity, 0 ); ?>>einmalig</option>
 			<option value="1" <?php selected( $adi_event_periodicity, 1 ); ?>>wöchentlich</option>
 			<option value="2" <?php selected( $adi_event_periodicity, 2 ); ?>>zweiwöchentlich</option>
@@ -81,7 +80,7 @@ function adi_post_meta_box( $post ) {
 	</p>
 	<hr>
 	<p>
-		<select style="vertical_align:top;" id="adi_event_titlepage_id" name="adi_event_titlepage_id">
+		<select id="adi_event_titlepage_id" name="adi_event_titlepage_id">
 			<option value="eigenstaendig" <?php selected( $adi_event_titlepage_id, 0 ); ?>>eigenständig</option>
 		<?php
 
@@ -105,10 +104,10 @@ function adi_post_meta_box( $post ) {
 		</select>
 	</p>
 	<hr>
-	<!--<p>
-		<input type="text" name="adi_event_location" id="adi_event_location" value="<?php echo $adi_event_location; ?>" size="120" />
+	<p>
+		Ort: <input style="min-width: 80%;" type="text" name="adi_event_location" id="adi_event_location" value="<?php echo $adi_event_location; ?>" />
 	</p>
-	<hr>-->
+	<hr>
 	<p>
 		<a class="delete" href="javascript:;" id="adi_event_eraser" onclick="window.ADI.resetEventData()">Alle Termineingaben zurücksetzen</a>
 		<?php wp_nonce_field( basename( __FILE__ ), 'adi_post_nonce' ); ?>
@@ -160,6 +159,7 @@ function adi_post_meta_box( $post ) {
 			jQuery( "#adi_event_date" ).val( cur );	
 
 			document.getElementById( 'adi_event_periodicity' ).value = '0';
+			document.getElementById( 'adi_event_location' ).value = '';
 			document.getElementById( 'adi_event_titlepage_id' ).value = '<?php echo "eigenstaendig"; ?>';
 		}
 		jQuery('#adi_event_time').timepicker({
@@ -193,7 +193,7 @@ function adi_save_meta( $post_id, $post ) {
 	
 	if ( empty( $time ) ) {
 		delete_post_meta( $post_id, 'adi_event_periodicity' );
-		delete_post_meta( $post_id, 'adi_event_type' );
+		delete_post_meta( $post_id, 'adi_event_location' );
 		delete_post_meta( $post_id, 'adi_event_timestamp' );
 		delete_post_meta( $post_id, 'adi_event_titlepage_id' );
 
@@ -218,10 +218,10 @@ function adi_save_meta( $post_id, $post ) {
 	update_post_meta( $post_id, 'adi_event_timestamp', $stamp );
 	
 	$periodicity = $_POST['adi_event_periodicity'];
-	$type = $_POST['adi_event_type'];
+	$location = sanitize_text_field( $_POST['adi_event_location'] );
 
 	update_post_meta( $post_id, 'adi_event_periodicity', $periodicity );
-	update_post_meta( $post_id, 'adi_event_type', $type );
+	update_post_meta( $post_id, 'adi_event_location', $location );
 
 	$t_id = $_POST['adi_event_titlepage_id'];
 	
