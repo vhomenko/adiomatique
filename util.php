@@ -114,7 +114,7 @@ function adi_update_event( $id ) {
 
 
 
-function adi_next_date( $datetime, $today, $periodicity ) {
+function adi_next_date( $datetime, $today, $periodicity, $iteration_to_exclude = 0 ) {
 
 	$today->setTime( 0, 0 );
 
@@ -122,32 +122,34 @@ function adi_next_date( $datetime, $today, $periodicity ) {
 
 	$next_date = clone $today;
 
-	$adi_event_weeknum = intval( $datetime->format( 'W' ) );
-	$adi_event_weekday = $datetime->format( 'l' );
-
-	$event_weekday = intval( $datetime->format( 'N' ) );
-	$current_weekday = intval( $today->format( 'N' ) );
-
-	$hour = intval( $datetime->format( 'H' ) );
-	$min = intval( $datetime->format( 'i' ) );
+	$event_weekday = $datetime->format( 'l' );
 
 	if ( 0 === $periodicity ) {
 		return false;
 	} else if ( 1 === $periodicity ) {
 		// weekly
 		// ! strtotime/modify: if todays is Fr and you want this Tu, you'll get next Tuesday
-		$next_date->modify( $adi_event_weekday );
+
+		$next_date->modify( $event_weekday );
+
+		if ( 0 !== $iteration_to_exclude ) {
+			$day_to_exclude = new DateTime();
+		}
+
 	} else if ( 2 === $periodicity ) {
 		// biweekly
-		$is_event_weeknum_even = ( 0 == $adi_event_weeknum % 2 );
-		$current_weeknum = $today->format( 'W' );
-		$is_current_weeknum_even = ( 0 == $current_weeknum % 2 );
+		$adi_event_weeknum = intval( $datetime->format( 'W' ) );
+		$is_event_weeknum_even = ( 0 === $adi_event_weeknum % 2 );
+		$current_weeknum = intval( $today->format( 'W' ) );
+		$is_current_weeknum_even = ( 0 === $current_weeknum % 2 );
 		$both_are_on_even_weeks = $is_current_weeknum_even === $is_event_weeknum_even;
 
-		$event_day_passed_in_current_week = $event_weekday < $current_weekday;
-		$event_day_to_come_in_current_week = $event_weekday > $current_weekday;
+		$event_weekday_index = intval( $datetime->format( 'N' ) );
+		$current_weekday_index = intval( $today->format( 'N' ) );
+		$event_day_passed_in_current_week = $event_weekday_index < $current_weekday_index;
+		$event_day_to_come_in_current_week = $event_weekday_index > $current_weekday_index;
 
-		$next_date->modify( 'this ' . $adi_event_weekday );
+		$next_date->modify( 'this ' . $event_weekday );
 
 		if ( $event_day_passed_in_current_week ) {
 			if ( $both_are_on_even_weeks ) {
@@ -172,26 +174,18 @@ function adi_next_date( $datetime, $today, $periodicity ) {
 			return false;
 		}
 
-		$next_date->modify( $week_index_word . ' ' . $adi_event_weekday . ' of this month' );
+		$next_date->modify( $week_index_word . ' ' . $event_weekday . ' of this month' );
 
 		if ( $next_date < $today ) {
-			$next_date->modify( $week_index_word . ' ' . $adi_event_weekday . ' of next month' );
+			$next_date->modify( $week_index_word . ' ' . $event_weekday . ' of next month' );
 		}
 
 	}
 
+	$hour = intval( $datetime->format( 'H' ) );
+	$min = intval( $datetime->format( 'i' ) );
 	$next_date->setTime( $hour, $min );
 
-/*	$test1 = clone $datetime;
-
-	$d = $datetime->diff( $next_date );
-	if ( $d ) {
-		$output = date_default_timezone_get() . '<br><br>';
-		$output .= 'orig: ' . print_r( $test1, true ) . '<br><br>';
-		$output .= 'new: ' . print_r( $next_date, true ) . '<br><br>';
-		die( $output .'|'. $d->format('%d.%m.%y %h:%i') );
-	}
-*/
 	return $next_date;
 }
 
