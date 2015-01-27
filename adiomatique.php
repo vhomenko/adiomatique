@@ -122,7 +122,7 @@ function adi_display_post( $id, $adi_event_timestamp ) {
 
 	if ( empty( $link ) ) $parent_link = '';
 
-	$periodicity = adi_get_event_periodicity( $datetime, intval( get_post_meta( $id, 'adi_event_periodicity', true ) ) );
+	$periodicity = adi_get_event_periodicity( $datetime, intval( get_post_meta( $id, 'adi_event_periodicity', true ) ), intval( get_post_meta( $id, 'adi_event_week_to_skip', true ) ) );
 
 	$location = sanitize_text_field( get_post_meta( $id, 'adi_event_location', true ) );
 
