@@ -390,6 +390,3 @@ function adi_page_is_in_archive( $id ) {
 	return false;
 
 }
-
-
-
