@@ -4,6 +4,8 @@ defined( 'ABSPATH' ) or die( '' );
 
 
 
+/* TODO: Either refactor into OOD, or at least define adi_get_event singular -> SOC */
+
 function adi_get_events( $events_cat_id = ADI_EVENTS_CAT_ID, $limit = false ) {
 
 	$args = array(
@@ -32,10 +34,12 @@ function adi_get_events( $events_cat_id = ADI_EVENTS_CAT_ID, $limit = false ) {
 
 		$new_date = adi_update_event( $id );
 
+		// FIXME: redundant, apart for being a key 
+		$event_ts = intval( get_post_meta( $id, 'adi_event_timestamp', true ) );
+
 		if ( $new_date ) {
 			$datetime = $new_date;
 		} else {
-			$event_ts = intval( get_post_meta( $id, 'adi_event_timestamp', true ) );
 			$datetime = new DateTime( '@' . $event_ts );
 			$datetime->setTimezone( new DateTimeZone( 'Europe/Berlin' ) );
 		}
@@ -50,8 +54,8 @@ function adi_get_events( $events_cat_id = ADI_EVENTS_CAT_ID, $limit = false ) {
 
 		$location = sanitize_text_field( get_post_meta( $id, 'adi_event_location', true ) );
 		$periodicity = intval( get_post_meta( $id, 'adi_event_periodicity', true ) );
-		$periodicity_formatted = adi_get_event_periodicity( $datetime, $periodicity );
-
+		$week_to_skip = intval( get_post_meta( $id, 'adi_event_week_to_skip', true ) );
+		$periodicity_formatted = adi_get_event_periodicity( $datetime, $periodicity, $week_to_skip );
 
 		$event = array(
 					'id' => $id,
@@ -63,6 +67,7 @@ function adi_get_events( $events_cat_id = ADI_EVENTS_CAT_ID, $limit = false ) {
 					'location' => $location,
 					'periodicity' => $periodicity,
 					'periodicity_formatted' => $periodicity_formatted,
+					'week_to_skip' => $week_to_skip,
 					'titlepage_id' => intval( get_post_meta( $id, 'adi_event_titlepage_id', true ) ),
 					'title' => htmlspecialchars( $post->post_title, ENT_QUOTES ),
 					'link' => '<a href="' . wp_get_shortlink( $id ) . '">' . $post->post_title . '</a>'
@@ -83,6 +88,7 @@ function adi_get_events( $events_cat_id = ADI_EVENTS_CAT_ID, $limit = false ) {
 function adi_update_event( $id ) {
 
 	$periodicity = intval( get_post_meta( $id, 'adi_event_periodicity', true ) );
+	$week_to_skip = intval( get_post_meta( $id, 'adi_event_week_to_skip', true ) );
 
 	$event_ts = intval( get_post_meta( $id, 'adi_event_timestamp', true ) );
 
@@ -100,7 +106,7 @@ function adi_update_event( $id ) {
 			wp_set_post_terms( $id, array( ADI_EVENTS_ARCHIVE_CAT_ID ), 'category' );
 
 		} else {
-			$nd = adi_next_date( $event, $today, $periodicity );
+			$nd = adi_next_date( $event, $today, $periodicity, $week_to_skip );
 
 			$new_ts = $nd->getTimestamp();
 
@@ -254,7 +260,7 @@ function adi_get_week_index( $day_of_month, $return_word = false ) {
 }
 
 
-function adi_get_event_periodicity( $dt, $periodicity ) {
+function adi_get_event_periodicity( $dt, $periodicity, $week_to_skip ) {
 
 	$weekday = adi_get_weekday_de( $dt->format( 'l' ) );
 
@@ -264,7 +270,30 @@ function adi_get_event_periodicity( $dt, $periodicity ) {
 
 	} else if ( 1 === $periodicity ) {
 
-		return ' jeden ' . $weekday;
+		$indices = ' jeden ';
+
+		$suffix = '';
+
+		if ( 0 !== $week_to_skip ) {
+
+			if ( 1 !== $week_to_skip ) {
+				$indices .= '1. ';
+			}
+			if ( 2 !== $week_to_skip ) {
+				$indices .= '2. ';
+			}
+			if ( 3 !== $week_to_skip ) {
+				$indices .= '3. ';
+			}
+			if ( 4 !== $week_to_skip ) {
+				$indices .= '4. ';
+			}
+
+			$indices = substr_replace( $indices, ' und', 12, 0 );
+			$suffix = ' des Monats';
+		}
+
+		return $indices . $weekday . $suffix;
 
 	} else if ( 2 === $periodicity ) {
 
@@ -345,17 +374,6 @@ function adi_get_weekday_de( $weekday ) {
 	return $wochentag;
 
 }
-
-
-/* @deprecated
-function adi_get_event_type( $type ) {
-
-	if ( 1 === $type ) return 'Inaktiv';
-	else if ( 25 === $type ) return 'Extern';
-	else if ( 100 === $type ) return 'Wichtig';
-	else if ( 75 === $type ) return 'Geändert';
-
-}*/
 
 
 
