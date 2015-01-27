@@ -59,6 +59,7 @@ function adi_post_meta_box( $post ) {
 	}
 
 	$adi_event_periodicity = get_post_meta( $post->ID, 'adi_event_periodicity', true );
+	$adi_event_week_to_skip = intval( get_post_meta( $post->ID, 'adi_event_week_to_skip', true ) );
 	$adi_event_location = sanitize_text_field( get_post_meta( $post->ID, 'adi_event_location', true ) );
 
 	$adi_event_titlepage_id = intval( get_post_meta( $post->ID, 'adi_event_titlepage_id', true ) );
@@ -69,13 +70,22 @@ function adi_post_meta_box( $post ) {
 	<p>
 		<input style="text-align:center;" type="text" name="adi_event_date" id="adi_event_date" value="<?php echo $adi_event_date ?>" size="8" />
 		<input style="text-align:center;" type="text" name="adi_event_time" id="adi_event_time" value="<?php echo $adi_event_time ?>" size="5" />
-		<select style="vertical-align:top;" id="adi_event_periodicity" name="adi_event_periodicity">
+		<select style="vertical-align:top;" id="adi_event_periodicity" name="adi_event_periodicity" onchange="window.ADI.toggleWeekToSkipBox()">
 			<option value="0" <?php selected( $adi_event_periodicity, 0 ); ?>>einmalig</option>
 			<option value="1" <?php selected( $adi_event_periodicity, 1 ); ?>>wöchentlich</option>
 			<option value="2" <?php selected( $adi_event_periodicity, 2 ); ?>>zweiwöchentlich</option>
 			<option value="4" <?php selected( $adi_event_periodicity, 4 ); ?>>monatlich</option>
 		</select>
 		<br>
+		<span id="adi_week_to_skip_box">
+		<select id="adi_event_week_to_skip" name="adi_event_week_to_skip">
+			<option value="0" <?php selected( $adi_event_week_to_skip, 0 ); ?>>Keine</option>
+			<option value="1" <?php selected( $adi_event_week_to_skip, 1 ); ?>>Erste</option>
+			<option value="2" <?php selected( $adi_event_week_to_skip, 2 ); ?>>Zweite</option>
+			<option value="3" <?php selected( $adi_event_week_to_skip, 3 ); ?>>Dritte</option>
+			<option value="4" <?php selected( $adi_event_week_to_skip, 4 ); ?>>Vierte</option>
+		</select>
+		Woche des Monats überspringen.<br></span>
 		<em>Die Termineingaben werden gespeichert, wenn eine <strong>Uhrzeit</strong> eingetragen wird!</em>
 	</p>
 	<hr>
@@ -138,17 +148,25 @@ function adi_post_meta_box( $post ) {
 			showMonthAfterYear: false,
 			yearSuffix: '',
 			dateFormat : dateFormat});
-		if (jQuery( "#adi_event_date" ).val() === "") {
+		if ( jQuery( '#adi_event_date' ).val() === '' ) {
 			var cur = jQuery.datepicker.formatDate(dateFormat, new Date(), {
 				monthNames: monthNames,
 				monthNamesShort: monthNamesShort,
 				dayNames: dayNames,
 				dayNamesShort: dayNamesShort
 			});
-			jQuery( "#adi_event_date" ).val( cur );
+			jQuery( '#adi_event_date' ).val( cur );
 		}
+		window.ADI.toggleWeekToSkipBox = function () {
+			if ( '1' !== document.getElementById('adi_event_periodicity').value ) {
+				jQuery( '#adi_week_to_skip_box' ).hide();
+			} else {
+				jQuery( '#adi_week_to_skip_box' ).show();
+			}
+		}
+		window.ADI.toggleWeekToSkipBox();
 		window.ADI.resetEventData = function () {
-			jQuery( "#adi_event_time" ).val("");
+			jQuery( '#adi_event_time' ).val( '' );
 
 			var cur = jQuery.datepicker.formatDate(dateFormat, new Date(), {
 				monthNames: monthNames,
@@ -156,9 +174,11 @@ function adi_post_meta_box( $post ) {
 				dayNames: dayNames,
 				dayNamesShort: dayNamesShort
 			});
-			jQuery( "#adi_event_date" ).val( cur );
+			jQuery( '#adi_event_date' ).val( cur );
 
 			document.getElementById( 'adi_event_periodicity' ).value = '0';
+			document.getElementById( 'adi_event_week_to_skip' ).value = '0';
+			window.ADI.toggleWeekToSkipBox();
 			document.getElementById( 'adi_event_location' ).value = '';
 			document.getElementById( 'adi_event_titlepage_id' ).value = '<?php echo "eigenstaendig"; ?>';
 		}
@@ -193,6 +213,7 @@ function adi_save_meta( $post_id, $post ) {
 
 	if ( empty( $time ) ) {
 		delete_post_meta( $post_id, 'adi_event_periodicity' );
+		delete_post_meta( $post_id, 'adi_event_week_to_skip' );
 		delete_post_meta( $post_id, 'adi_event_location' );
 		delete_post_meta( $post_id, 'adi_event_timestamp' );
 		delete_post_meta( $post_id, 'adi_event_titlepage_id' );
@@ -214,13 +235,12 @@ function adi_save_meta( $post_id, $post ) {
 	$datetime = DateTime::createFromFormat( 'j.m.y G:i', $date . ' ' . $time, new DateTimeZone( 'Europe/Berlin' ) );
 
 	$stamp = $datetime->getTimestamp();
-
 	update_post_meta( $post_id, 'adi_event_timestamp', $stamp );
-
 	$periodicity = $_POST['adi_event_periodicity'];
-	$location = sanitize_text_field( $_POST['adi_event_location'] );
-
 	update_post_meta( $post_id, 'adi_event_periodicity', $periodicity );
+	$week_to_skip = $_POST['adi_event_week_to_skip'];
+	update_post_meta( $post_id, 'adi_event_week_to_skip', $week_to_skip );
+	$location = sanitize_text_field( $_POST['adi_event_location'] );
 	update_post_meta( $post_id, 'adi_event_location', $location );
 
 	$t_id = $_POST['adi_event_titlepage_id'];
