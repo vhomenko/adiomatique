@@ -430,6 +430,16 @@ class nextDateTest extends PHPUnit_Framework_TestCase {
 		$this->assertSame( $expect, $result );
 	}
 
+	function testTodaysWeeklyDateSetOnFirstWeekPlusNotFirstWeekday() {
+		$event = new DateTime( 'Thu 01-03-2012 0:00' );
+		$today = new DateTime( 'Thu 01-03-2012' );
+		$expect = 'Thu 08-03-2012 0:00';
+
+		$ret = adi_next_date( $event, $today, WEEKLY, 1 );
+		$result = $ret->format( 'D d-m-Y G:i' );
+
+		$this->assertSame( $expect, $result );
+	}
 }
 
 ?>

@@ -99,7 +99,7 @@ function adi_update_event( $id ) {
 	$event->setTimezone( new DateTimeZone( 'Europe/Berlin' ) );
 	$today->setTime( 0, 0 );
 
-	if ( $event < $today ) {
+	if ( $event <= $today ) {
 		if ( 0 === $periodicity ) {
 
 			// archivate old non periodic events
@@ -124,7 +124,13 @@ function adi_next_date( $event_date, $today, $periodicity, $iteration_to_exclude
 
 	$today->setTime( 0, 0 );
 
-	if ( $event_date >= $today ) return false;
+	if ( $event_date > $today ) return false;
+
+	if ( $event_date == $today ) {
+		if ( 0 === $iteration_to_exclude_index ) return false;
+		if ( 1 !== $periodicity ) return false;
+		error_log( 'Hoppla' );
+	}
 
 	$next_date = clone $today;
 

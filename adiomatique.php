@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Adiomatique
  * Description: Einfache Terminverwaltung.
- * Version: 7
+ * Version: 8
  * Author: Vitali Homenko
  * Author URI: mailto:vitali.homenko@gmail.com
  * License: GPL-3.0
