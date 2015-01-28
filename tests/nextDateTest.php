@@ -18,16 +18,16 @@ class nextDateTest extends PHPUnit_Framework_TestCase {
 	function tearDown() {
 	}
 
-	function testDoesSkipFutureDates() {
+	function testDoesSkipFutureNonPeriodicDates() {
 		$dt = new DateTime();
 		$dt->modify( '+1 month' );
-		$result = adi_next_date( $dt, new DateTime(), 0 );
+		$result = adi_next_date( $dt, new DateTime(), SINGLE );
 		$this->assertFalse( $result );
 	}
 
 	function testDoesSkipToday() {
 		$dt = new DateTime();
-		$result = adi_next_date( $dt, $dt, 0 );
+		$result = adi_next_date( $dt, $dt, SINGLE );
 		$this->assertFalse( $result );
 	}
 
@@ -440,6 +440,39 @@ class nextDateTest extends PHPUnit_Framework_TestCase {
 
 		$this->assertSame( $expect, $result );
 	}
+
+	// since next date is based off of today, we get the next legit date in the calendar
+	function testTooFarInTheFutureWeeklyDateSetOnFourthWeekPlusNotFourthWeekday() {
+		$event = new DateTime( 'Thu 22-03-2012 0:00' );
+		$today = new DateTime( 'Fri 09-03-2012' );
+		$expect = 'Thu 15-03-2012 0:00';
+
+		$ret = adi_next_date( $event, $today, WEEKLY, 4 );
+		$result = $ret->format( 'D d-m-Y G:i' );
+
+		$this->assertSame( $expect, $result );
+	}
+
+	function testFutureWeeklyDateSetOnFourthWeekPlusNotFourthWeekday() {
+		$event = new DateTime( 'Thu 22-03-2012 0:00' );
+		$today = new DateTime( 'Fri 16-03-2012' );
+		$expect = 'Thu 29-03-2012 0:00';
+
+		$ret = adi_next_date( $event, $today, WEEKLY, 4 );
+		$result = $ret->format( 'D d-m-Y G:i' );
+
+		$this->assertSame( $expect, $result );
+	}
+
+	function testFutureBiweeklyDate() {
+		$event = new DateTime( '01-12-2014 0:00' );
+		$today = new DateTime( 'Fri 16-03-2012' );
+
+		$ret = adi_next_date( $event, $today, BIWEEKLY );
+
+		$this->assertFalse( $ret );
+	}
+
 }
 
 ?>

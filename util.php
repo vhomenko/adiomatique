@@ -99,21 +99,19 @@ function adi_update_event( $id ) {
 	$event->setTimezone( new DateTimeZone( 'Europe/Berlin' ) );
 	$today->setTime( 0, 0 );
 
-	if ( $event <= $today ) {
-		if ( 0 === $periodicity ) {
+	if ( 0 === $periodicity ) {
 
-			// archivate old non periodic events
-			wp_set_post_terms( $id, array( ADI_EVENTS_ARCHIVE_CAT_ID ), 'category' );
+		// archivate old non periodic events
+		wp_set_post_terms( $id, array( ADI_EVENTS_ARCHIVE_CAT_ID ), 'category' );
 
-		} else {
-			$nd = adi_next_date( $event, $today, $periodicity, $week_to_skip );
+	} else {
+		$nd = adi_next_date( $event, $today, $periodicity, $week_to_skip );
 
-			$new_ts = $nd->getTimestamp();
+		$new_ts = $nd->getTimestamp();
 
-			update_post_meta( $id, 'adi_event_timestamp', $new_ts );
+		update_post_meta( $id, 'adi_event_timestamp', $new_ts );
 
-			return $nd;
-		}
+		return $nd;
 	}
 
 }
@@ -124,12 +122,9 @@ function adi_next_date( $event_date, $today, $periodicity, $iteration_to_exclude
 
 	$today->setTime( 0, 0 );
 
-	if ( $event_date > $today ) return false;
-
-	if ( $event_date == $today ) {
+	if ( $event_date >= $today ) {
 		if ( 0 === $iteration_to_exclude_index ) return false;
 		if ( 1 !== $periodicity ) return false;
-		error_log( 'Hoppla' );
 	}
 
 	$next_date = clone $today;
