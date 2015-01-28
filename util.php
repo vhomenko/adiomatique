@@ -99,14 +99,17 @@ function adi_update_event( $id ) {
 	$event->setTimezone( new DateTimeZone( 'Europe/Berlin' ) );
 	$today->setTime( 0, 0 );
 
-	if ( 0 === $periodicity ) {
+	if ( 0 === $periodicity && $event < $today ) {
 
-		// archivate old non periodic events
 		wp_set_post_terms( $id, array( ADI_EVENTS_ARCHIVE_CAT_ID ), 'category' );
 
 	} else {
 		$nd = adi_next_date( $event, $today, $periodicity, $week_to_skip );
 
+		if ( ! $nd ) {
+			return;
+		}
+		
 		$new_ts = $nd->getTimestamp();
 
 		update_post_meta( $id, 'adi_event_timestamp', $new_ts );
