@@ -1,17 +1,16 @@
 <?php
 
-define( 'ABSPATH', 'stub' );
 
 const SINGLE = 0;
 const WEEKLY = 1;
 const BIWEEKLY = 2;
 const MONTHLY = 4;
 
-require_once '../util.php';
+const ADI_TZ = 'Europe/Berlin';
 
-// WP_UnitTestCase has assertWPError( $actual, $message )
+require_once '../EventDate.php';
 
-class nextDateTest extends PHPUnit_Framework_TestCase {
+class EventDateTest extends PHPUnit_Framework_TestCase {
 
 	function setUp() {
 	}
@@ -19,24 +18,24 @@ class nextDateTest extends PHPUnit_Framework_TestCase {
 	function tearDown() {
 	}
 
-	function testDoesSkipFutureNonPeriodicDates() {
+	function testFutureDateIsNotChanged() {
 		$dt = new DateTime();
 		$dt->modify( '+1 month' );
-		$result = adi_next_date( $dt, new DateTime(), SINGLE );
-		$this->assertFalse( $result );
+		$e = new EventDate( $dt, null, SINGLE );
+		$this->assertEquals( $e->dtObj, $dt );
 	}
 
-	function testDoesSkipToday() {
+	function testTodayIsNotChanged() {
 		$dt = new DateTime();
-		$result = adi_next_date( $dt, $dt, SINGLE );
-		$this->assertFalse( $result );
+		$e = new EventDate( $dt, $dt, SINGLE );
+		$this->assertEquals( $e->dtObj, $dt );
 	}
 
-	function testDoesSkipPastNonPeriodicDates() {
+	function testPastNonPeriodicDatesAreSkipped() {
 		$dt = new DateTime();
 		$dt->modify( '-2 weeks' );
-		$result = adi_next_date( $dt, new DateTime(), SINGLE );
-		$this->assertFalse( $result );
+		$e = new EventDate( $dt, null, SINGLE );
+		$this->assertEquals( $e->dtObj, $dt );
 	}
 
 	function testWeeklyDateWhichIsPassedInTheCurrentWeek() {
@@ -44,10 +43,8 @@ class nextDateTest extends PHPUnit_Framework_TestCase {
 		$today = new DateTime( 'Wed 17-12-2014' );
 		$expect = 'Mon 22-12-2014 12:00';
 		
-		$ret = adi_next_date( $event, $today, WEEKLY );
-		$result = $ret->format( 'D d-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, WEEKLY );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testWeeklyDateWhichIsToComeInTheCurrentWeek() {
@@ -55,10 +52,8 @@ class nextDateTest extends PHPUnit_Framework_TestCase {
 		$today = new DateTime( 'Wed 17-12-2014' );
 		$expect = 'Thu 18-12-2014 12:00';
 
-		$ret = adi_next_date( $event, $today, WEEKLY );
-		$result = $ret->format( 'D d-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, WEEKLY );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testWeeklyDateWhichIsTodayInTheCurrentWeek() {
@@ -66,195 +61,159 @@ class nextDateTest extends PHPUnit_Framework_TestCase {
 		$today = new DateTime( 'Wed 17-12-2014' );
 		$expect = 'Wed 17-12-2014 12:00';
 
-		$ret = adi_next_date( $event, $today, WEEKLY );
-		$result = $ret->format( 'D d-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, WEEKLY );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testBiweeklyOddDateWhichIsPassedInTheCurrentOddWeek() {
 		$event = new DateTime( 'Mon 09-09-2013 12:00' );
 		$today = new DateTime( 'Wed 17-12-2014' );
-		$expect = '29-12-2014 12:00';
+		$expect = 'Mon 29-12-2014 12:00';
 
-		$ret = adi_next_date( $event, $today, BIWEEKLY );
-		$result = $ret->format( 'd-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, BIWEEKLY );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testBiweeklyEvenDateWhichIsPassedInTheCurrentEvenWeek() {
 		$event = new DateTime( 'Mon 02-09-2013 12:00' );
 		$today = new DateTime( 'Wed 10-12-2014' );
-		$expect = '22-12-2014 12:00';
+		$expect = 'Mon 22-12-2014 12:00';
 
-		$ret = adi_next_date( $event, $today, BIWEEKLY );
-		$result = $ret->format( 'd-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
-	}
+		$e = new EventDate( $event, $today, BIWEEKLY );
+		$this->assertEquals( $e->format(), $expect );	}
 
 	function testBiweeklyOddDateWhichIsPassedInTheCurrentEvenWeek() {
 		$event = new DateTime( 'Mon 09-09-2013 12:00' );
 		$today = new DateTime( 'Wed 10-12-2014' );
-		$expect = '15-12-2014 12:00';
+		$expect = 'Mon 15-12-2014 12:00';
 
-		$ret = adi_next_date( $event, $today, BIWEEKLY );
-		$result = $ret->format( 'd-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, BIWEEKLY );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testBiweeklyEvenDateWhichIsPassedInTheCurrentOddWeek() {
 		$event = new DateTime( 'Mon 02-09-2013 12:00' );
 		$today = new DateTime( 'Wed 17-12-2014' );
-		$expect = '22-12-2014 12:00';
+		$expect = 'Mon 22-12-2014 12:00';
 
-		$ret = adi_next_date( $event, $today, BIWEEKLY );
-		$result = $ret->format( 'd-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, BIWEEKLY );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testBiweeklyOddDateWhichIsToComeInTheCurrentOddWeek() {
 		$event = new DateTime( 'Thu 12-09-2013 12:00' );
 		$today = new DateTime( 'Wed 17-12-2014' );
-		$expect = '18-12-2014 12:00';
+		$expect = 'Thu 18-12-2014 12:00';
 
-		$ret = adi_next_date( $event, $today, BIWEEKLY );
-		$result = $ret->format( 'd-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, BIWEEKLY );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testBiweeklyEvenDateWhichToComeInTheCurrentEvenWeek() {
 		$event = new DateTime( 'Thu 05-09-2013 12:00' );
 		$today = new DateTime( 'Wed 10-12-2014' );
-		$expect = '11-12-2014 12:00';
+		$expect = 'Thu 11-12-2014 12:00';
 
-		$ret = adi_next_date( $event, $today, BIWEEKLY );
-		$result = $ret->format( 'd-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, BIWEEKLY );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testBiweeklyOddDateWhichIsToComeInTheCurrentEvenWeek() {
 		$event = new DateTime( 'Thu 12-09-2013 12:00' );
 		$today = new DateTime( 'Wed 10-12-2014' );
-		$expect = '18-12-2014 12:00';
+		$expect = 'Thu 18-12-2014 12:00';
 
-		$ret = adi_next_date( $event, $today, BIWEEKLY );
-		$result = $ret->format( 'd-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, BIWEEKLY );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testBiweeklyEvenDateWhichIsToComeInTheCurrentOddWeek() {
 		$event = new DateTime( 'Thu 05-09-2013 12:00' );
 		$today = new DateTime( 'Wed 17-12-2014' );
-		$expect = '25-12-2014 12:00';
+		$expect = 'Thu 25-12-2014 12:00';
 
-		$ret = adi_next_date( $event, $today, BIWEEKLY );
-		$result = $ret->format( 'd-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, BIWEEKLY );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testBiweeklyOddDateWhichIsTodayInTheCurrentEvenWeek() {
 		$event = new DateTime( 'Wed 11-09-2013 12:00' );
 		$today = new DateTime( 'Wed 10-12-2014' );
-		$expect = '17-12-2014 12:00';
+		$expect = 'Wed 17-12-2014 12:00';
 
-		$ret = adi_next_date( $event, $today, BIWEEKLY );
-		$result = $ret->format( 'd-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, BIWEEKLY );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testBiweeklyEvenDateWhichIsTodayInTheCurrentOddWeek() {
 		$event = new DateTime( 'Wed 04-09-2013 12:00' );
 		$today = new DateTime( 'Wed 17-12-2014' );
-		$expect = '24-12-2014 12:00';
+		$expect = 'Wed 24-12-2014 12:00';
 
-		$ret = adi_next_date( $event, $today, BIWEEKLY );
-		$result = $ret->format( 'd-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, BIWEEKLY );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testBiweeklyOddDateWhichIsTodayInTheCurrentOddWeek() {
 		$event = new DateTime( 'Wed 11-09-2013 12:00' );
 		$today = new DateTime( 'Wed 17-12-2014' );
-		$expect = '17-12-2014 12:00';
+		$expect = 'Wed 17-12-2014 12:00';
 
-		$ret = adi_next_date( $event, $today, BIWEEKLY );
-		$result = $ret->format( 'd-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, BIWEEKLY );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testBiweeklyEvenDateWhichIsTodayInTheCurrentEvenWeek() {
 		$event = new DateTime( 'Wed 04-09-2013 12:00' );
 		$today = new DateTime( 'Wed 10-12-2014' );
-		$expect = '10-12-2014 12:00';
+		$expect = 'Wed 10-12-2014 12:00';
 
-		$ret = adi_next_date( $event, $today, BIWEEKLY );
-		$result = $ret->format( 'd-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, BIWEEKLY );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testEveryFirstWeekdayOfTheMonth() {
 		$event = new DateTime( 'Wed 04-09-2013 12:00' );
 		$today = new DateTime( 'Wed 10-12-2014' );
-		$expect = '07-01-2015 12:00';
+		$expect = 'Wed 07-01-2015 12:00';
 
-		$ret = adi_next_date( $event, $today, MONTHLY );
-		$result = $ret->format( 'd-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, MONTHLY );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testEverySecondWeekdayOfTheMonth() {
 		$event = new DateTime( 'Wed 11-09-2013 12:00' );
 		$today = new DateTime( 'Wed 10-12-2014' );
-		$expect = '10-12-2014 12:00';
+		$expect = 'Wed 10-12-2014 12:00';
 
-		$ret = adi_next_date( $event, $today, MONTHLY );
-		$result = $ret->format( 'd-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, MONTHLY );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testEveryThirdWeekdayOfTheMonth() {
 		$event = new DateTime( 'Wed 18-09-2013 12:00' );
 		$today = new DateTime( 'Wed 10-12-2014' );
-		$expect = '17-12-2014 12:00';
+		$expect = 'Wed 17-12-2014 12:00';
 
-		$ret = adi_next_date( $event, $today, MONTHLY );
-		$result = $ret->format( 'd-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, MONTHLY );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testEveryFourthWeekdayOfTheMonth() {
 		$event = new DateTime( 'Wed 25-09-2013 12:00' );
 		$today = new DateTime( 'Wed 10-12-2014' );
-		$expect = '24-12-2014 12:00';
+		$expect = 'Wed 24-12-2014 12:00';
 
-		$ret = adi_next_date( $event, $today, MONTHLY );
-		$result = $ret->format( 'd-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, MONTHLY );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testEveryFifthWeekdayOfTheMonth() {
 		$event = new DateTime( 'Sun 29-09-2013 12:00' );
 		$today = new DateTime( 'Wed 10-12-2014' );
 
-		$result = adi_next_date( $event, $today, MONTHLY );
-
-		$this->assertFalse( $result );
+		$e = new EventDate( $event, $today, MONTHLY );
+		$this->assertFalse( $e->isUpdated );
 	}
 
 	function testDateFromSummertime() {
@@ -262,10 +221,8 @@ class nextDateTest extends PHPUnit_Framework_TestCase {
 		$today = new DateTime( 'Mon 26-10-2015' );
 		$expect = 'Fri 30-10-2015 12:00';
 
-		$ret = adi_next_date( $event, $today, WEEKLY );
-		$result = $ret->format( 'D d-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, WEEKLY );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testDateToSummertime() {
@@ -273,10 +230,8 @@ class nextDateTest extends PHPUnit_Framework_TestCase {
 		$today = new DateTime( 'Sun 29-03-2015' );
 		$expect = 'Mon 30-03-2015 18:00';
 
-		$ret = adi_next_date( $event, $today, WEEKLY );
-		$result = $ret->format( 'D d-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, WEEKLY );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testLeapDate() {
@@ -284,10 +239,8 @@ class nextDateTest extends PHPUnit_Framework_TestCase {
 		$today = new DateTime( 'Wed 24-02-2016' );
 		$expect = 'Mon 29-02-2016 22:00';
 
-		$ret = adi_next_date( $event, $today, BIWEEKLY );
-		$result = $ret->format( 'D d-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, BIWEEKLY );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testWeeklyDateWhichIsPassedInTheCurrentWeekPlusNotFirstWeekday() {
@@ -295,10 +248,8 @@ class nextDateTest extends PHPUnit_Framework_TestCase {
 		$today = new DateTime( 'Sat 25-02-2012' );
 		$expect = 'Thu 08-03-2012 23:45';
 
-		$ret = adi_next_date( $event, $today, WEEKLY, 1 );
-		$result = $ret->format( 'D d-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, WEEKLY, 1 );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testWeeklyDateWhichIsToComeInTheCurrentWeekPlusNotFirstWeekday() {
@@ -306,10 +257,8 @@ class nextDateTest extends PHPUnit_Framework_TestCase {
 		$today = new DateTime( 'Wed 29-02-2012' );
 		$expect = 'Thu 08-03-2012 0:00';
 
-		$ret = adi_next_date( $event, $today, WEEKLY, 1 );
-		$result = $ret->format( 'D d-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, WEEKLY, 1 );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testWeeklyDateWhichIsPassedInTheCurrentWeekPlusNotSecondWeekday() {
@@ -317,10 +266,8 @@ class nextDateTest extends PHPUnit_Framework_TestCase {
 		$today = new DateTime( 'Sat 03-03-2012' );
 		$expect = 'Thu 15-03-2012 0:45';
 
-		$ret = adi_next_date( $event, $today, WEEKLY, 2 );
-		$result = $ret->format( 'D d-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, WEEKLY, 2 );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testWeeklyDateWhichIsToComeInTheCurrentWeekPlusNotSecondWeekday() {
@@ -328,10 +275,8 @@ class nextDateTest extends PHPUnit_Framework_TestCase {
 		$today = new DateTime( 'Wed 07-03-2012' );
 		$expect = 'Thu 15-03-2012 0:00';
 
-		$ret = adi_next_date( $event, $today, WEEKLY, 2 );
-		$result = $ret->format( 'D d-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, WEEKLY, 2 );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testWeeklyDateWhichIsPassedInTheCurrentWeekPlusNotThirdWeekday() {
@@ -339,10 +284,8 @@ class nextDateTest extends PHPUnit_Framework_TestCase {
 		$today = new DateTime( 'Tue 13-03-2012' );
 		$expect = 'Mon 26-03-2012 1:45';
 
-		$ret = adi_next_date( $event, $today, WEEKLY, 3 );
-		$result = $ret->format( 'D d-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, WEEKLY, 3 );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testWeeklyDateWhichIsToComeInTheCurrentWeekPlusNotThirdWeekday() {
@@ -350,10 +293,8 @@ class nextDateTest extends PHPUnit_Framework_TestCase {
 		$today = new DateTime( 'Tue 13-03-2012' );
 		$expect = 'Thu 22-03-2012 1:45';
 
-		$ret = adi_next_date( $event, $today, WEEKLY, 3 );
-		$result = $ret->format( 'D d-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, WEEKLY, 3 );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testWeeklyDateWhichIsPassedInTheCurrentWeekPlusNotFourthWeekday() {
@@ -361,10 +302,8 @@ class nextDateTest extends PHPUnit_Framework_TestCase {
 		$today = new DateTime( 'Tue 20-03-2012' );
 		$expect = 'Mon 02-04-2012 1:45';
 
-		$ret = adi_next_date( $event, $today, WEEKLY, 4 );
-		$result = $ret->format( 'D d-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, WEEKLY, 4 );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testWeeklyDateWhichIsToComeInTheCurrentWeekPlusNotFourthWeekday() {
@@ -372,19 +311,8 @@ class nextDateTest extends PHPUnit_Framework_TestCase {
 		$today = new DateTime( 'Mon 26-03-2012' );
 		$expect = 'Mon 02-04-2012 1:45';
 
-		$ret = adi_next_date( $event, $today, WEEKLY, 4 );
-		$result = $ret->format( 'D d-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
-	}
-
-	function testWeeklyDatePlusBadIterationIndex() {
-		$event = new DateTime( 'Mon 19-03-2012 1:45' );
-		$today = new DateTime( 'Mon 26-03-2012' );
-
-		$ret = adi_next_date( $event, $today, WEEKLY, 'wrong' );
-
-		$this->assertFalse( $ret );
+		$e = new EventDate( $event, $today, WEEKLY, 4 );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testWeeklyDatePlusNotFirstWeekdayBeingIrrelevant() {
@@ -392,10 +320,8 @@ class nextDateTest extends PHPUnit_Framework_TestCase {
 		$today = new DateTime( 'Wed 07-03-2012' );
 		$expect = 'Thu 08-03-2012 0:00';
 
-		$ret = adi_next_date( $event, $today, WEEKLY, 1 );
-		$result = $ret->format( 'D d-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, WEEKLY, 1 );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testWeeklyDatePlusNotSecondWeekdayBeingIrrelevant() {
@@ -403,10 +329,8 @@ class nextDateTest extends PHPUnit_Framework_TestCase {
 		$today = new DateTime( 'Tue 13-03-2012' );
 		$expect = 'Mon 19-03-2012 1:45';
 
-		$ret = adi_next_date( $event, $today, WEEKLY, 2 );
-		$result = $ret->format( 'D d-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, WEEKLY, 2 );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testWeeklyDatePlusNotThirdWeekdayBeingIrrelevant() {
@@ -414,10 +338,8 @@ class nextDateTest extends PHPUnit_Framework_TestCase {
 		$today = new DateTime( 'Wed 07-03-2012' );
 		$expect = 'Thu 08-03-2012 0:00';
 
-		$ret = adi_next_date( $event, $today, WEEKLY, 3 );
-		$result = $ret->format( 'D d-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, WEEKLY, 3 );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testWeeklyDatePlusNotFourthWeekdayBeingIrrelevant() {
@@ -425,10 +347,8 @@ class nextDateTest extends PHPUnit_Framework_TestCase {
 		$today = new DateTime( 'Wed 07-03-2012' );
 		$expect = 'Thu 08-03-2012 0:00';
 
-		$ret = adi_next_date( $event, $today, WEEKLY, 4 );
-		$result = $ret->format( 'D d-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, WEEKLY, 4 );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testTodaysWeeklyDateSetOnFirstWeekPlusNotFirstWeekday() {
@@ -436,10 +356,8 @@ class nextDateTest extends PHPUnit_Framework_TestCase {
 		$today = new DateTime( 'Thu 01-03-2012' );
 		$expect = 'Thu 08-03-2012 0:00';
 
-		$ret = adi_next_date( $event, $today, WEEKLY, 1 );
-		$result = $ret->format( 'D d-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, WEEKLY, 1 );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	// since next date is based off of today, we get the next legit date in the calendar
@@ -448,10 +366,8 @@ class nextDateTest extends PHPUnit_Framework_TestCase {
 		$today = new DateTime( 'Fri 09-03-2012' );
 		$expect = 'Thu 15-03-2012 0:00';
 
-		$ret = adi_next_date( $event, $today, WEEKLY, 4 );
-		$result = $ret->format( 'D d-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, WEEKLY, 4 );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testFutureWeeklyDateSetOnFourthWeekPlusNotFourthWeekday() {
@@ -459,21 +375,17 @@ class nextDateTest extends PHPUnit_Framework_TestCase {
 		$today = new DateTime( 'Fri 16-03-2012' );
 		$expect = 'Thu 29-03-2012 0:00';
 
-		$ret = adi_next_date( $event, $today, WEEKLY, 4 );
-		$result = $ret->format( 'D d-m-Y G:i' );
-
-		$this->assertSame( $expect, $result );
+		$e = new EventDate( $event, $today, WEEKLY, 4 );
+		$this->assertEquals( $e->format(), $expect );
 	}
 
 	function testFutureBiweeklyDate() {
 		$event = new DateTime( '01-12-2014 0:00' );
 		$today = new DateTime( 'Fri 16-03-2012' );
 
-		$ret = adi_next_date( $event, $today, BIWEEKLY );
-
-		$this->assertFalse( $ret );
+		$e = new EventDate( $event, $today, BIWEEKLY );
+		$this->assertFalse( $e->isUpdated );
 	}
-
 }
 
 ?>

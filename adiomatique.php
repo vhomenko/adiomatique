@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Adiomatique
  * Description: Einfache Terminverwaltung.
- * Version: 8
+ * Version: 10
  * Author: Vitali Homenko
  * Author URI: mailto:vitali.homenko@gmail.com
  * License: GPL-3.0
@@ -29,11 +29,14 @@
  
 defined( 'ABSPATH' ) or die( '' );
 
-date_default_timezone_set( 'Europe/Berlin' );
+const ADI_TZ = 'Europe/Berlin';
 
-require_once( 'util.php' );
+date_default_timezone_set( ADI_TZ );
+
 require_once( 'admin_page.php' );
 require_once( 'admin_post.php' );
+require_once( 'EventManager.php' );
+
 
 const ADI_ACTIVITY_PARENT_PAGE_ID = 553;
 const ADI_ACTIVITY_ARCHIVE_PAGE_ID = 388;
@@ -52,92 +55,75 @@ if ( defined( 'ADIOMATIQUE_DEV' ) ) {
 add_filter( 'the_content', 'adi_add_event_data', 20 );
 
 function adi_add_event_data( $content ) {
-
 	$id = get_the_ID();
-
 	$titlepage_cat_id = intval( get_post_meta( $id, 'adi_titlepage_cat_id', true ) );
-
 	$adi_event_timestamp = intval( get_post_meta( $id, 'adi_event_timestamp', true ) );
-
-	if ( 0 !== $titlepage_cat_id ) {
-		$content = adi_display_page( $id, $titlepage_cat_id ) . $content;
-	} else if ( 0 !== $adi_event_timestamp ) {
-		$content = adi_display_post( $id, $adi_event_timestamp ) . $content;
+	if ( 0 !== $adi_event_timestamp ) {
+		$content = adi_display_post( $id ) . $content;
+	} else if ( 0 !== $titlepage_cat_id ) {
+		$content = adi_display_page( $titlepage_cat_id ) . $content;
 	}
-
 	return $content;
 }
 
 
-function adi_display_page( $id, $titlepage_cat_id ) {
+function adi_display_page( $titlepage_cat_id ) {
+	global $post;
+	if ( ADI_ACTIVITY_ARCHIVE_PAGE_ID === $post->post_parent ) {
+		return 'Dieses Projekt ist archiviert.';
+	}
 
-		if ( adi_page_is_in_archive( $id ) ) {
-			return 'Diese Aktivität wurde archiviert.';
-		}
+	$events = new EventManager( $titlepage_cat_id );
 
-		$events = adi_get_events( $titlepage_cat_id, false );
+	if ( $events->isEmpty() ) {
+		return;
+	}
 
-		if ( 0 === count( $events ) ) {
-			return;
-		}
+	$output = '<p>';
 
-		$output = '<p>';
+	foreach ( $events as $e ) {
+		$output .= $e->getDate() . ', ';
+		$output .= $e->getTime() . ' Uhr &nbsp;&nbsp;&nbsp;' . $e->getLink() . ' &nbsp;&nbsp;&nbsp;';
 
-		foreach ( $events as $event ) {
-			$output .= $event['date'] . ', ';
-			$output .= $event['time'] . ' Uhr &nbsp;&nbsp;&nbsp;' . $event['link'] . ' &nbsp;&nbsp;&nbsp;';
+		if ( $e->isExternal() ) 
+			$output .= '<i>extern</i>';
+		else if ( $e->isPeriodic() ) 
+			$output .= '<i>regelmäßig</i>';
 
-			if ( ! empty( $event['location'] ) ) 
-				$output .= '<i>extern</i>';
-			else if ( 0 < $event['periodicity'] ) 
-				$output .= '<i>regelmäßig</i>';
+		$output .= '<br>';
+	}
 
-			$output .= '<br>';
-		}
+	$output .= '</p>';
 
-		$output .= '</p>';
-
-		return '<span>Anstehende Termine:<a class="small_right" href="' . get_category_link( $titlepage_cat_id ) . '">Alle Termine ansehen</a><br>' . $output . '</span>';
+	return '<span>Anstehende Termine:<a class="small_right" href="' . get_category_link( $titlepage_cat_id ) . '">Alle Termine ansehen</a><br>' . $output . '</span>';
 
 }
 
 
-function adi_display_post( $id, $adi_event_timestamp ) {
+function adi_display_post( $id ) {
 
-	$new_date = adi_update_event( $id );
+	$e = new Event( $id );
 
-	if ( $new_date ) {
-		$datetime = $new_date;
-	} else {
-		$datetime = new DateTime( '@' . $adi_event_timestamp );
-		$datetime->setTimezone( new DateTimeZone( 'Europe/Berlin' ) );
-	}
-
-	$adi_event_date = $datetime->format( 'd.m' );
-	$adi_event_time = $datetime->format( 'H:i' );
-
-	$link = adi_get_titlepage_link( $id );
-
+	$link = $e->getTitlepageLink();
 	$parent_link = ' <span class="small_right">' . $link . '</span>';
-
 	if ( empty( $link ) ) $parent_link = '';
 
-	$periodicity = adi_get_event_periodicity( $datetime, intval( get_post_meta( $id, 'adi_event_periodicity', true ) ), intval( get_post_meta( $id, 'adi_event_week_to_skip', true ) ) );
+	$periodicity = $e->getPeriodicityDesc();
 
-	$location = sanitize_text_field( get_post_meta( $id, 'adi_event_location', true ) );
+	$location = $e->getLocation();
 
-	if ( ! empty( $location ) ) {
+	if ( $e->isExternal() ) {
 		$location = '<br><strong>Ort:</strong> ' . $location . '';
 	}
 
 	$type = '';
-	if ( in_category( ADI_EVENTS_ARCHIVE_CAT_ID, $id ) ) {
+	if ( $e->isArchived() ) {
 		$type = 'Archivierter ';
 	}
 
-	return 
+	return
 		'<p><strong>' . $type . 'Termin:</strong> ' .
-		'am ' . $adi_event_date . ' um ' . $adi_event_time . ' Uhr' . '<i>' . $periodicity . '</i>.' . $location .
+		'am ' . $e->getDate() . ' um ' . $e->getTime() . ' Uhr' . '<i>' . $periodicity . '</i>.' . $location .
 		$parent_link . '</p>';
 
 }
@@ -163,36 +149,29 @@ function adi_the_events( $atts ) {
 
 	$output = "<div id='aditue'>";
 
-	$events = adi_get_events( ADI_EVENTS_CAT_ID, $output_limit );
+	$events = new EventManager( ADI_EVENTS_CAT_ID, $output_limit );
 
-	$prev_event = null;
+	//print_r( $events );
 
-	foreach ( $events as $event ) {
+	$prevE = null;
+
+	foreach ( $events as $e ) {
 
 		$output .= '<div>';
 
-		$display_date = true;
-
-		if ( $event['weekday'] === $prev_event['weekday'] ) {
-			if ( $event['weeknum'] === $prev_event['weeknum'] ) $display_date = false;
+		if ( ! $e->isOnTheSameDay( $prevE ) ) {
+			$output .= "<div class='adi_date'><span>" . $e->getDate() . "</span><span>" . $e->getWeekDay() . "</span></div>";
 		}
 
-		if ( $display_date ) {
-			$output .= "<div class='adi_date'><span>" . $event['date'] . "</span><span>" . adi_get_weekday_de( $event['weekday'] ) . "</span></div>";
-		}
-
-		$output .= "<div class='adi_time'><span>" . $event['time'] . "</span><span>" . $event['link'] . "</span></div>";
-
+		$output .= "<div class='adi_time'><span>" . $e->getTime() . "</span><span>" . $e->getLink() . "</span></div>";
 
 		$type = '';
 		$type_fname = '';
 
-		$output .= '<!-- huzza ' . $event['location'] . ' -->';
-
-		if ( ! empty( $event['location'] ) ) {
+		if ( ! empty( $e->getLocation() ) ) {
 			$type = "extern";
 			$type_fname = 'external.png';
-		} else if ( 0 < $event['periodicity'] ) {
+		} else if ( 0 < $e->getPeriodicity() ) {
 			$type = "regelmäßig";
 			$type_fname = 'periodic.png';
 		}
@@ -203,14 +182,14 @@ function adi_the_events( $atts ) {
 			$type_template = "<img class='" . ( '' !== $type ? 'adi_type_img' : '') . "' src='" . plugins_url() . "/adiomatique/images/" . $type_fname . "' alt='" . $type . "'>";
 		}
 
-		$periodicity = $event['periodicity_formatted'];
-		$periodicity_click = " onclick=\"javascript:alert(' " . $event['title'] . ":\\n" . $periodicity . "')\"";
+		$periodicity = $e->getPeriodicityDesc();
+		$periodicity_click = " onclick=\"javascript:alert(' " . $e->getTitle() . ":\\n" . $periodicity . "')\"";
 
-		if ( 0 == $event['periodicity'] ) {
+		if ( 0 === $e->getPeriodicity() ) {
 			$periodicity_click = '';
 		}
 
-		$link = adi_get_titlepage_link( $event['id'] );
+		$link = $e->getTitlepageLink();
 
 		$sub = "<div class='adi_type'><span " . ( "" === $periodicity_click ? "" : "style='cursor:pointer;'" ) . $periodicity_click . ">" . $type_template . "</span><span>" . $link . "</span>";
 
@@ -222,7 +201,7 @@ function adi_the_events( $atts ) {
 
 		$output .= '</div>';
 
-		$prev_event = $event;
+		$prevE = $e;
 	}
 
 	$output .= '</div><!--/aditue-->';

@@ -45,45 +45,41 @@ function adi_post_meta_box( $post ) {
 		return;
 	}
 
-	$ts = get_post_meta( $post->ID, 'adi_event_timestamp', true );
+	$e = new Event( $post->ID );
 
-	if ( empty( $ts ) ) {
-		$adi_event_date = date( 'j.m.y' );
-		$adi_event_time = '';
+	if ( $e->isEmpty() ) {
+		$date = date( 'j.m.y' );
+		$time = '';
 	} else {
-		$datetime = new DateTime( '@' . $ts );
-		// convert from UTC back to our locale
-		$datetime->setTimezone( new DateTimeZone( 'Europe/Berlin' ) );
-		$adi_event_date = $datetime->format( 'j.m.y' );
-		$adi_event_time = $datetime->format( 'G:i' );
+		$date = $e->getFullDate();
+		$time = $e->getTime();
 	}
 
-	$adi_event_periodicity = get_post_meta( $post->ID, 'adi_event_periodicity', true );
-	$adi_event_week_to_skip = intval( get_post_meta( $post->ID, 'adi_event_week_to_skip', true ) );
-	$adi_event_location = sanitize_text_field( get_post_meta( $post->ID, 'adi_event_location', true ) );
-
-	$adi_event_titlepage_id = intval( get_post_meta( $post->ID, 'adi_event_titlepage_id', true ) );
+	$periodicity = $e->getPeriodicity();
+	$week_to_skip = $e->getWeekToSkip();
+	$location = $e->getLocation();
+	$titlepage_id = $e->getTitlepageID();
 
 ?>
 
 <form method="post">
 	<p>
-		<input style="text-align:center;" type="text" name="adi_event_date" id="adi_event_date" value="<?php echo $adi_event_date ?>" size="8" />
-		<input style="text-align:center;" type="text" name="adi_event_time" id="adi_event_time" value="<?php echo $adi_event_time ?>" size="5" />
+		<input style="text-align:center;" type="text" name="adi_event_date" id="adi_event_date" value="<?php echo $date ?>" size="8" />
+		<input style="text-align:center;" type="text" name="adi_event_time" id="adi_event_time" value="<?php echo $time ?>" size="5" />
 		<select style="vertical-align:top;" id="adi_event_periodicity" name="adi_event_periodicity" onchange="window.ADI.toggleWeekToSkipBox()">
-			<option value="0" <?php selected( $adi_event_periodicity, 0 ); ?>>einmalig</option>
-			<option value="1" <?php selected( $adi_event_periodicity, 1 ); ?>>wöchentlich</option>
-			<option value="2" <?php selected( $adi_event_periodicity, 2 ); ?>>zweiwöchentlich</option>
-			<option value="4" <?php selected( $adi_event_periodicity, 4 ); ?>>monatlich</option>
+			<option value="0" <?php selected( $periodicity, 0 ); ?>>einmalig</option>
+			<option value="1" <?php selected( $periodicity, 1 ); ?>>wöchentlich</option>
+			<option value="2" <?php selected( $periodicity, 2 ); ?>>zweiwöchentlich</option>
+			<option value="4" <?php selected( $periodicity, 4 ); ?>>monatlich</option>
 		</select>
 		<br>
 		<span id="adi_week_to_skip_box">
 		<select id="adi_event_week_to_skip" name="adi_event_week_to_skip">
-			<option value="0" <?php selected( $adi_event_week_to_skip, 0 ); ?>>Keine</option>
-			<option value="1" <?php selected( $adi_event_week_to_skip, 1 ); ?>>Erste</option>
-			<option value="2" <?php selected( $adi_event_week_to_skip, 2 ); ?>>Zweite</option>
-			<option value="3" <?php selected( $adi_event_week_to_skip, 3 ); ?>>Dritte</option>
-			<option value="4" <?php selected( $adi_event_week_to_skip, 4 ); ?>>Vierte</option>
+			<option value="0" <?php selected( $week_to_skip, 0 ); ?>>Keine</option>
+			<option value="1" <?php selected( $week_to_skip, 1 ); ?>>Erste</option>
+			<option value="2" <?php selected( $week_to_skip, 2 ); ?>>Zweite</option>
+			<option value="3" <?php selected( $week_to_skip, 3 ); ?>>Dritte</option>
+			<option value="4" <?php selected( $week_to_skip, 4 ); ?>>Vierte</option>
 		</select>
 		Woche des Monats überspringen.<br></span>
 		<em>Die Termineingaben werden gespeichert, wenn eine <strong>Uhrzeit</strong> eingetragen wird!</em>
@@ -91,7 +87,7 @@ function adi_post_meta_box( $post ) {
 	<hr>
 	<p>
 		<select id="adi_event_titlepage_id" name="adi_event_titlepage_id">
-			<option value="eigenstaendig" <?php selected( $adi_event_titlepage_id, 0 ); ?>>eigenständig</option>
+			<option value="eigenstaendig" <?php selected( $titlepage_id, 0 ); ?>>eigenständig</option>
 		<?php
 
 			$args = array(
@@ -104,7 +100,7 @@ function adi_post_meta_box( $post ) {
 
 			foreach ( $pages as $page ) {
 				$option  = '<option value="' . $page->ID . '" ';
-				$option .= selected( $adi_event_titlepage_id,  $page->ID ) . '>';
+				$option .= selected( $titlepage_id,  $page->ID ) . '>';
 				$option .= $page->post_title;
 				$option .= '</option>';
 				echo $option;
@@ -115,7 +111,7 @@ function adi_post_meta_box( $post ) {
 	</p>
 	<hr>
 	<p>
-		Externer Ort: <input style="min-width: 80%;" type="text" name="adi_event_location" id="adi_event_location" value="<?php echo $adi_event_location; ?>" />
+		Externer Ort: <input style="min-width: 80%;" type="text" name="adi_event_location" id="adi_event_location" value="<?php echo $location; ?>" />
 	</p>
 	<hr>
 	<p>
@@ -222,15 +218,6 @@ function adi_save_meta( $post_id, $post ) {
 	}
 
 	$date = $_POST['adi_event_date'];
-
-	$a = explode( '.', $date );
-	$day = $a[0];
-	$month = $a[1];
-	$year = $a[2];
-
-	$b = explode( ':', $time );
-	$hour = $b[0];
-	$min = $b[1];
 
 	$datetime = DateTime::createFromFormat( 'j.m.y G:i', $date . ' ' . $time, new DateTimeZone( 'Europe/Berlin' ) );
 

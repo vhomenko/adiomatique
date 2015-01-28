@@ -45,8 +45,8 @@ function adi_page_meta_box( $post ) {
 
 	if ( 'Startseite' === $post->post_title ) return;
 
-	if ( adi_page_is_in_archive( $post->ID ) ) {
-		echo 'Diese Inhalte sind archiviert.';
+	if ( ADI_ACTIVITY_ARCHIVE_PAGE_ID === $post->post_parent ) {
+		echo 'Dieses Projekt ist archiviert.';
 		return;
 	}
 
@@ -146,14 +146,11 @@ function adi_save_titlepage_meta( $page_id, $post ) {
 
 	if ( $is_normal_page ) {
 		if ( $keep_as_normal_page ) return;
-
 		// first run, create category, save metas
 		$new_cat_id = wp_create_category( $new_title, ADI_EVENTS_CAT_ID );
 
 		update_post_meta( $page_id, 'adi_titlepage_cat_id', $new_cat_id );
-
 		update_post_meta( $page_id, 'adi_is_titlepage', $is_titlepage );
-
 		update_post_meta( $page_id, 'adi_titlepage_title', $new_title );
 
 		remove_action( 'save_post', 'adi_save_titlepage_meta' );
@@ -174,4 +171,3 @@ function adi_save_titlepage_meta( $page_id, $post ) {
 	}
 
 }
-
