@@ -101,7 +101,7 @@ class EventDate {
 				break;
 			case 2:
 				// biweekly
-				$is_event_weeknum_even = ( 0 === $this->weeknum % 2 );
+				$is_event_weeknum_even = ( 0 === $this->weekNum % 2 );
 				$current_weeknum = intval( $this->today->format( 'W' ) );
 				$is_current_weeknum_even = ( 0 === $current_weeknum % 2 );
 				$both_are_on_even_weeks = $is_current_weeknum_even === $is_event_weeknum_even;
