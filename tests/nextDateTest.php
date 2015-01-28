@@ -386,6 +386,50 @@ class nextDateTest extends PHPUnit_Framework_TestCase {
 		$this->assertFalse( $ret );
 	}
 
+	function testWeeklyDatePlusNotFirstWeekdayBeingIrrelevant() {
+		$event = new DateTime( 'Thu 01-03-2012 0:00' );
+		$today = new DateTime( 'Wed 07-03-2012' );
+		$expect = 'Thu 08-03-2012 0:00';
+
+		$ret = adi_next_date( $event, $today, WEEKLY, 1 );
+		$result = $ret->format( 'D d-m-Y G:i' );
+
+		$this->assertSame( $expect, $result );
+	}
+
+	function testWeeklyDatePlusNotSecondWeekdayBeingIrrelevant() {
+		$event = new DateTime( 'Mon 12-03-2012 1:45' );
+		$today = new DateTime( 'Tue 13-03-2012' );
+		$expect = 'Mon 19-03-2012 1:45';
+
+		$ret = adi_next_date( $event, $today, WEEKLY, 2 );
+		$result = $ret->format( 'D d-m-Y G:i' );
+
+		$this->assertSame( $expect, $result );
+	}
+
+	function testWeeklyDatePlusNotThirdWeekdayBeingIrrelevant() {
+		$event = new DateTime( 'Thu 01-03-2012 0:00' );
+		$today = new DateTime( 'Wed 07-03-2012' );
+		$expect = 'Thu 08-03-2012 0:00';
+
+		$ret = adi_next_date( $event, $today, WEEKLY, 3 );
+		$result = $ret->format( 'D d-m-Y G:i' );
+
+		$this->assertSame( $expect, $result );
+	}
+
+	function testWeeklyDatePlusNotFourthWeekdayBeingIrrelevant() {
+		$event = new DateTime( 'Thu 01-03-2012 0:00' );
+		$today = new DateTime( 'Wed 07-03-2012' );
+		$expect = 'Thu 08-03-2012 0:00';
+
+		$ret = adi_next_date( $event, $today, WEEKLY, 4 );
+		$result = $ret->format( 'D d-m-Y G:i' );
+
+		$this->assertSame( $expect, $result );
+	}
+
 }
 
 ?>
