@@ -9,6 +9,7 @@ const MONTHLY = 4;
 
 require_once '../util.php';
 
+// WP_UnitTestCase has assertWPError( $actual, $message )
 
 class nextDateTest extends PHPUnit_Framework_TestCase {
 
