@@ -30,19 +30,16 @@
 defined( 'ABSPATH' ) or die( '' );
 
 const ADI_TZ = 'Europe/Berlin';
-
 date_default_timezone_set( ADI_TZ );
 
 require_once( 'admin_page.php' );
 require_once( 'admin_post.php' );
 require_once( 'EventManager.php' );
 
-
 const ADI_ACTIVITY_PARENT_PAGE_ID = 553;
 const ADI_ACTIVITY_ARCHIVE_PAGE_ID = 388;
 const ADI_START_PAGE_ID = 17;
 const ADI_EVENTS_PAGE_ID = 1563;
-
 
 if ( defined( 'ADIOMATIQUE_DEV' ) ) {
 	require_once( 'dev_settings.php' );
@@ -57,13 +54,13 @@ add_filter( 'the_content', 'adi_add_event_data', 20 );
 function adi_add_event_data( $content ) {
 	$id = get_the_ID();
 	$titlepage_cat_id = intval( get_post_meta( $id, 'adi_titlepage_cat_id', true ) );
-	$adi_event_timestamp = intval( get_post_meta( $id, 'adi_event_timestamp', true ) );
-	if ( 0 !== $adi_event_timestamp ) {
-		$content = adi_display_post( $id ) . $content;
-	} else if ( 0 !== $titlepage_cat_id ) {
-		$content = adi_display_page( $titlepage_cat_id ) . $content;
+	$data = '';
+	if ( 0 !== $titlepage_cat_id ) {
+		$data = adi_display_page( $titlepage_cat_id );
+	} else {
+		$data = adi_display_post( $id );
 	}
-	return $content;
+	return $data . $content;
 }
 
 
@@ -104,17 +101,14 @@ function adi_display_post( $id ) {
 
 	$e = new Event( $id );
 
+	if ( $e->isEmpty() ) return;
+
 	$link = $e->getTitlepageLink();
 	$parent_link = ' <span class="small_right">' . $link . '</span>';
 	if ( empty( $link ) ) $parent_link = '';
 
-	$periodicity = $e->getPeriodicityDesc();
-
-	$location = $e->getLocation();
-
-	if ( $e->isExternal() ) {
-		$location = '<br><strong>Ort:</strong> ' . $location . '';
-	}
+	$location = '<br><strong>Ort:</strong> ' . $e->getLocation() . '';
+	if ( ! $e->isExternal() ) $location = '';
 
 	$type = '';
 	if ( $e->isArchived() ) {
@@ -123,7 +117,7 @@ function adi_display_post( $id ) {
 
 	return
 		'<p><strong>' . $type . 'Termin:</strong> ' .
-		'am ' . $e->getDate() . ' um ' . $e->getTime() . ' Uhr' . '<i>' . $periodicity . '</i>.' . $location .
+		'am ' . $e->getDate() . ' um ' . $e->getTime() . ' Uhr' . '<i>' . $e->getPeriodicityDesc() . '</i>.' . $location .
 		$parent_link . '</p>';
 
 }
