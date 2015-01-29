@@ -20,6 +20,7 @@ function adi_add_post_meta_boxes() {
 	wp_enqueue_style( 'jquery-ui-css', plugins_url() . '/adiomatique/css/jquery-ui.css' );
 	wp_enqueue_style( 'jquery-ui-timepicker-css', plugins_url() . '/adiomatique/css/jquery.ui.timepicker.css' );
 	wp_enqueue_script( 'jquery-ui-timepicker', plugins_url() . '/adiomatique/js/jquery.ui.timepicker.js' );
+	wp_enqueue_script( 'adi-admin-post', plugins_url() . '/adiomatique/js/admin_post.js' );
 	add_meta_box(
 		'adi_for_posts',
 		'Adiomatique: Veranstaltungstermin',
@@ -79,7 +80,7 @@ function adi_post_meta_box( $post ) {
 	<hr>
 	<p>
 		<select id="adi_event_titlepage_id" name="adi_event_titlepage_id">
-			<option value="eigenstaendig" <?php selected( $titlepage_id, 0 ); ?>>eigenständig</option>
+			<option value="0" <?php selected( $titlepage_id, 0 ); ?>>eigenständig</option>
 		<?php
 
 			$args = array(
@@ -112,78 +113,6 @@ function adi_post_meta_box( $post ) {
 	</p>
 </form>
 
-<script>
-	jQuery(document).ready(function(){
-		window.ADI = window.ADI || {};
-
-		var dateFormat = "d.mm.y";
-		var monthNames = ['Januar','Februar','März','April','Mai','Juni',
-		'Juli','August','September','Oktober','November','Dezember'];
-		var monthNamesShort = ['Jan','Feb','Mär','Apr','Mai','Jun',
-		'Jul','Aug','Sep','Okt','Nov','Dez'];
-		var dayNames = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
-		var dayNamesShort = ['So','Mo','Di','Mi','Do','Fr','Sa'];
-		jQuery( "#adi_event_date" ).datepicker({
-			closeText: 'Schließen',
-			monthNames: monthNames,
-			monthNamesShort: monthNamesShort,
-			dayNames: dayNames,
-			dayNamesShort: dayNamesShort,
-			dayNamesMin: dayNamesShort,
-			weekHeader: 'KW',
-			firstDay: 1,
-			isRTL: false,
-			showMonthAfterYear: false,
-			yearSuffix: '',
-			dateFormat : dateFormat});
-		if ( jQuery( '#adi_event_date' ).val() === '' ) {
-			var cur = jQuery.datepicker.formatDate(dateFormat, new Date(), {
-				monthNames: monthNames,
-				monthNamesShort: monthNamesShort,
-				dayNames: dayNames,
-				dayNamesShort: dayNamesShort
-			});
-			jQuery( '#adi_event_date' ).val( cur );
-		}
-		window.ADI.toggleWeekToSkipBox = function () {
-			if ( '1' !== document.getElementById('adi_event_periodicity').value ) {
-				jQuery( '#adi_week_to_skip_box' ).hide();
-			} else {
-				jQuery( '#adi_week_to_skip_box' ).show();
-			}
-		}
-		window.ADI.toggleWeekToSkipBox();
-		window.ADI.resetEventData = function () {
-			jQuery( '#adi_event_time' ).val( '' );
-
-			var cur = jQuery.datepicker.formatDate(dateFormat, new Date(), {
-				monthNames: monthNames,
-				monthNamesShort: monthNamesShort,
-				dayNames: dayNames,
-				dayNamesShort: dayNamesShort
-			});
-			jQuery( '#adi_event_date' ).val( cur );
-
-			document.getElementById( 'adi_event_periodicity' ).value = '0';
-			document.getElementById( 'adi_event_week_to_skip' ).value = '0';
-			window.ADI.toggleWeekToSkipBox();
-			document.getElementById( 'adi_event_location' ).value = '';
-			document.getElementById( 'adi_event_titlepage_id' ).value = '<?php echo "eigenstaendig"; ?>';
-		}
-		jQuery('#adi_event_time').timepicker({
-			defaultTime: '19:00',
-			showLeadingZero: false, 
-			showPeriodLabels: false,
-			hourText: 'Stunden',
-			minuteText: 'Min',
-			showNowButton: false,
-			closeButtonText: 'Schließen',
-			showCloseButton: true,
-			minutes: { interval: 15 }
-		});
-	});
-</script>
-
 <?php
 
 }
@@ -196,45 +125,13 @@ function adi_save_meta( $post_id ) {
 	if ( ! isset( $_POST['adi_post_nonce'] ) || ! wp_verify_nonce( $_POST['adi_post_nonce'], basename( __FILE__ ) ) ) return;
 	if ( ! current_user_can( 'edit_post', $post_id ) ) return;
 
-	$time = $_POST['adi_event_time'];
-
-	if ( empty( $time ) ) {
-		delete_post_meta( $post_id, 'adi_event_periodicity' );
-		delete_post_meta( $post_id, 'adi_event_week_to_skip' );
-		delete_post_meta( $post_id, 'adi_event_location' );
-		delete_post_meta( $post_id, 'adi_event_timestamp' );
-		delete_post_meta( $post_id, 'adi_event_titlepage_id' );
-
-		return;
-	}
-
-	$date = $_POST['adi_event_date'];
-
-	$datetime = DateTime::createFromFormat( 'j.m.y G:i', $date . ' ' . $time, new DateTimeZone( 'Europe/Berlin' ) );
-
-	$stamp = $datetime->getTimestamp();
-	update_post_meta( $post_id, 'adi_event_timestamp', $stamp );
-	$periodicity = $_POST['adi_event_periodicity'];
-	update_post_meta( $post_id, 'adi_event_periodicity', $periodicity );
-	$week_to_skip = $_POST['adi_event_week_to_skip'];
-	update_post_meta( $post_id, 'adi_event_week_to_skip', $week_to_skip );
-	$location = sanitize_text_field( $_POST['adi_event_location'] );
-	update_post_meta( $post_id, 'adi_event_location', $location );
-
-	$t_id = $_POST['adi_event_titlepage_id'];
-
-	if ( 'eigenstaendig' !== $t_id ) {
-		$titlepage_id = intval( $t_id );
-
-		update_post_meta( $post_id, 'adi_event_titlepage_id', $titlepage_id );
-
-		$cat_id = intval( get_post_meta( $titlepage_id, 'adi_titlepage_cat_id', true ) );
-
-		// update the event's category
-		wp_set_post_terms( $post_id, array( $cat_id ), 'category' );
-	} else {
-		wp_set_post_terms( $post_id, array( ADI_INDEPENDENT_EVENTS_CAT_ID ), 'category' );
-		delete_post_meta( $post_id, 'adi_event_titlepage_id' );
-	}
-
+	$e = new Event( $post_id, true );
+	$e->setFromPost(
+		sanitize_text_field( $_POST['adi_event_time'] ),
+		sanitize_text_field( $_POST['adi_event_date'] ),
+					 intval( $_POST['adi_event_periodicity'] ),
+					 intval( $_POST['adi_event_week_to_skip'] ),
+		sanitize_text_field( $_POST['adi_event_location'] ),
+					 intval( $_POST['adi_event_titlepage_id'] )
+	);
 }

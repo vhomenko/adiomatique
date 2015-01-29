@@ -21,14 +21,14 @@ class Event {
 		'week_to_skip' => 'adi_event_week_to_skip',
 		'titlepage_id' => 'adi_event_titlepage_id' );
 
-	public function __construct( $ID ) {
+	public function __construct( $ID, $doNotLoad = false ) {
 		$this->ID = $ID;
 		$this->storage = new CustomValuesStorage( $this->ID );
 
+		if ( $doNotLoad ) return;
+
 		$this->timestamp = $this->storage->getInt( $this->KEYS['timestamp'] );
-		if ( 0 === $this->timestamp ) {
-			return;
-		}
+		if ( 0 === $this->timestamp ) return;
 		$this->dtObj = new DateTime( '@' . $this->timestamp );
 		$this->dtObj->setTimezone( new DateTimeZone( ADI_TZ ) );
 
@@ -58,7 +58,21 @@ class Event {
 
 	public function setFromPost( $time, $date, $periodicity, $weekToSkip, $location, $titlepageID ) {
 
-		$dateTime = new DateTime();
+		if ( empty( $time ) ) {
+			$this->deleteStorage();
+			return;
+		}
+
+		$dateTime = DateTime::createFromFormat( 'j.m.y G:i', $date . ' ' . $time, new DateTimeZone( ADI_TZ ) );
+
+		$catID = ADI_INDEPENDENT_EVENTS_CAT_ID;
+		if ( 0 !== $titlepageID ) {
+			$catID = $this->storage->getIntFromAnotherPost( $titlepageID, 'adi_titlepage_cat_id' );
+		}
+		$this->setCategory( $catID );
+
+		$this->store( $dateTime->getTimestamp(), $periodicity, $weekToSkip, $location, $titlepageID );
+
 		$this->set(
 			$dateTime,
 			$periodicity,
@@ -66,6 +80,10 @@ class Event {
 			$location,
 			$titlepageID
 		);
+	}
+
+	public function setCategory( $catID ) {
+		wp_set_post_terms( $this->ID, array( $catID ), 'category' );
 	}
 
 	public function getDate() {
@@ -124,16 +142,8 @@ class Event {
 		if ( $this->date->isNonPeriodicAndPassed() ) {
 			$this->archivate();
 		} else if ( $this->date->isUpdated ) {
-			$this->store();
+			$this->storeTimestamp();
 		}
-	}
-
-	private function store() {
-		$this->storage->update( $this->KEYS['timestamp'], $this->date->timestamp );
-	}
-
-	private function archivate() {
-		wp_set_post_terms( $this->ID, array( ADI_EVENTS_ARCHIVE_CAT_ID ), 'category' );
 	}
 
 	public function getTitlepageLink() {
@@ -185,6 +195,30 @@ class Event {
 
 	public function isEmpty() {
 		return $this->isEmpty;
+	}
+
+	private function storeTimestamp() {
+		$this->storage->update( $this->KEYS['timestamp'], $this->getTimestamp() );
+	}
+
+	private function store( $timestamp, $periodicity, $weekToSkip, $location, $titlepageID ) {
+		$this->storage->update( $this->KEYS['timestamp'], $timestamp );
+		$this->storage->update( $this->KEYS['periodicity'], $periodicity );
+		$this->storage->update( $this->KEYS['week_to_skip'], $weekToSkip );
+		$this->storage->update( $this->KEYS['location'], $location );
+		$this->storage->update( $this->KEYS['titlepage_id'], $titlepageID );
+	}
+
+	private function deleteStorage() {
+		$this->storage->delete( $this->KEYS['timestamp'] );
+		$this->storage->delete( $this->KEYS['periodicity'] );
+		$this->storage->delete( $this->KEYS['week_to_skip'] );
+		$this->storage->delete( $this->KEYS['location'] );
+		$this->storage->delete( $this->KEYS['titlepage_id'] );
+	}
+	
+	private function archivate() {
+		wp_set_post_terms( $this->ID, array( ADI_EVENTS_ARCHIVE_CAT_ID ), 'category' );
 	}
 }
 

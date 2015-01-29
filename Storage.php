@@ -25,6 +25,10 @@ class CustomValuesStorage {
 		return intval( get_post_meta( $this->id, $key, true ) );
 	}
 
+	public function getIntFromAnotherPost( $id, $key ) {
+		return intval( get_post_meta( $id, $key, true ) );
+	}
+
 }
 
 ?>

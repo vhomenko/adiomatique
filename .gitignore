@@ -6,6 +6,5 @@ adiolog
 css/jquery-ui.css
 css/jquery.ui.timepicker.css
 images/
-js/
-.bak/
+js/jquery.ui.timepicker.js
 timetest.php
