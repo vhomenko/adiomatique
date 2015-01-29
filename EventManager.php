@@ -29,6 +29,10 @@ class EventManager implements Iterator {
 
 		foreach ( $posts as $post ) {
 			$e = new Event( $post->ID );
+			if ( $e->isEmpty() ) {
+				error_log( 'A non-event post in the events category: ' . $post->ID );
+				continue;
+			}
 			if ( $e->getDateTime() < $today ) continue;
 
 			if ( false !== $limit && $e->getDateTime() > $limitingDay ) {

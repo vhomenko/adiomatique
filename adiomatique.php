@@ -88,9 +88,7 @@ function adi_display_page( $titlepage_cat_id ) {
 	}
 	$output .= '</p>';
 	return '<span>Anstehende Termine:<a class="small_right" href="' . get_category_link( $titlepage_cat_id ) . '">Alle Termine ansehen</a><br>' . $output . '</span>';
-
 }
-
 
 function adi_display_post( $id ) {
 	$e = new Event( $id );
@@ -115,13 +113,9 @@ function adi_display_post( $id ) {
 
 }
 
-
-
-
 add_shortcode( 'adi_termine', 'adi_the_events' );
 
 function adi_the_events( $atts ) {
-
 	wp_enqueue_style( 'adiomatique-css', plugins_url() . '/adiomatique/css/adiomatique.css' );
 
 	$a = shortcode_atts( array(
@@ -138,8 +132,6 @@ function adi_the_events( $atts ) {
 
 	$events = new EventManager( ADI_EVENTS_CAT_ID, $output_limit );
 
-	//print_r( $events );
-
 	$prevE = null;
 
 	foreach ( $events as $e ) {
@@ -155,34 +147,34 @@ function adi_the_events( $atts ) {
 		$type = '';
 		$type_fname = '';
 
-		if ( ! empty( $e->getLocation() ) ) {
+		if ( $e->isExternal() ) {
 			$type = "extern";
 			$type_fname = 'external.png';
-		} else if ( 0 < $e->getPeriodicity() ) {
+		} else if ( $e->isPeriodic() ) {
 			$type = "regelmäßig";
 			$type_fname = 'periodic.png';
 		}
 
 		$type_template = '';
 
-		if ( '' !== $type ) {
+		if ( ! empty( $type ) ) {
 			$type_template = "<img class='" . ( '' !== $type ? 'adi_type_img' : '') . "' src='" . plugins_url() . "/adiomatique/images/" . $type_fname . "' alt='" . $type . "'>";
 		}
 
 		$periodicity = $e->getPeriodicityDesc();
 		$periodicity_click = " onclick=\"javascript:alert(' " . $e->getTitle() . ":\\n" . $periodicity . "')\"";
 
-		if ( 0 === $e->getPeriodicity() ) {
+		if ( ! $e->isPeriodic() ) {
 			$periodicity_click = '';
 		}
 
 		$link = $e->getTitlepageLink();
 
-		$sub = "<div class='adi_type'><span " . ( "" === $periodicity_click ? "" : "style='cursor:pointer;'" ) . $periodicity_click . ">" . $type_template . "</span><span>" . $link . "</span>";
+		$sub = "<div class='adi_type'><span " . ( ! $e->isPeriodic() ? "" : "style='cursor:pointer;'" ) . $periodicity_click . ">" . $type_template . "</span><span>" . $link . "</span>";
 
 		$sub .= "</div>";
 
-		if ( '' !== $type || ! empty( $link ) ) {
+		if ( ! empty( $type ) || ! empty( $link ) ) {
 			$output .= $sub;
 		}
 
