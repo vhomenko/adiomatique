@@ -34,10 +34,6 @@ class EventManager implements Iterator {
 			if ( false !== $limit && $e->getDateTime() > $limitingDay ) {
 				continue;
 			}
-			/*echo "&nbsp;&nbsp;&nbsp;";
-			print_r( $e->getDateTime() );
-			echo "<br>vs ";
-			print_r( $today );*/
 			$this->events[$e->getTimestamp()] = $e;
 		}
 
