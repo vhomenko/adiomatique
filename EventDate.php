@@ -25,20 +25,9 @@ class EventDate {
 		'Saturday' => 'Samstag',
 		'Sunday' => 'Sonntag' );
 
-	public function __construct ( $timestampOrDateTime, $today, $periodicity, $weekToSkip = 0 ) {
-		if ( is_numeric( $timestampOrDateTime ) ) {
-			$this->timestamp = $timestampOrDateTime;
-			$this->dtObj = new DateTime( '@' . $this->timestamp );
-		} else if ( is_object( $timestampOrDateTime ) ) {
-			$this->dtObj = $timestampOrDateTime;
-			$this->timestamp = $this->dtObj->getTimestamp();
-		} else {
-			error_log( 'EventDate: first arg is neither a timestamp nor a DateTime object.' );
-			die();
-		}
-		
-		$this->dtObj->setTimezone( new DateTimeZone( ADI_TZ ) );
-
+	public function __construct ( $dateTime, $today, $periodicity, $weekToSkip = 0 ) {
+		$this->dtObj = $dateTime;
+		$this->timestamp = $this->dtObj->getTimestamp();
 		$this->periodicity = $periodicity;
 
 		$isValidWeekToSkipIndex = ( is_numeric( $weekToSkip ) && -1 < $weekToSkip && 5 > $weekToSkip );

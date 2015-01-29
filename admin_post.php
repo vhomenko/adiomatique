@@ -8,38 +8,30 @@ add_action( 'load-post.php', 'adi_post_meta_boxes_setup' );
 add_action( 'load-post-new.php', 'adi_post_meta_boxes_setup' );
 
 function adi_post_meta_boxes_setup() {
-
 	add_action( 'add_meta_boxes', 'adi_add_post_meta_boxes' );
-
-	add_action( 'save_post', 'adi_save_meta', 10, 2 );
-
-	wp_enqueue_script( 'jquery-ui-core' );
-	wp_enqueue_script( 'jquery-ui-datepicker' );
-	wp_enqueue_style( 'jquery-ui-css', plugins_url() . '/adiomatique/css/jquery-ui.css' );
-	wp_enqueue_style( 'jquery-ui-timepicker-css', plugins_url() . '/adiomatique/css/jquery.ui.timepicker.css' );
-	wp_enqueue_script( 'jquery-ui-timepicker', plugins_url() . '/adiomatique/js/jquery.ui.timepicker.js' );
-
+	add_action( 'save_post', 'adi_save_meta' );
 }
 
 
 
 function adi_add_post_meta_boxes() {
-
+	wp_enqueue_script( 'jquery-ui-core' );
+	wp_enqueue_script( 'jquery-ui-datepicker' );
+	wp_enqueue_style( 'jquery-ui-css', plugins_url() . '/adiomatique/css/jquery-ui.css' );
+	wp_enqueue_style( 'jquery-ui-timepicker-css', plugins_url() . '/adiomatique/css/jquery.ui.timepicker.css' );
+	wp_enqueue_script( 'jquery-ui-timepicker', plugins_url() . '/adiomatique/js/jquery.ui.timepicker.js' );
 	add_meta_box(
 		'adi_for_posts',
 		'Adiomatique: Veranstaltungstermin',
 		'adi_post_meta_box',
 		'post',
 		'normal', 
-		'high'
-	);
-
+		'high' );
 }
 
 
 
 function adi_post_meta_box( $post ) { 
-
 	if ( in_category( ADI_EVENTS_ARCHIVE_CAT_ID, $post->ID ) ) {
 		echo 'Diese Terminankündigung ist archiviert.';
 		return;
@@ -198,8 +190,7 @@ function adi_post_meta_box( $post ) {
 
 
 
-function adi_save_meta( $post_id, $post ) {
-
+function adi_save_meta( $post_id ) {
 	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
 	if ( wp_is_post_revision( $post_id ) ) return;
 	if ( ! isset( $_POST['adi_post_nonce'] ) || ! wp_verify_nonce( $_POST['adi_post_nonce'], basename( __FILE__ ) ) ) return;
@@ -247,4 +238,3 @@ function adi_save_meta( $post_id, $post ) {
 	}
 
 }
-

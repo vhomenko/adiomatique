@@ -69,15 +69,12 @@ function adi_display_page( $titlepage_cat_id ) {
 	if ( ADI_ACTIVITY_ARCHIVE_PAGE_ID === $post->post_parent ) {
 		return 'Dieses Projekt ist archiviert.';
 	}
-
 	$events = new EventManager( $titlepage_cat_id );
-
 	if ( $events->isEmpty() ) {
-		return;
+		return $titlepage_cat_id;
 	}
 
 	$output = '<p>';
-
 	foreach ( $events as $e ) {
 		$output .= $e->getDate() . ', ';
 		$output .= $e->getTime() . ' Uhr &nbsp;&nbsp;&nbsp;' . $e->getLink() . ' &nbsp;&nbsp;&nbsp;';
@@ -89,18 +86,14 @@ function adi_display_page( $titlepage_cat_id ) {
 
 		$output .= '<br>';
 	}
-
 	$output .= '</p>';
-
 	return '<span>Anstehende Termine:<a class="small_right" href="' . get_category_link( $titlepage_cat_id ) . '">Alle Termine ansehen</a><br>' . $output . '</span>';
 
 }
 
 
 function adi_display_post( $id ) {
-
 	$e = new Event( $id );
-
 	if ( $e->isEmpty() ) return;
 
 	$link = $e->getTitlepageLink();

@@ -19,34 +19,53 @@ class Event {
 		'location' => 'adi_event_location',
 		'periodicity' => 'adi_event_periodicity',
 		'week_to_skip' => 'adi_event_week_to_skip',
-		'titlepage_id' => 'adi_event_titlepage_id');
+		'titlepage_id' => 'adi_event_titlepage_id' );
 
 	public function __construct( $ID ) {
 		$this->ID = $ID;
-
 		$this->storage = new CustomValuesStorage( $this->ID );
 
-		$ts = $this->storage->getInt( $this->KEYS['timestamp'] );
-
-		if ( 0 === $ts ) {
+		$this->timestamp = $this->storage->getInt( $this->KEYS['timestamp'] );
+		if ( 0 === $this->timestamp ) {
 			return;
 		}
+		$this->dtObj = new DateTime( '@' . $this->timestamp );
+		$this->dtObj->setTimezone( new DateTimeZone( ADI_TZ ) );
 
-		$this->location = $this->storage->getStr( $this->KEYS['location'] );
-		$this->titlepageID = $this->storage->getInt( $this->KEYS['titlepage_id'] );
+		$this->set(
+			$this->dtObj,
+			$this->storage->getInt( $this->KEYS['periodicity'] ),
+			$this->storage->getInt( $this->KEYS['week_to_skip'] ),
+			$this->storage->getStr( $this->KEYS['location'] ),
+			$this->storage->getInt( $this->KEYS['titlepage_id'] )
+		);
+	}
 
-		$p = $this->storage->getInt( $this->KEYS['periodicity'] );
-		$w2s = $this->storage->getInt( $this->KEYS['week_to_skip'] );
-		$this->date = new EventDate( $ts, null, $p, $w2s );
-
+	public function set( $dateTime, $periodicity, $weekToSkip, $location, $titlepageID ) {
+		$this->location = $location;
+		$this->periodicity = $periodicity;
+		$this->weekToSkip = $weekToSkip;
+		$this->date = new EventDate( $dateTime, null, $periodicity, $weekToSkip );
+		$this->titlepageID = $titlepageID;
 		$titlepage = get_post( $this->titlepageID );
 		$this->titlepageTitle = $titlepage->post_title;
-
 		$post = get_post( $this->ID );
 		$this->title = $post->post_title;
-
+		
 		$this->isEmpty = false;
 		$this->update();
+	}
+
+	public function setFromPost( $time, $date, $periodicity, $weekToSkip, $location, $titlepageID ) {
+
+		$dateTime = new DateTime();
+		$this->set(
+			$dateTime,
+			$periodicity,
+			$weekToSkip,
+			$location,
+			$titlepageID
+		);
 	}
 
 	public function getDate() {
@@ -61,6 +80,10 @@ class Event {
 		return $this->date->time;
 	}
 
+	public function getWeekDay() {
+		return $this->date->weekDayDE;
+	}
+
 	public function getTimestamp() {
 		return $this->date->timestamp;
 	}
@@ -69,17 +92,14 @@ class Event {
 		return $this->date->dtObj;
 	}
 
+
 	public function getWeekToSkip() {
 		if ( $this->isEmpty ) return 0;
 		return $this->date->weekToSkip;
 	}
 
-	public function getWeekNumber() {
+/*	public function getWeekNumber() {
 		return $this->date->weekNum;
-	}
-
-	public function getWeekDay() {
-		return $this->date->weekDayDE;
 	}
 
 	public function getWeekDayIndex() {

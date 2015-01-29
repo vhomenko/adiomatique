@@ -5,7 +5,7 @@ require_once( 'Event.php' );
 class EventManager implements Iterator {
 
 	private $pos = 0;
-	private $events = null;
+	private $events = array();
 
 	public function __construct( $cat_id = ADI_EVENTS_CAT_ID, $limit = false ) {
 		$args = array(
