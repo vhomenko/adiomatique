@@ -12,8 +12,6 @@ function adi_post_meta_boxes_setup() {
 	add_action( 'save_post', 'adi_save_meta' );
 }
 
-
-
 function adi_add_post_meta_boxes() {
 	wp_enqueue_script( 'jquery-ui-core' );
 	wp_enqueue_script( 'jquery-ui-datepicker' );
@@ -29,8 +27,6 @@ function adi_add_post_meta_boxes() {
 		'normal', 
 		'high' );
 }
-
-
 
 function adi_post_meta_box( $post ) { 
 	if ( in_category( ADI_EVENTS_ARCHIVE_CAT_ID, $post->ID ) ) {
@@ -116,8 +112,6 @@ function adi_post_meta_box( $post ) {
 <?php
 
 }
-
-
 
 function adi_save_meta( $post_id ) {
 	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;

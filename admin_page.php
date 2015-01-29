@@ -7,22 +7,14 @@ add_action( 'load-post.php', 'adi_page_meta_boxes_setup' );
 add_action( 'load-post-new.php', 'adi_page_meta_boxes_setup' );
 
 function adi_page_meta_boxes_setup( ) {
-
 	add_action( 'add_meta_boxes', 'adi_add_page_meta_boxes' );
 	add_action( 'save_post', 'adi_save_titlepage_meta', 10, 2 );
-
 }
 
-
-
 function adi_add_page_meta_boxes( $type ) {
-
-	if ( 'page' !== $type ) {
-		return;
-	}
+	if ( 'page' !== $type ) return;
 
 	$id = intval( $_GET['post'] );
-
 	if ( ADI_START_PAGE_ID === $id ||
 		ADI_EVENTS_PAGE_ID === $id ) {
 		return;
@@ -36,15 +28,10 @@ function adi_add_page_meta_boxes( $type ) {
 		'normal',
 		'high'
 	);
-
 }
 
-
-
 function adi_page_meta_box( $post ) {
-
 	if ( 'Startseite' === $post->post_title ) return;
-
 	if ( ADI_ACTIVITY_ARCHIVE_PAGE_ID === $post->post_parent ) {
 		echo 'Dieses Projekt ist archiviert.';
 		return;
@@ -125,10 +112,7 @@ function adi_page_meta_box( $post ) {
 <?php
 }
 
-
-
 function adi_save_titlepage_meta( $page_id, $post ) {
-
 	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
 	if ( ! isset( $_POST['adi_page_nonce'] ) || ! wp_verify_nonce( $_POST['adi_page_nonce'], basename( __FILE__ ) ) ) return;
 	if ( ! current_user_can( 'edit_page', $post->ID ) ) return;
