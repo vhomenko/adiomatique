@@ -110,28 +110,10 @@ class Event {
 		return $this->date->dtObj;
 	}
 
-
 	public function getWeekToSkip() {
 		if ( $this->isEmpty ) return 0;
 		return $this->date->weekToSkip;
 	}
-
-/*	public function getWeekNumber() {
-		return $this->date->weekNum;
-	}
-
-	public function getWeekDayIndex() {
-		return $this->date->weekDayIndex;
-	}
-/*
-	public function compareWeekNumbers( $e ) {
-		return $this->getWeekNumber() === $e->getWeekNumber();
-	}
-
-	public function compareWeekDays( $e ) {
-		if ( empty( $e ) ) return false;
-		return $this->getWeekDayIndex() === $e->getWeekDayIndex();
-	}*/
 
 	public function isOnTheSameDay( $e ) {
 		if ( empty( $e ) ) return false;
