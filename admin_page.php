@@ -146,7 +146,7 @@ function adi_save_titlepage_meta( $page_id, $post ) {
 			wp_update_category( array( 'cat_ID' => $cat_id, 'category_parent' => ADI_EVENTS_ARCHIVE_CAT_ID ) );
 
 			remove_action( 'save_post', 'adi_save_titlepage_meta' );
-			wp_update_post( array( 'ID' => $post->ID, 'post_parent' => ADI_ACTIVITY_ARCHIVE_PAGE_ID	) );
+			wp_update_post( array( 'ID' => $post->ID, 'post_parent' => ADI_ACTIVITY_ARCHIVE_PAGE_ID ) );
 			add_action( 'save_post', 'adi_save_titlepage_meta', 10, 2 );
 		} else {
 			// keep the title always up-to-date

@@ -82,6 +82,14 @@ class Event {
 		);
 	}
 
+	private function update() {
+		if ( $this->date->isNonPeriodicAndPassed() ) {
+			$this->archivate();
+		} else if ( $this->date->isUpdated ) {
+			$this->storeTimestamp();
+		}
+	}
+
 	public function setCategory( $catID ) {
 		wp_set_post_terms( $this->ID, array( $catID ), 'category' );
 	}
@@ -118,14 +126,6 @@ class Event {
 	public function isOnTheSameDay( $e ) {
 		if ( empty( $e ) ) return false;
 		return $this->getDate() == $e->getDate();
-	}
-
-	private function update() {
-		if ( $this->date->isNonPeriodicAndPassed() ) {
-			$this->archivate();
-		} else if ( $this->date->isUpdated ) {
-			$this->storeTimestamp();
-		}
 	}
 
 	public function getTitlepageLink() {
