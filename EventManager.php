@@ -38,7 +38,12 @@ class EventManager implements Iterator {
 			if ( false !== $limit && $e->getDateTime() > $limitingDay ) {
 				continue;
 			}
-			$this->events[$e->getTimestamp()] = $e;
+
+			$key = $e->getTimestamp();
+			if ( array_key_exists( $key, $this->events ) ) {
+				$key += 1;
+			}
+			$this->events[$key] = $e;
 		}
 
 		ksort( $this->events, SORT_NUMERIC );
