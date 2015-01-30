@@ -71,7 +71,7 @@ function adi_display_page( $titlepage_cat_id ) {
 	}
 	$events = new EventManager( $titlepage_cat_id );
 	if ( $events->isEmpty() ) {
-		return $titlepage_cat_id;
+		return;
 	}
 
 	$output = '<p>';

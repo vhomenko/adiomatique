@@ -13,11 +13,12 @@ function adi_page_meta_boxes_setup( ) {
 
 function adi_add_page_meta_boxes( $type ) {
 	if ( 'page' !== $type ) return;
-
-	$id = intval( $_GET['post'] );
-	if ( ADI_START_PAGE_ID === $id ||
-		ADI_EVENTS_PAGE_ID === $id ) {
-		return;
+	if ( isset( $_GET['post'] ) ) {
+		$id = intval( $_GET['post'] );
+		if ( ADI_START_PAGE_ID === $id ||
+			ADI_EVENTS_PAGE_ID === $id ) {
+			return;
+		}
 	}
 
 	add_meta_box(
@@ -116,7 +117,7 @@ function adi_save_titlepage_meta( $page_id, $post ) {
 	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
 	if ( ! isset( $_POST['adi_page_nonce'] ) || ! wp_verify_nonce( $_POST['adi_page_nonce'], basename( __FILE__ ) ) ) return;
 	if ( ! current_user_can( 'edit_page', $post->ID ) ) return;
-	if ( adi_page_is_in_archive( $post->ID ) ) return;
+	if ( ADI_ACTIVITY_ARCHIVE_PAGE_ID === $post->post_parent ) return;
 
 	$was_titlepage = get_post_meta( $page_id, 'adi_is_titlepage', true );
 	$is_normal_page = empty( $was_titlepage );
