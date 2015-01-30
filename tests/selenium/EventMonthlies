@@ -4,16 +4,16 @@
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="selenium.base" href="http://127.0.1.1/" />
-<title>Weekly Events</title>
+<title>EventMonthlies</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">Weekly Events</td></tr>
+<tr><td rowspan="1" colspan="3">EventMonthlies</td></tr>
 </thead><tbody>
 <tr>
 	<td>open</td>
-	<td>/wp-admin/edit.php?post_type=post&amp;trashed=1&amp;ids=1743</td>
+	<td>/wp-admin/</td>
 	<td></td>
 </tr>
 <tr>
@@ -24,32 +24,22 @@
 <tr>
 	<td>type</td>
 	<td>id=title</td>
-	<td>Weekly</td>
+	<td>Monthly</td>
 </tr>
 <tr>
 	<td>type</td>
 	<td>id=adi_event_date</td>
-	<td>12.12.16</td>
+	<td>3.12.16</td>
 </tr>
 <tr>
 	<td>click</td>
-	<td>xpath=(//a[contains(text(),'9')])[4]</td>
+	<td>xpath=(//a[contains(text(),'1')])[14]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>select</td>
 	<td>id=adi_event_periodicity</td>
-	<td>label=wöchentlich</td>
-</tr>
-<tr>
-	<td>select</td>
-	<td>id=adi_event_week_to_skip</td>
-	<td>label=Erste</td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>css=#adi_event_week_to_skip &gt; option[value=&quot;1&quot;]</td>
-	<td></td>
+	<td>label=monatlich</td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
@@ -64,12 +54,12 @@
 <tr>
 	<td>assertText</td>
 	<td>css=h1.entry-title</td>
-	<td>Weekly</td>
+	<td>Monthly</td>
 </tr>
 <tr>
 	<td>assertText</td>
 	<td>css=p</td>
-	<td>exact:Termin: am ????? um 09:00 Uhr jeden 2. 3. und 4. Montag des Monats.</td>
+	<td>Termin: am ????? um 01:00 Uhr jeden 1. Samstag des Monats.</td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
@@ -77,14 +67,9 @@
 	<td></td>
 </tr>
 <tr>
-	<td>select</td>
-	<td>id=adi_event_week_to_skip</td>
-	<td>label=Zweite</td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>css=#adi_event_week_to_skip &gt; option[value=&quot;2&quot;]</td>
-	<td></td>
+	<td>type</td>
+	<td>id=adi_event_date</td>
+	<td>10.12.16</td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
@@ -99,7 +84,7 @@
 <tr>
 	<td>assertText</td>
 	<td>css=p</td>
-	<td>exact:Termin: am ????? um 09:00 Uhr jeden 1. 3. und 4. Montag des Monats.</td>
+	<td>Termin: am ????? um 01:00 Uhr jeden 2. Samstag des Monats.</td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
@@ -107,14 +92,9 @@
 	<td></td>
 </tr>
 <tr>
-	<td>select</td>
-	<td>id=adi_event_week_to_skip</td>
-	<td>label=Dritte</td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>css=#adi_event_week_to_skip &gt; option[value=&quot;3&quot;]</td>
-	<td></td>
+	<td>type</td>
+	<td>id=adi_event_date</td>
+	<td>17.12.16</td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
@@ -129,7 +109,7 @@
 <tr>
 	<td>assertText</td>
 	<td>css=p</td>
-	<td>exact:Termin: am ????? um 09:00 Uhr jeden 1. 2. und 4. Montag des Monats.</td>
+	<td>Termin: am ????? um 01:00 Uhr jeden 3. Samstag des Monats.</td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
@@ -137,14 +117,9 @@
 	<td></td>
 </tr>
 <tr>
-	<td>select</td>
-	<td>id=adi_event_week_to_skip</td>
-	<td>label=Vierte</td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>css=#adi_event_week_to_skip &gt; option[value=&quot;4&quot;]</td>
-	<td></td>
+	<td>type</td>
+	<td>id=adi_event_date</td>
+	<td>24.12.16</td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
@@ -159,7 +134,7 @@
 <tr>
 	<td>assertText</td>
 	<td>css=p</td>
-	<td>exact:Termin: am ????? um 09:00 Uhr jeden 1. 2. und 3. Montag des Monats.</td>
+	<td>Termin: am ????? um 01:00 Uhr jeden 4. Samstag des Monats.</td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
@@ -167,14 +142,9 @@
 	<td></td>
 </tr>
 <tr>
-	<td>select</td>
-	<td>id=adi_event_week_to_skip</td>
-	<td>label=Keine</td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>css=#adi_event_week_to_skip &gt; option[value=&quot;0&quot;]</td>
-	<td></td>
+	<td>type</td>
+	<td>id=adi_event_date</td>
+	<td>31.12.16</td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
@@ -189,7 +159,7 @@
 <tr>
 	<td>assertText</td>
 	<td>css=p</td>
-	<td>exact:Termin: am ????? um 09:00 Uhr jeden Montag.</td>
+	<td>Termin: am ????? um 01:00 Uhr.</td>
 </tr>
 <tr>
 	<td>clickAndWait</td>

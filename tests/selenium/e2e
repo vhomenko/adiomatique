@@ -12,9 +12,12 @@
 <tr><td><a href="login">Login to WP</a></td></tr>
 <tr><td><a href="createFirstProjectTitlepage">Create First Project Titlepage</a></td></tr>
 <tr><td><a href="createOlderProjectTitlepage">Create Older Project Titlepage</a></td></tr>
-<tr><td><a href="Event.externalFuture.FirstProject">External event, part of First Project</a></td></tr>
-<tr><td><a href="Event.iternalFuture.independent">Non-external single event</a></td></tr>
-<tr><td><a href="e2e">e2e</a></td></tr>
+<tr><td><a href="EventExternalFutureFirstProject">External event, part of First Project</a></td></tr>
+<tr><td><a href="EventIternalFutureSingle">Non-external single event</a></td></tr>
+<tr><td><a href="EventWeeklies">EventWeeklies</a></td></tr>
+<tr><td><a href="EventBiweeklies">EventBiweeklies</a></td></tr>
+<tr><td><a href="EventMonthlies">EventMonthlies</a></td></tr>
+<tr><td><a href="EventOldSingle">EventOldSingle</a></td></tr>
 </tbody></table>
 </body>
 </html>
