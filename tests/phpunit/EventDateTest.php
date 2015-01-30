@@ -8,7 +8,7 @@ const MONTHLY = 4;
 
 const ADI_TZ = 'Europe/Berlin';
 
-require_once '../EventDate.php';
+require_once '../../EventDate.php';
 
 class EventDateTest extends PHPUnit_Framework_TestCase {
 
