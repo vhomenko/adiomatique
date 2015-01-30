@@ -8,16 +8,19 @@
 <body>
 <table id="suiteTable" cellpadding="1" cellspacing="1" border="1" class="selenium"><tbody>
 <tr><td><b>Test Suite</b></td></tr>
-<tr><td><a href="buffer">buffer</a></td></tr>
 <tr><td><a href="login">Login to WP</a></td></tr>
 <tr><td><a href="createFirstProjectTitlepage">Create First Project Titlepage</a></td></tr>
+<tr><td><a href="EventExternalFutureFirstProject">EventExternalFutureFirstProject</a></td></tr>
 <tr><td><a href="createOlderProjectTitlepage">Create Older Project Titlepage</a></td></tr>
-<tr><td><a href="EventExternalFutureFirstProject">External event, part of First Project</a></td></tr>
-<tr><td><a href="EventIternalFutureSingle">Non-external single event</a></td></tr>
+<tr><td><a href="ArchivationOlderProject">ArchivationOlderProjectWith2EventsSelfCleaning</a></td></tr>
+<tr><td><a href="EventIternalFutureSingle">EventFutureSingle</a></td></tr>
+<tr><td><a href="EventOldSingle">EventOldSingle</a></td></tr>
 <tr><td><a href="EventWeeklies">EventWeeklies</a></td></tr>
 <tr><td><a href="EventBiweeklies">EventBiweeklies</a></td></tr>
 <tr><td><a href="EventMonthlies">EventMonthlies</a></td></tr>
-<tr><td><a href="EventOldSingle">EventOldSingle</a></td></tr>
+<tr><td><a href="CheckEventOverView">CheckEventOverview</a></td></tr>
+<tr><td><a href="CheckEventHistory">CheckEventHistory</a></td></tr>
+<tr><td><a href="CleanUp">CleanUp</a></td></tr>
 </tbody></table>
 </body>
 </html>

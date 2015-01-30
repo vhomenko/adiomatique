@@ -4,56 +4,26 @@
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="selenium.base" href="http://127.0.1.1/" />
-<title>CheckEventOverview</title>
+<title>CleanUp</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">CheckEventOverview</td></tr>
+<tr><td rowspan="1" colspan="3">CleanUp</td></tr>
 </thead><tbody>
 <tr>
 	<td>open</td>
-	<td>/</td>
+	<td>http://127.0.1.1/wp-admin/edit.php</td>
 	<td></td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>link=Termine</td>
-	<td></td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>xpath=(//img[@alt='regelmäßig'])[8]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>assertAlert</td>
-	<td> Weekly:<br /> jeden Montag</td>
-	<td></td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>xpath=(//img[@alt='regelmäßig'])[9]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>assertAlert</td>
-	<td> Biweekly:<br /> jede gerade Woche am Montag</td>
-	<td></td>
-</tr>
-<tr>
-	<td>assertElementPresent</td>
-	<td>link=Monthly</td>
-	<td></td>
-</tr>
-<tr>
-	<td>assertElementPresent</td>
 	<td>link=External, part of First Project</td>
 	<td></td>
 </tr>
 <tr>
-	<td>assertElementPresent</td>
-	<td>link=Iternal, independent</td>
+	<td>clickAndWait</td>
+	<td>link=In Papierkorb legen</td>
 	<td></td>
 </tr>
 
