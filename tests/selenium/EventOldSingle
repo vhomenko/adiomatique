@@ -22,6 +22,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>assertNotText</td>
+	<td>css=span</td>
+	<td>( ! )</td>
+</tr>
+<tr>
 	<td>type</td>
 	<td>id=title</td>
 	<td>Old boot</td>
@@ -52,39 +57,9 @@
 	<td></td>
 </tr>
 <tr>
-	<td>click</td>
-	<td>css=#adi_for_posts &gt; div.inside &gt; p</td>
-	<td></td>
-</tr>
-<tr>
 	<td>clickAndWait</td>
 	<td>id=publish</td>
 	<td></td>
-</tr>
-<tr>
-	<td>assertText</td>
-	<td>css=h1.entry-title</td>
-	<td>Old boot</td>
-</tr>
-<tr>
-	<td>assertText</td>
-	<td>css=p</td>
-	<td>Archivierter Termin: am 30.01 um 02:00 Uhr.</td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>link=Beitrag bearbeiten</td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>link=In Papierkorb legen</td>
-	<td></td>
-</tr>
-<tr>
-	<td>assertText</td>
-	<td>css=#message &gt; p</td>
-	<td>1 Beitrag in den Papierkorb verschoben. Widerrufen</td>
 </tr>
 <tr>
 	<td>assertText</td>
@@ -101,7 +76,21 @@
 	<td>css=#message &gt; p &gt; a</td>
 	<td></td>
 </tr>
-
+<tr>
+	<td>assertNotText</td>
+	<td>css=span</td>
+	<td>( ! )</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=h1.entry-title</td>
+	<td>Old boot</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=p</td>
+	<td>Archivierter Termin: am 30.01 um 02:00 Uhr.</td>
+</tr>
 </tbody></table>
 </body>
 </html>

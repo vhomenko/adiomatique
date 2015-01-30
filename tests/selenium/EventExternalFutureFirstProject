@@ -13,7 +13,7 @@
 </thead><tbody>
 <tr>
 	<td>open</td>
-	<td>/wp-admin/post.php?post=1734&amp;action=edit&amp;message=1</td>
+	<td>/wp-admin/</td>
 	<td></td>
 </tr>
 <tr>
@@ -69,24 +69,9 @@
 <tr>
 	<td>assertText</td>
 	<td>css=p</td>
-	<td>exact:Termin: am 15.12 um 15:00 Uhr.<br />Ort: some place First Project</td>
+	<td>Termin: am ????? um 15:00 Uhr.<br />Ort: some place First Project</td>
 </tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>link=Beitrag bearbeiten</td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>link=In Papierkorb legen</td>
-	<td></td>
-</tr>
-<tr>
-	<td>assertText</td>
-	<td>css=#message &gt; p</td>
-	<td>1 Beitrag in den Papierkorb verschoben. Widerrufen</td>
-</tr>
-
+<!---->
 </tbody></table>
 </body>
 </html>

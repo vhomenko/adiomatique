@@ -161,22 +161,6 @@
 	<td>css=p</td>
 	<td>Termin: am ????? um 01:00 Uhr.</td>
 </tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>link=Beitrag bearbeiten</td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>link=In Papierkorb legen</td>
-	<td></td>
-</tr>
-<tr>
-	<td>assertText</td>
-	<td>css=#message &gt; p</td>
-	<td>1 Beitrag in den Papierkorb verschoben. Widerrufen</td>
-</tr>
-
 </tbody></table>
 </body>
 </html>
