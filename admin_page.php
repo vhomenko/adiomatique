@@ -33,7 +33,7 @@ function adi_add_page_meta_boxes( $type ) {
 
 function adi_page_meta_box( $post ) {
 	if ( 'Startseite' === $post->post_title ) return;
-	if ( ADI_ACTIVITY_ARCHIVE_PAGE_ID === $post->post_parent ) {
+	if ( ADI_ACTIVITY_ARCHIVE_PAGE_ID == $post->post_parent ) {
 		echo 'Dieses Projekt ist archiviert.';
 		return;
 	}
@@ -117,19 +117,17 @@ function adi_save_titlepage_meta( $page_id, $post ) {
 	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
 	if ( ! isset( $_POST['adi_page_nonce'] ) || ! wp_verify_nonce( $_POST['adi_page_nonce'], basename( __FILE__ ) ) ) return;
 	if ( ! current_user_can( 'edit_page', $post->ID ) ) return;
-	if ( ADI_ACTIVITY_ARCHIVE_PAGE_ID === $post->post_parent ) return;
+	error_log( 'saving changes to page: ' . $page_id );
+	if ( ADI_ACTIVITY_ARCHIVE_PAGE_ID == $post->post_parent ) return;
 
 	$was_titlepage = get_post_meta( $page_id, 'adi_is_titlepage', true );
 	$is_normal_page = empty( $was_titlepage );
 
-	$is_titlepage = isset( $_POST['adi_is_titlepage'] ) ? $_POST['adi_is_titlepage'] : NULL;
-	$keep_as_normal_page = empty( $is_titlepage );
-
-	$do_archivate = isset( $_POST['adi_do_archivate'] ) ? $_POST['adi_do_archivate'] : NULL;
-
 	$new_title = sanitize_text_field( $post->post_title );
 
 	if ( $is_normal_page ) {
+		$is_titlepage = isset( $_POST['adi_is_titlepage'] ) ? $_POST['adi_is_titlepage'] : NULL;
+		$keep_as_normal_page = empty( $is_titlepage );
 		if ( $keep_as_normal_page ) return;
 		// first run, create category, save metas
 		$new_cat_id = wp_create_category( $new_title, ADI_EVENTS_CAT_ID );
@@ -143,6 +141,7 @@ function adi_save_titlepage_meta( $page_id, $post ) {
 		add_action( 'save_post', 'adi_save_titlepage_meta', 10, 2 );
 	} else {
 		$cat_id = get_post_meta( $page_id, 'adi_titlepage_cat_id', true );
+		$do_archivate = isset( $_POST['adi_do_archivate'] ) ? $_POST['adi_do_archivate'] : NULL;
 		if ( $do_archivate ) {
 			wp_update_category( array( 'cat_ID' => $cat_id, 'category_parent' => ADI_EVENTS_ARCHIVE_CAT_ID ) );
 
