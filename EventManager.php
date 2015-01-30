@@ -27,6 +27,8 @@ class EventManager implements Iterator {
 			$limitingDay->modify( $limit . ' days' );
 		}
 
+		$entriesWithSameTimestamp = 0;
+
 		foreach ( $posts as $post ) {
 			$e = new Event( $post->ID );
 			if ( $e->isEmpty() ) {
@@ -41,7 +43,8 @@ class EventManager implements Iterator {
 
 			$key = $e->getTimestamp();
 			if ( array_key_exists( $key, $this->events ) ) {
-				$key += 1;
+				$entriesWithSameTimestamp += 1;
+				$key += $entriesWithSameTimestamp;
 			}
 			$this->events[$key] = $e;
 		}
