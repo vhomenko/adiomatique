@@ -42,16 +42,16 @@ class Event {
 	}
 
 	public function set( $dateTime, $periodicity, $weekToSkip, $location, $titlepageID ) {
-		$this->location = $location;
+		$this->date = new EventDate( $dateTime, null, $periodicity, $weekToSkip );
 		$this->periodicity = $periodicity;
 		$this->weekToSkip = $weekToSkip;
-		$this->date = new EventDate( $dateTime, null, $periodicity, $weekToSkip );
+		$this->location = $location;
 		$this->titlepageID = $titlepageID;
 		$titlepage = get_post( $this->titlepageID );
 		$this->titlepageTitle = $titlepage->post_title;
 		$post = get_post( $this->ID );
 		$this->title = $post->post_title;
-		
+
 		$this->isEmpty = false;
 		$this->update();
 	}
@@ -71,8 +71,6 @@ class Event {
 		}
 		$this->setCategory( $catID );
 
-		$this->store( $dateTime->getTimestamp(), $periodicity, $weekToSkip, $location, $titlepageID );
-
 		$this->set(
 			$dateTime,
 			$periodicity,
@@ -80,14 +78,20 @@ class Event {
 			$location,
 			$titlepageID
 		);
+
+		$this->storeAll( $dateTime->getTimestamp(), $periodicity, $weekToSkip, $location, $titlepageID );
 	}
 
 	private function update() {
 		if ( $this->date->isNonPeriodicAndPassed() ) {
 			$this->archivate();
 		} else if ( $this->date->isUpdated ) {
-			$this->storeTimestamp();
+			$this->storeDate();
 		}
+	}
+
+	private function archivate() {
+		$this->setCategory( ADI_EVENTS_ARCHIVE_CAT_ID );
 	}
 
 	public function setCategory( $catID ) {
@@ -179,11 +183,12 @@ class Event {
 		return $this->isEmpty;
 	}
 
-	private function storeTimestamp() {
+	private function storeDate() {
 		$this->storage->update( $this->KEYS['timestamp'], $this->getTimestamp() );
+		$this->storage->update( $this->KEYS['periodicity'], $this->getPeriodicity() );
 	}
 
-	private function store( $timestamp, $periodicity, $weekToSkip, $location, $titlepageID ) {
+	private function storeAll( $timestamp, $periodicity, $weekToSkip, $location, $titlepageID ) {
 		$this->storage->update( $this->KEYS['timestamp'], $timestamp );
 		$this->storage->update( $this->KEYS['periodicity'], $periodicity );
 		$this->storage->update( $this->KEYS['week_to_skip'], $weekToSkip );
@@ -198,10 +203,7 @@ class Event {
 		$this->storage->delete( $this->KEYS['location'] );
 		$this->storage->delete( $this->KEYS['titlepage_id'] );
 	}
-	
-	private function archivate() {
-		wp_set_post_terms( $this->ID, array( ADI_EVENTS_ARCHIVE_CAT_ID ), 'category' );
-	}
+
 }
 
 ?>

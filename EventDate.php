@@ -41,7 +41,6 @@ class EventDate {
 		$this->today->setTime( 0, 0 );
 
 		$this->updateFields();
-
 		$this->next();
 	}
 
@@ -65,27 +64,30 @@ class EventDate {
 	}
 
 	public function next() {
+		$isInFuture = false;
 		if ( $this->dtObj >= $this->today ) {
-			if ( 0 === $this->weekToSkip ) return false;
-			if ( 1 !== $this->periodicity ) return false;
+			if ( ! $this->isMonthly() ||
+				( $this->isWeekly() && 0 === $this->weekToSkip ) ) return false;
+			$isInFuture = true;
 		}
 
-		$next_date = clone $this->today;
+		$nextDate = clone $this->today;
+		if ( $isInFuture ) $nextDate = clone $this->dtObj;
 
 		switch( $this->periodicity ) {
 			case 1:
 				// weekly
 				// ! strtotime/modify: if todays is Fr and you want this Tu, you'll get next Tuesday
-				$next_date->modify( $this->weekDay );
+				$nextDate->modify( $this->weekDay );
 				if ( 0 === $this->weekToSkip ) break;
-				$iteration_to_exclude = $this->getWeekIndexAsWord( $this->weekToSkip );
-				$date_to_exclude = clone $next_date;
-				$date_to_exclude->modify( $iteration_to_exclude . ' ' . $this->weekDay . ' of this month' );
-				if ( $date_to_exclude < $next_date ) {
-					$date_to_exclude->modify( $iteration_to_exclude . ' ' . $this->weekDay . ' of next month' );
+				$weekIndexToSkip = $this->getWeekIndexAsWord( $this->weekToSkip );
+				$dateToSkip = clone $nextDate;
+				$dateToSkip->modify( $weekIndexToSkip . ' ' . $this->weekDay . ' of this month' );
+				if ( $dateToSkip < $nextDate ) {
+					$dateToSkip->modify( $weekIndexToSkip . ' ' . $this->weekDay . ' of next month' );
 				}
-				if ( $next_date == $date_to_exclude ) {
-					$next_date->modify( '+1 week' );
+				if ( $nextDate == $dateToSkip ) {
+					$nextDate->modify( '+1 week' );
 				}
 				break;
 			case 2:
@@ -98,28 +100,31 @@ class EventDate {
 				$current_weekday_index = intval( $this->today->format( 'N' ) );
 				$event_day_passed_in_current_week = $this->weekDayIndex < $current_weekday_index;
 
-				$next_date->modify( 'this ' . $this->weekDay );
+				$nextDate->modify( 'this ' . $this->weekDay );
 
 				if ( $event_day_passed_in_current_week ) {
 					if ( $both_are_on_even_weeks ) {
-						$next_date->modify( '+1 week' );
+						$nextDate->modify( '+1 week' );
 					}
 				} else {
 					if ( ! $both_are_on_even_weeks ) {
-						$next_date->modify( '+1 week' );
+						$nextDate->modify( '+1 week' );
 					}
 				}
 				break;
 			case 4:
 				// monthly
-				$week_index = $this->getWeekIndex();
-				if ( empty( $week_index ) ) {
+				$weekIndex = $this->getWeekIndex();
+				if ( ! $weekIndex ) {
+					error_log( $this->format() . ' 5th week of the month. Resetting');
+					$this->periodicity = 0;
+					$this->isUpdated = true;
 					return false;
 				}
-				$week_index_word = $this->getWeekIndexAsWord( $week_index );
-				$next_date->modify( $week_index_word . ' ' . $this->weekDay . ' of this month' );
-				if ( $next_date < $this->today ) {
-					$next_date->modify( $week_index_word . ' ' . $this->weekDay . ' of next month' );
+				$weekIndexWord = $this->getWeekIndexAsWord( $weekIndex );
+				$nextDate->modify( $weekIndexWord . ' ' . $this->weekDay . ' of this month' );
+				if ( $nextDate < $this->today ) {
+					$nextDate->modify( $weekIndexWord . ' ' . $this->weekDay . ' of next month' );
 				}
 				break;
 			case 0:
@@ -128,9 +133,10 @@ class EventDate {
 		}
 		$hour = intval( $this->dtObj->format( 'H' ) );
 		$min = intval( $this->dtObj->format( 'i' ) );
-		$next_date->setTime( $hour, $min );
+		$nextDate->setTime( $hour, $min );
 
-		$this->dtObj = $next_date;
+		$this->dtObj = $nextDate;
+
 		$this->timestamp = $this->dtObj->getTimestamp();
 		$this->updateFields();
 		$this->isUpdated = true;
@@ -146,7 +152,19 @@ class EventDate {
 			return 3;
 		} else if ( 29 > $dom ) { 
 			return 4;
-		}
+		} else return false;
+	}
+
+	public function isWeekly() {
+		return 1 === $this->periodicity;
+	}
+
+	public function isBiweekly() {
+		return 2 === $this->periodicity;
+	}
+
+	public function isMonthly() {
+		return 4 === $this->periodicity;
 	}
 
 	function getWeekIndexAsWord( $index ) {
