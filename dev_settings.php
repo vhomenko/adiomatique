@@ -1,13 +1,14 @@
 <?php
 
+namespace adi;
 
-function wp_autosave_dequeue_script() {
+function dequeue_autosave_script() {
    wp_dequeue_script( 'autosave' );
 }
-add_action( 'admin_print_scripts', 'wp_autosave_dequeue_script', 100 );
+add_action( 'admin_print_scripts', 'adi\dequeue_autosave_script', 100 );
 
-const ADI_NEWS_CAT_ID = 2;
-const ADI_EVENTS_CAT_ID = 5;
-const ADI_EVENTS_ARCHIVE_CAT_ID = 6;
-const ADI_INDEPENDENT_EVENTS_CAT_ID = 9;
+const NEWS_CAT_ID = 2;
+const EVENTS_CAT_ID = 5;
+const EVENTS_ARCHIVE_CAT_ID = 6;
+const INDEPENDENT_EVENTS_CAT_ID = 9;
 

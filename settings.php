@@ -1,15 +1,17 @@
 <?php
 
-const ADI_NEWS_CAT_ID = 25;
-const ADI_EVENTS_CAT_ID = 26;
-const ADI_EVENTS_ARCHIVE_CAT_ID = 37;
-const ADI_INDEPENDENT_EVENTS_CAT_ID = 33;
+namespace adi;
+
+const NEWS_CAT_ID = 25;
+const EVENTS_CAT_ID = 26;
+const EVENTS_ARCHIVE_CAT_ID = 37;
+const INDEPENDENT_EVENTS_CAT_ID = 33;
 
 
 
-add_filter( 'hidden_meta_boxes', 'adi_hide_meta_boxes', 10, 2 );
+add_filter( 'hidden_meta_boxes', 'adi\hide_meta_boxes', 10, 2 );
 
-function adi_hide_meta_boxes( $hidden, $screen ) {
+function hide_meta_boxes( $hidden, $screen ) {
 
 	global $post;
 
@@ -30,9 +32,9 @@ function adi_hide_meta_boxes( $hidden, $screen ) {
 
 
 
-add_filter( 'the_generator', 'wpgenny_remove_version' );
+add_filter( 'the_generator', 'adi\remove_wp_version' );
 
-function wpgenny_remove_version() {
+function remove_wp_version() {
 
 	return '';
 
@@ -40,12 +42,12 @@ function wpgenny_remove_version() {
 
 
 
-add_filter( 'pre_get_posts', 'filter_rss_query' );
+add_filter( 'pre_get_posts', 'adi\filter_rss_query' );
 
 function filter_rss_query( $query ) {
 
 	if ( $query->is_feed ) {
-		$query->set( 'cat', ADI_NEWS_CAT_ID );
+		$query->set( 'cat', NEWS_CAT_ID );
 	}
 
 	return $query;

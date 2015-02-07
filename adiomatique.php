@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Adiomatique
  * Description: Einfache Terminverwaltung.
- * Version: 10
+ * Version: 11
  * Author: Vitali Homenko
  * Author URI: mailto:vitali.homenko@gmail.com
  * License: GPL-3.0
@@ -27,19 +27,21 @@
 
  */
  
+namespace adi;
+
 defined( 'ABSPATH' ) or die( '' );
 
-const ADI_TZ = 'Europe/Berlin';
-date_default_timezone_set( ADI_TZ );
+const TZ = 'Europe/Berlin';
+date_default_timezone_set( TZ );
 
 require_once( 'admin_page.php' );
 require_once( 'admin_post.php' );
 require_once( 'EventManager.php' );
 
-const ADI_ACTIVITY_PARENT_PAGE_ID = 553;
-const ADI_ACTIVITY_ARCHIVE_PAGE_ID = 388;
-const ADI_START_PAGE_ID = 17;
-const ADI_EVENTS_PAGE_ID = 1563;
+const ACTIVITY_PARENT_PAGE_ID = 553;
+const ACTIVITY_ARCHIVE_PAGE_ID = 388;
+const START_PAGE_ID = 17;
+const EVENTS_PAGE_ID = 1563;
 
 if ( defined( 'ADIOMATIQUE_DEV' ) ) {
 	require_once( 'dev_settings.php' );
@@ -49,24 +51,24 @@ if ( defined( 'ADIOMATIQUE_DEV' ) ) {
 
 
 
-add_filter( 'the_content', 'adi_add_event_data', 20 );
+add_filter( 'the_content', 'adi\add_event_data', 20 );
 
-function adi_add_event_data( $content ) {
+function add_event_data( $content ) {
 	$id = get_the_ID();
 	$titlepage_cat_id = intval( get_post_meta( $id, 'adi_titlepage_cat_id', true ) );
 	$data = '';
 	if ( 0 !== $titlepage_cat_id ) {
-		$data = adi_display_page( $titlepage_cat_id );
+		$data = display_page( $titlepage_cat_id );
 	} else {
-		$data = adi_display_post( $id );
+		$data = display_post( $id );
 	}
 	return $data . $content;
 }
 
 
-function adi_display_page( $titlepage_cat_id ) {
+function display_page( $titlepage_cat_id ) {
 	global $post;
-	if ( ADI_ACTIVITY_ARCHIVE_PAGE_ID === $post->post_parent ) {
+	if ( ACTIVITY_ARCHIVE_PAGE_ID === $post->post_parent ) {
 		return 'Dieses Projekt ist archiviert.';
 	}
 	$events = new EventManager( $titlepage_cat_id );
@@ -90,7 +92,7 @@ function adi_display_page( $titlepage_cat_id ) {
 	return '<span>Anstehende Termine:<a class="small_right" href="' . get_category_link( $titlepage_cat_id ) . '">Alle Termine ansehen</a><br>' . $output . '</span>';
 }
 
-function adi_display_post( $id ) {
+function display_post( $id ) {
 	$e = new Event( $id );
 	if ( $e->isEmpty() ) return;
 
@@ -113,9 +115,9 @@ function adi_display_post( $id ) {
 
 }
 
-add_shortcode( 'adi_termine', 'adi_the_events' );
+add_shortcode( 'adi_termine', 'adi\the_events' );
 
-function adi_the_events( $atts ) {
+function the_events( $atts ) {
 	wp_enqueue_style( 'adiomatique-css', plugins_url() . '/adiomatique/css/adiomatique.css' );
 
 	$a = shortcode_atts( array(
@@ -130,7 +132,7 @@ function adi_the_events( $atts ) {
 
 	$output = "<div id='aditue'>";
 
-	$events = new EventManager( ADI_EVENTS_CAT_ID, $output_limit );
+	$events = new EventManager( EVENTS_CAT_ID, $output_limit );
 
 	$prevE = null;
 

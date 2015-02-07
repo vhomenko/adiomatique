@@ -1,5 +1,7 @@
 <?php
 
+namespace adi;
+
 class EventDate {
 	var $timestamp;
 	var $dtObj;
@@ -36,7 +38,7 @@ class EventDate {
 		}
 		$this->weekToSkip = $weekToSkip;
 
-		if ( ! $today ) $today = new DateTime();
+		if ( ! $today ) $today = new \DateTime();
 		$this->today = $today;
 		$this->today->setTime( 0, 0 );
 

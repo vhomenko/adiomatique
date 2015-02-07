@@ -1,5 +1,7 @@
 <?php
 
+namespace adi;
+
 require_once( 'Storage.php' );
 require_once( 'EventDate.php' );
 
@@ -29,8 +31,8 @@ class Event {
 
 		$this->timestamp = $this->storage->getInt( $this->KEYS['timestamp'] );
 		if ( 0 === $this->timestamp ) return;
-		$this->dtObj = new DateTime( '@' . $this->timestamp );
-		$this->dtObj->setTimezone( new DateTimeZone( ADI_TZ ) );
+		$this->dtObj = new \DateTime( '@' . $this->timestamp );
+		$this->dtObj->setTimezone( new \DateTimeZone( TZ ) );
 
 		$this->set(
 			$this->dtObj,
@@ -63,9 +65,9 @@ class Event {
 			return;
 		}
 
-		$dateTime = DateTime::createFromFormat( 'j.m.y G:i', $date . ' ' . $time, new DateTimeZone( ADI_TZ ) );
+		$dateTime = DateTime::createFromFormat( 'j.m.y G:i', $date . ' ' . $time, new DateTimeZone( TZ ) );
 
-		$catID = ADI_INDEPENDENT_EVENTS_CAT_ID;
+		$catID = INDEPENDENT_EVENTS_CAT_ID;
 		if ( 0 !== $titlepageID ) {
 			$catID = $this->storage->getIntFromAnotherPost( $titlepageID, 'adi_titlepage_cat_id' );
 		}
@@ -91,7 +93,7 @@ class Event {
 	}
 
 	private function archivate() {
-		$this->setCategory( ADI_EVENTS_ARCHIVE_CAT_ID );
+		$this->setCategory( EVENTS_ARCHIVE_CAT_ID );
 	}
 
 	public function setCategory( $catID ) {
@@ -176,7 +178,7 @@ class Event {
 	}
 
 	public function isArchived() {
-		return in_category( ADI_EVENTS_ARCHIVE_CAT_ID, $this->ID );
+		return in_category( EVENTS_ARCHIVE_CAT_ID, $this->ID );
 	}
 
 	public function isEmpty() {

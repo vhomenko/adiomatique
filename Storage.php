@@ -1,5 +1,6 @@
 <?php
 
+namespace adi;
 
 class CustomValuesStorage {
 

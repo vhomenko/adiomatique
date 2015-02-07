@@ -1,13 +1,15 @@
 <?php
 
+namespace adi;
+
 require_once( 'Event.php' );
 
-class EventManager implements Iterator {
+class EventManager implements \Iterator {
 
 	private $pos = 0;
 	private $events = array();
 
-	public function __construct( $cat_id = ADI_EVENTS_CAT_ID, $limit = false ) {
+	public function __construct( $cat_id = EVENTS_CAT_ID, $limit = false ) {
 		$args = array(
 			'posts_per_page'   => -1,
 			'category'         => $cat_id, 
@@ -18,7 +20,7 @@ class EventManager implements Iterator {
 
 		$posts = get_posts( $args );
 
-		$today = new DateTime();
+		$today = new \DateTime();
 		$today->setTime( 0, 0 );
 
 		$limitingDay = null;

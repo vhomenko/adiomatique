@@ -1,22 +1,24 @@
 <?php
 
+namespace adi;
+
 defined( 'ABSPATH' ) or die( '' );
 
 
-add_action( 'load-post.php', 'adi_page_meta_boxes_setup' );
-add_action( 'load-post-new.php', 'adi_page_meta_boxes_setup' );
+add_action( 'load-post.php', 'adi\page_meta_boxes_setup' );
+add_action( 'load-post-new.php', 'adi\page_meta_boxes_setup' );
 
-function adi_page_meta_boxes_setup( ) {
-	add_action( 'add_meta_boxes', 'adi_add_page_meta_boxes' );
-	add_action( 'save_post', 'adi_save_titlepage_meta', 10, 2 );
+function page_meta_boxes_setup( ) {
+	add_action( 'add_meta_boxes', 'adi\add_page_meta_boxes' );
+	add_action( 'save_post', 'adi\save_titlepage_meta', 10, 2 );
 }
 
-function adi_add_page_meta_boxes( $type ) {
+function add_page_meta_boxes( $type ) {
 	if ( 'page' !== $type ) return;
 	if ( isset( $_GET['post'] ) ) {
 		$id = intval( $_GET['post'] );
-		if ( ADI_START_PAGE_ID === $id ||
-			ADI_EVENTS_PAGE_ID === $id ) {
+		if ( START_PAGE_ID === $id ||
+			EVENTS_PAGE_ID === $id ) {
 			return;
 		}
 	}
@@ -24,16 +26,16 @@ function adi_add_page_meta_boxes( $type ) {
 	add_meta_box(
 		'adi_for_pages',
 		'Adiomatique',
-		'adi_page_meta_box',
+		'adi\page_meta_box',
 		'page',
 		'normal',
 		'high'
 	);
 }
 
-function adi_page_meta_box( $post ) {
+function page_meta_box( $post ) {
 	if ( 'Startseite' === $post->post_title ) return;
-	if ( ADI_ACTIVITY_ARCHIVE_PAGE_ID == $post->post_parent ) {
+	if ( ACTIVITY_ARCHIVE_PAGE_ID == $post->post_parent ) {
 		echo 'Dieses Projekt ist archiviert.';
 		return;
 	}
@@ -56,7 +58,7 @@ function adi_page_meta_box( $post ) {
 
 			$args = array(
 				'type'                     => 'post',
-				'child_of'                 => ADI_EVENTS_CAT_ID,
+				'child_of'                 => EVENTS_CAT_ID,
 				'orderby'                  => 'none',
 				'hide_empty'               => 0,
 				'hierarchical'             => 0,
@@ -113,12 +115,12 @@ function adi_page_meta_box( $post ) {
 <?php
 }
 
-function adi_save_titlepage_meta( $page_id, $post ) {
+function save_titlepage_meta( $page_id, $post ) {
 	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
 	if ( ! isset( $_POST['adi_page_nonce'] ) || ! wp_verify_nonce( $_POST['adi_page_nonce'], basename( __FILE__ ) ) ) return;
 	if ( ! current_user_can( 'edit_page', $post->ID ) ) return;
 	error_log( 'saving changes to page: ' . $page_id );
-	if ( ADI_ACTIVITY_ARCHIVE_PAGE_ID == $post->post_parent ) return;
+	if ( ACTIVITY_ARCHIVE_PAGE_ID == $post->post_parent ) return;
 
 	$was_titlepage = get_post_meta( $page_id, 'adi_is_titlepage', true );
 	$is_normal_page = empty( $was_titlepage );
@@ -130,23 +132,23 @@ function adi_save_titlepage_meta( $page_id, $post ) {
 		$keep_as_normal_page = empty( $is_titlepage );
 		if ( $keep_as_normal_page ) return;
 		// first run, create category, save metas
-		$new_cat_id = wp_create_category( $new_title, ADI_EVENTS_CAT_ID );
+		$new_cat_id = wp_create_category( $new_title, EVENTS_CAT_ID );
 
 		update_post_meta( $page_id, 'adi_titlepage_cat_id', $new_cat_id );
 		update_post_meta( $page_id, 'adi_is_titlepage', $is_titlepage );
 		update_post_meta( $page_id, 'adi_titlepage_title', $new_title );
 
 		remove_action( 'save_post', 'adi_save_titlepage_meta' );
-		wp_update_post( array( 'ID' => $page_id, 'post_parent' => ADI_ACTIVITY_PARENT_PAGE_ID ) );
+		wp_update_post( array( 'ID' => $page_id, 'post_parent' => ACTIVITY_PARENT_PAGE_ID ) );
 		add_action( 'save_post', 'adi_save_titlepage_meta', 10, 2 );
 	} else {
 		$cat_id = get_post_meta( $page_id, 'adi_titlepage_cat_id', true );
 		$do_archivate = isset( $_POST['adi_do_archivate'] ) ? $_POST['adi_do_archivate'] : NULL;
 		if ( $do_archivate ) {
-			wp_update_category( array( 'cat_ID' => $cat_id, 'category_parent' => ADI_EVENTS_ARCHIVE_CAT_ID ) );
+			wp_update_category( array( 'cat_ID' => $cat_id, 'category_parent' => EVENTS_ARCHIVE_CAT_ID ) );
 
 			remove_action( 'save_post', 'adi_save_titlepage_meta' );
-			wp_update_post( array( 'ID' => $post->ID, 'post_parent' => ADI_ACTIVITY_ARCHIVE_PAGE_ID ) );
+			wp_update_post( array( 'ID' => $post->ID, 'post_parent' => ACTIVITY_ARCHIVE_PAGE_ID ) );
 			add_action( 'save_post', 'adi_save_titlepage_meta', 10, 2 );
 		} else {
 			// keep the title always up-to-date
