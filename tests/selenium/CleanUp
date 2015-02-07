@@ -26,7 +26,86 @@
 	<td>link=In Papierkorb legen</td>
 	<td></td>
 </tr>
-
+<tr>
+	<td>assertText</td>
+	<td>css=#message &gt; p</td>
+	<td>1 Beitrag in den Papierkorb verschoben. Widerrufen</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Monthly</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=In Papierkorb legen</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=#message &gt; p</td>
+	<td>1 Beitrag in den Papierkorb verschoben. Widerrufen</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Biweekly</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=In Papierkorb legen</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=#message &gt; p</td>
+	<td>1 Beitrag in den Papierkorb verschoben. Widerrufen</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Weekly</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=In Papierkorb legen</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=#message &gt; p</td>
+	<td>1 Beitrag in den Papierkorb verschoben. Widerrufen</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Old boot</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=In Papierkorb legen</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=#message &gt; p</td>
+	<td>1 Beitrag in den Papierkorb verschoben. Widerrufen</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Iternal, independent</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=In Papierkorb legen</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=#message &gt; p</td>
+	<td>1 Beitrag in den Papierkorb verschoben. Widerrufen</td>
+</tr>
 </tbody></table>
 </body>
 </html>

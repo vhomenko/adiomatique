@@ -21,24 +21,10 @@
 	<td>link=Termine</td>
 	<td></td>
 </tr>
-<tr>
-	<td>click</td>
-	<td>xpath=(//img[@alt='regelmäßig'])[8]</td>
-	<td></td>
-</tr>
+<!--check js alerts-->
 <tr>
 	<td>assertAlert</td>
-	<td> Weekly:<br /> jeden Montag</td>
-	<td></td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>xpath=(//img[@alt='regelmäßig'])[9]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>assertAlert</td>
-	<td> Biweekly:<br /> jede gerade Woche am Montag</td>
+	<td> Rhetorik- und Kommunikationszirkel:<br /> jeden Montag</td>
 	<td></td>
 </tr>
 <tr>
@@ -56,7 +42,6 @@
 	<td>link=Iternal, independent</td>
 	<td></td>
 </tr>
-
 </tbody></table>
 </body>
 </html>

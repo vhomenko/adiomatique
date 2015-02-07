@@ -37,14 +37,9 @@
 	<td></td>
 </tr>
 <tr>
-	<td>click</td>
-	<td>link=2</td>
-	<td></td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>xpath=(//a[contains(text(),'14')])[2]</td>
-	<td></td>
+	<td>type</td>
+	<td>id=adi_event_date</td>
+	<td>06.02.2012</td>
 </tr>
 <tr>
 	<td>click</td>
@@ -104,7 +99,7 @@
 <tr>
 	<td>assertText</td>
 	<td>css=p</td>
-	<td>Termin: am ????? um 14:00 Uhr jeden 1. 2. und 4. Freitag des Monats.<br />Ort: outside Older Project</td>
+	<td>Termin: am ??.?? um 14:00 Uhr jeden 1. 2. und 4. Montag des Monats.<br />Ort: outside Older Project</td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
@@ -114,12 +109,12 @@
 <tr>
 	<td>assertText</td>
 	<td>css=div.entry-content &gt; span</td>
-	<td>Anstehende Termine:Alle Termine ansehen<br />30.01, 14:00 Uhr&nbsp;&nbsp;&nbsp;&nbsp;One time long ago&nbsp;&nbsp;&nbsp;&nbsp;extern</td>
+	<td>Anstehende Termine:Alle Termine ansehen<br />??.??, 14:00 Uhr&nbsp;&nbsp;&nbsp;&nbsp;One time long ago&nbsp;&nbsp;&nbsp;&nbsp;extern</td>
 </tr>
 <tr>
 	<td>assertText</td>
 	<td>css=p</td>
-	<td>30.01, 14:00 Uhr&nbsp;&nbsp;&nbsp;&nbsp;One time long ago&nbsp;&nbsp;&nbsp;&nbsp;extern</td>
+	<td>??.??, 14:00 Uhr&nbsp;&nbsp;&nbsp;&nbsp;One time long ago&nbsp;&nbsp;&nbsp;&nbsp;extern</td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
@@ -336,7 +331,6 @@
 	<td>http://127.0.1.1/wp-admin/edit-tags.php?taxonomy=category</td>
 	<td></td>
 </tr>
-
 </tbody></table>
 </body>
 </html>

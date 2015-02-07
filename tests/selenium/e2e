@@ -8,7 +8,6 @@
 <body>
 <table id="suiteTable" cellpadding="1" cellspacing="1" border="1" class="selenium"><tbody>
 <tr><td><b>Test Suite</b></td></tr>
-<tr><td><a href="login">Login to WP</a></td></tr>
 <tr><td><a href="createFirstProjectTitlepage">Create First Project Titlepage</a></td></tr>
 <tr><td><a href="EventExternalFutureFirstProject">EventExternalFutureFirstProject</a></td></tr>
 <tr><td><a href="createOlderProjectTitlepage">Create Older Project Titlepage</a></td></tr>

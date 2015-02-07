@@ -32,9 +32,9 @@
 	<td>5.12.16</td>
 </tr>
 <tr>
-	<td>click</td>
-	<td>xpath=(//a[contains(text(),'22')])[2]</td>
-	<td></td>
+	<td>type</td>
+	<td>id=adi_event_time</td>
+	<td>22:00</td>
 </tr>
 <tr>
 	<td>select</td>
