@@ -363,11 +363,10 @@ class EventDateTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals( $expect, $e->format() );
 	}
 
-	// since next date is based off of today, we get the next legit date in the calendar
 	function testTooFarInTheFutureWeeklyDateSetOnFourthWeekPlusNotFourthWeekday() {
 		$event = new \DateTime( 'Thu 22-03-2012 0:00' );
-		$today = new \DateTime( 'Fri 09-03-2012' );
-		$expect = 'Thu 15-03-2012 0:00';
+		$today = new \DateTime( 'Fri 09-03-2012 16:00' );
+		$expect = 'Thu 29-03-2012 0:00';
 
 		$e = new EventDate( $event, $today, WEEKLY, 4 );
 		$this->assertEquals( $expect, $e->format() );
@@ -383,11 +382,12 @@ class EventDateTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	function testFutureBiweeklyDate() {
-		$event = new \DateTime( '01-12-2014 0:00' );
-		$today = new \DateTime( 'Fri 16-03-2012' );
+		$event = new \DateTime( 'Mon 01-12-2014 0:00' );
+		$today = new \DateTime( 'Fri 16-03-2012 14:36' );
+		$expect = 'Mon 01-12-2014 0:00';
 
 		$e = new EventDate( $event, $today, BIWEEKLY );
-		$this->assertFalse( $e->isUpdated );
+		$this->assertEquals( $expect, $e->format() );
 	}
 }
 
