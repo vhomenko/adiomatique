@@ -65,7 +65,7 @@ class Event {
 			return;
 		}
 
-		$dateTime = DateTime::createFromFormat( 'j.m.y G:i', $date . ' ' . $time, new DateTimeZone( TZ ) );
+		$dateTime = \DateTime::createFromFormat( 'j.m.y G:i', $date . ' ' . $time, new \DateTimeZone( TZ ) );
 
 		$catID = INDEPENDENT_EVENTS_CAT_ID;
 		if ( 0 !== $titlepageID ) {
