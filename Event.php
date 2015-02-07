@@ -85,7 +85,7 @@ class Event {
 	}
 
 	private function update() {
-		if ( $this->date->isNonPeriodicAndPassed() ) {
+		if ( ! $this->date->isPeriodic() && $this->date->isPassed() ) {
 			$this->archivate();
 		} else if ( $this->date->isUpdated ) {
 			$this->storeDate();
@@ -165,7 +165,7 @@ class Event {
 	}
 
 	public function isPeriodic() {
-		return 0 < $this->date->periodicity;
+		return $this->date->isPeriodic();
 	}
 
 	public function getPeriodicityDesc() {

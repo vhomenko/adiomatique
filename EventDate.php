@@ -61,18 +61,22 @@ class EventDate {
 		return $this->dtObj->format( 'D d-m-Y G:i' );
 	}
 
-	public function isNonPeriodicAndPassed() {
-		return 0 === $this->periodicity && $this->dtObj < $this->today;
+	public function isPeriodic() {
+		return 0 < $this->periodicity;
+	}
+
+	public function isPassed() {
+		return $this->dtObj < $this->today;
 	}
 
 	public function next() {
 		$isInFuture = false;
 		if ( $this->dtObj >= $this->today ) {
-			if ( ! $this->isMonthly() ||
-				( $this->isWeekly() && 0 === $this->weekToSkip ) ) return false;
-			$isInFuture = true;
+			if ( $this->isMonthly() ||
+				( $this->isWeekly() && $this->weekToSkip ) ) {
+					$isInFuture = true;
+				} else return false;
 		}
-
 		$nextDate = clone $this->today;
 		if ( $isInFuture ) $nextDate = clone $this->dtObj;
 
