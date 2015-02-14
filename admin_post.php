@@ -58,7 +58,7 @@ function post_meta_box( $post ) {
 	$e = new Event( $post->ID );
 
 	if ( $e->isEmpty() ) {
-		$date = date( 'j.m.y' );
+		$date = date( 'd.m.y' );
 		$time = '';
 	} else {
 		if ( $e->isArchived() ) {
