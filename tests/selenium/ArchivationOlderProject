@@ -39,7 +39,12 @@
 <tr>
 	<td>type</td>
 	<td>id=adi_event_date</td>
-	<td>06.02.2012</td>
+	<td>06.02.12</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=adi_event_time</td>
+	<td>14:00</td>
 </tr>
 <tr>
 	<td>click</td>

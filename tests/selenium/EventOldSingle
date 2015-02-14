@@ -23,7 +23,7 @@
 </tr>
 <tr>
 	<td>assertNotText</td>
-	<td>css=span</td>
+	<td>css=th &gt; span</td>
 	<td>( ! )</td>
 </tr>
 <tr>
@@ -73,7 +73,7 @@
 </tr>
 <tr>
 	<td>assertNotText</td>
-	<td>css=span</td>
+	<td>css=th &gt; span</td>
 	<td>( ! )</td>
 </tr>
 <tr>
