@@ -10,11 +10,36 @@ add_action( 'load-post.php', 'adi\post_meta_boxes_setup' );
 add_action( 'load-post-new.php', 'adi\post_meta_boxes_setup' );
 
 function post_meta_boxes_setup() {
-	add_action( 'add_meta_boxes', 'adi\add_post_meta_boxes' );
 	add_action( 'save_post', 'adi\save_meta' );
+	add_action( 'add_meta_boxes', 'adi\add_post_meta_boxes' );
 }
 
-function add_post_meta_boxes() {
+function add_post_meta_boxes( $type ) {
+	if ( 'post' !== $type ) return;
+	if ( isset( $_GET['post'] ) ) {
+		$id = intval( $_GET['post'] );
+
+		$categories = get_the_category( $id );
+		$number_of_categories = count( $categories );
+
+		$cat_id = $number_of_categories ? intval( $categories[0]->cat_ID ) : 0;
+
+		//error_log( 'got post, id: ' . $id . '; cat: ' . $cat_id );
+
+		if ( $cat_id ) {
+			if ( EVENTS_ARCHIVE_CAT_ID !== $cat_id ) {
+				if ( EVENTS_CAT_ID !== $cat_id ) {
+					$cat_id = $categories[0]->category_parent;
+				}
+
+				if ( EVENTS_CAT_ID !== $cat_id ) {
+					remove_action( 'save_post', 'adi\save_meta' );
+					return;
+				}
+			}
+		}
+	}
+
 	wp_enqueue_script( 'jquery-ui-core' );
 	wp_enqueue_script( 'jquery-ui-datepicker' );
 	wp_enqueue_style( 'jquery-ui-css', plugins_url() . '/adiomatique/css/jquery-ui.css' );
@@ -30,18 +55,18 @@ function add_post_meta_boxes() {
 		'high' );
 }
 
-function post_meta_box( $post ) { 
-	if ( in_category( EVENTS_ARCHIVE_CAT_ID, $post->ID ) ) {
-		echo 'Diese Terminankündigung ist archiviert.';
-		return;
-	}
 
+function post_meta_box( $post ) {
 	$e = new Event( $post->ID );
 
 	if ( $e->isEmpty() ) {
 		$date = date( 'j.m.y' );
 		$time = '';
 	} else {
+		if ( $e->isArchived() ) {
+			echo 'Diese Veranstaltung wurde archiviert.';
+			return;
+		}
 		$date = $e->getFullDate();
 		$time = $e->getTime();
 	}
@@ -50,9 +75,6 @@ function post_meta_box( $post ) {
 	$week_to_skip = $e->getWeekToSkip();
 	$location = $e->getLocation();
 	$titlepage_id = $e->getTitlepageID();
-
-#TODO: warn if no event data, but in event cat
-# + don't show controls for posts in non default + non-event cat
 
 ?>
 
