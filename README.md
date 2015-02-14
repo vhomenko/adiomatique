@@ -1,11 +1,11 @@
 Adiomatique
 ===========
 
-A WordPress plugin, that builds upon categories and custom fields of posts and pages, to provide some basic event management for the [http://adi-leipzig.net](Autodidaktische Initiative).
+A WordPress plugin, that builds upon categories and custom fields of posts and pages, to provide some basic event management for the [Autodidaktische Initiative](http://adi-leipzig.net).
 
 Requirements
 ------------
-[https://github.com/fgelinas/timepicker](jQuery UI Timepicker by François Gélinas)
+[jQuery UI Timepicker by François Gélinas](https://github.com/fgelinas/timepicker)
 
 License
 -------
