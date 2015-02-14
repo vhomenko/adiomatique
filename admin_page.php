@@ -119,7 +119,6 @@ function save_titlepage_meta( $page_id, $post ) {
 	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
 	if ( ! isset( $_POST['adi_page_nonce'] ) || ! wp_verify_nonce( $_POST['adi_page_nonce'], basename( __FILE__ ) ) ) return;
 	if ( ! current_user_can( 'edit_page', $post->ID ) ) return;
-	error_log( 'saving changes to page: ' . $page_id );
 	if ( ACTIVITY_ARCHIVE_PAGE_ID == $post->post_parent ) return;
 
 	$was_titlepage = get_post_meta( $page_id, 'adi_is_titlepage', true );
