@@ -23,6 +23,8 @@ class Event {
 		'week_to_skip' => 'adi_event_week_to_skip',
 		'titlepage_id' => 'adi_event_titlepage_id' );
 
+	const DATE_TIME_FORMAT = 'd.m.y G:i';
+
 	public function __construct( $ID, $doNotLoad = false ) {
 		$this->ID = $ID;
 		$this->storage = new CustomValuesStorage( $this->ID );
@@ -58,6 +60,35 @@ class Event {
 		$this->update();
 	}
 
+	public function normalizeTime( $time ) {
+		$arr = explode( ':', $time );
+		$h = $arr[0];
+		$m = $arr[1];
+
+		if ( 1 === strlen( $h ) )
+			$h = '0' . $h;
+		if ( 1 === strlen( $m ) )
+			$m = '0' . $m;
+
+		return $h . ':' . $m;
+	}
+
+	public function normalizeDate( $date ) {
+		$arr = explode( '.', $date );
+		$d = $arr[0];
+		$m = $arr[1];
+		$y = $arr[2];
+
+		if ( 1 === strlen( $d ) )
+			$d = '0' . $d;
+		if ( 1 === strlen( $m ) )
+			$m = '0' . $m;
+		if ( 4 === strlen( $y ) )
+			$y = substr( $y, 2 );
+
+		return $d . '.' . $m . '.' . $y;
+	}
+
 	public function setFromPost( $time, $date, $periodicity, $weekToSkip, $location, $titlepageID ) {
 
 		if ( empty( $time ) ) {
@@ -65,7 +96,12 @@ class Event {
 			return;
 		}
 
-		$dateTime = \DateTime::createFromFormat( 'j.m.y G:i', $date . ' ' . $time, new \DateTimeZone( TZ ) );
+		$dateTime = \DateTime::createFromFormat( $this->DATE_TIME_FORMAT, $date . ' ' . $this->normalizeTime( $time ), new \DateTimeZone( TZ ) );
+
+		if ( ! $dateTime ) {
+			return;
+			error_log( 'Bad date/time: ' . $date . '/' . $time );
+		}
 
 		$catID = INDEPENDENT_EVENTS_CAT_ID;
 		if ( 0 !== $titlepageID ) {
