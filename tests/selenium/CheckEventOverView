@@ -23,11 +23,6 @@
 </tr>
 <!--check js alerts-->
 <tr>
-	<td>assertAlert</td>
-	<td> Rhetorik- und Kommunikationszirkel:<br /> jeden Montag</td>
-	<td></td>
-</tr>
-<tr>
 	<td>assertElementPresent</td>
 	<td>link=Monthly</td>
 	<td></td>
