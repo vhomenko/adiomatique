@@ -24,8 +24,6 @@ function add_post_meta_boxes( $type ) {
 
 		$cat_id = $number_of_categories ? intval( $categories[0]->cat_ID ) : 0;
 
-		//error_log( 'got post, id: ' . $id . '; cat: ' . $cat_id );
-
 		if ( $cat_id ) {
 			if ( EVENTS_ARCHIVE_CAT_ID !== $cat_id ) {
 				if ( EVENTS_CAT_ID !== $cat_id ) {
