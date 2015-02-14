@@ -49,7 +49,7 @@ class EventDate {
 	private function updateFields() {
 		$this->time = $this->dtObj->format( 'H:i' );
 		$this->date = $this->dtObj->format( 'd.m' );
-		$this->fullDate = $this->dtObj->format( 'j.m.y' );
+		$this->fullDate = $this->dtObj->format( 'd.m.y' );
 		$this->weekNum = intval( $this->dtObj->format( 'W' ) );
 		$this->weekDay = $this->dtObj->format( 'l' );
 		$this->weekDayDE = $this->WEEKDAYS_DICT[$this->weekDay];
