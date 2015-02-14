@@ -96,7 +96,7 @@ class Event {
 			return;
 		}
 
-		$dateTime = \DateTime::createFromFormat( $this->DATE_TIME_FORMAT, $date . ' ' . $this->normalizeTime( $time ), new \DateTimeZone( TZ ) );
+		$dateTime = \DateTime::createFromFormat( self::DATE_TIME_FORMAT, $this->normalizeDate( $date ) . ' ' . $this->normalizeTime( $time ), new \DateTimeZone( TZ ) );
 
 		if ( ! $dateTime ) {
 			return;
