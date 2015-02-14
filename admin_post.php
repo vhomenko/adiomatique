@@ -62,7 +62,7 @@ function post_meta_box( $post ) {
 		$time = '';
 	} else {
 		if ( $e->isArchived() ) {
-			echo 'Diese Veranstaltung ist archiviert.';
+			echo 'Diese Terminankündigung ist archiviert.';
 			return;
 		}
 		$date = $e->getFullDate();
