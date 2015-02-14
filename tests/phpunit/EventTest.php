@@ -2,13 +2,6 @@
 
 namespace adi;
 
-const SINGLE = 0;
-const WEEKLY = 1;
-const BIWEEKLY = 2;
-const MONTHLY = 4;
-
-const ADI_TZ = 'Europe/Berlin';
-
 require_once '../../Event.php';
 
 class EventTest extends \PHPUnit_Framework_TestCase {
