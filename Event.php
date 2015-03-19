@@ -240,7 +240,6 @@ class Event {
 		$this->storage->delete( $this->KEYS['week_to_skip'] );
 		$this->storage->delete( $this->KEYS['location'] );
 		$this->storage->delete( $this->KEYS['titlepage_id'] );
-		$this->setCategory( 0 );
 	}
 
 }
