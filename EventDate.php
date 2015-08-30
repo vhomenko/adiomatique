@@ -35,15 +35,19 @@ class EventDate {
 
 		$isValidWeekToSkipIndex = ( is_numeric( $weekToSkip ) && -1 < $weekToSkip && 5 > $weekToSkip );
 		if ( ! $isValidWeekToSkipIndex ) {
-			throw new Exception( 'EventDate: Invalid WeekToSkip index: ' . print_r( $weekToSkip, true ) );
+			error_log( 'EventDate: Invalid WeekToSkip index: ' . print_r( $weekToSkip, true ) );
+			$this->weekToSkip = 0;
+		} else {
+			$this->weekToSkip = $weekToSkip;
 		}
-		$this->weekToSkip = $weekToSkip;
 
 		$isValidSecondWeekToSkipIndex = ( is_numeric( $secondWeekToSkip ) && -1 < $secondWeekToSkip && 5 > $secondWeekToSkip && ( $secondWeekToSkip === 0 || $secondWeekToSkip > $weekToSkip ) );
 		if ( ! $isValidSecondWeekToSkipIndex ) {
-			throw new Exception( 'EventDate: Invalid secondWeekToSkip index: ' . print_r( $secondWeekToSkip, true ) );
+			error_log( 'EventDate: Invalid secondWeekToSkip index: ' . print_r( $secondWeekToSkip, true ) );
+			$this->secondWeekToSkip = 0;
+		} else {
+			$this->secondWeekToSkip = $secondWeekToSkip;
 		}
-		$this->secondWeekToSkip = $secondWeekToSkip;
 
 		if ( ! $today ) $today = new \DateTime();
 		$this->today = $today;
@@ -229,22 +233,28 @@ class EventDate {
 				$indices = ' jeden ';
 
 				$w2s = $this->weekToSkip;
+				$secondW2s = $this->secondWeekToSkip;
 
-				if ( 0 === $w2s ) return $indices . $this->weekDayDE;
+				if ( 0 === $w2s && 0 === $secondW2s) return $indices . $this->weekDayDE;
 
 				if ( 1 !== $w2s ) {
 					$indices .= '1. ';
 				}
-				if ( 2 !== $w2s ) {
+				if ( 2 !== $w2s && 2 !== $secondW2s ) {
 					$indices .= '2. ';
 				}
-				if ( 3 !== $w2s ) {
+				if ( 3 !== $w2s && 3 !== $secondW2s ) {
 					$indices .= '3. ';
 				}
-				if ( 4 !== $w2s ) {
+				if ( 4 !== $w2s && 4 !== $secondW2s ) {
 					$indices .= '4. ';
 				}
-				$indices = substr_replace( $indices, ' und', 12, 0 );
+				
+				if ( !$secondW2s ) {
+					$indices = substr_replace( $indices, ' und', 12, 0 );
+				} else {
+					$indices = substr_replace( $indices, ' und', 9, 0 );
+				}
 				return $indices . $this->weekDayDE . ' des Monats';
 			case 2:
 				$p = ' jede ';

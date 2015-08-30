@@ -71,6 +71,7 @@ function post_meta_box( $post ) {
 
 	$periodicity = $e->getPeriodicity();
 	$week_to_skip = $e->getWeekToSkip();
+	$second_week_to_skip = $e->getSecondWeekToSkip();
 	$location = $e->getLocation();
 	$titlepage_id = $e->getTitlepageID();
 
@@ -78,6 +79,7 @@ function post_meta_box( $post ) {
 
 <form method="post">
 	<p>
+		<em>Die Termineingaben werden gespeichert, wenn eine <strong>Uhrzeit</strong> eingetragen wird!</em><br>
 		<input style="text-align:center;" type="text" name="adi_event_date" id="adi_event_date" value="<?php echo $date ?>" size="8" />
 		<input style="text-align:center;" type="text" name="adi_event_time" id="adi_event_time" value="<?php echo $time ?>" size="5" />
 		<select style="vertical-align:top;" id="adi_event_periodicity" name="adi_event_periodicity" onchange="window.ADI.toggleWeekToSkipBox()">
@@ -88,7 +90,7 @@ function post_meta_box( $post ) {
 		</select>
 		<br>
 		<span id="adi_week_to_skip_box">
-		<select id="adi_event_week_to_skip" name="adi_event_week_to_skip">
+		<select id="adi_event_week_to_skip" name="adi_event_week_to_skip" onchange="window.ADI.toggleSecondWeekToSkipBox()">
 			<option value="0" <?php selected( $week_to_skip, 0 ); ?>>Keine</option>
 			<option value="1" <?php selected( $week_to_skip, 1 ); ?>>Erste</option>
 			<option value="2" <?php selected( $week_to_skip, 2 ); ?>>Zweite</option>
@@ -96,7 +98,14 @@ function post_meta_box( $post ) {
 			<option value="4" <?php selected( $week_to_skip, 4 ); ?>>Vierte</option>
 		</select>
 		Woche des Monats überspringen.<br></span>
-		<em>Die Termineingaben werden gespeichert, wenn eine <strong>Uhrzeit</strong> eingetragen wird!</em>
+		<span id="adi_second_week_to_skip_box">
+		<select id="adi_event_second_week_to_skip" name="adi_event_second_week_to_skip">
+			<option value="0" <?php selected( $second_week_to_skip, 0 ); ?>>Keine</option>
+			<option value="2" <?php selected( $second_week_to_skip, 2 ); ?>>Zweite</option>
+			<option value="3" <?php selected( $second_week_to_skip, 3 ); ?>>Dritte</option>
+			<option value="4" <?php selected( $second_week_to_skip, 4 ); ?>>Vierte</option>
+		</select>
+		zusätzliche Woche des Monats überspringen. <br><em>Bei zwei beliebigen Wochen, wird die fünfte stets übersprungen!</em><br></span>
 	</p>
 	<hr>
 	<p>
@@ -150,6 +159,7 @@ function save_meta( $post_id ) {
 		sanitize_text_field( $_POST['adi_event_date'] ),
 					 intval( $_POST['adi_event_periodicity'] ),
 					 intval( $_POST['adi_event_week_to_skip'] ),
+					 intval( $_POST['adi_event_second_week_to_skip'] ),
 		sanitize_text_field( $_POST['adi_event_location'] ),
 					 intval( $_POST['adi_event_titlepage_id'] )
 	);
