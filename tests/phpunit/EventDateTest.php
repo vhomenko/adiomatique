@@ -398,9 +398,9 @@ class EventDateTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals( $expect, $e->format() );
 	}
 
-	function testWeeklyDatePlusNotFirstAndThirdWeekday() {
+	function testWeeklyDatePlusNotFirstAndThirdWeekdayNeitherFifth() {
 		$event = new \DateTime( 'Wed 09-09-2015 20:00' );
-		$today = new \DateTime( 'Sun 01-10-2015 14:36' );
+		$today = new \DateTime( 'Thu 24-09-2015 14:36' );
 		$expect = 'Wed 14-10-2015 20:00';
 
 		$e = new EventDate( $event, $today, WEEKLY, 1, 3 );

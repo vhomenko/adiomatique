@@ -80,14 +80,6 @@ class EventDate {
 		return $this->dtObj < $this->today;
 	}
 
-	public function getWeekOfMonth( $date ) {
-		$first_of_month = new \DateTime($date->format('Y/m/1'));
-		$day_of_first = intval( $first_of_month->format('N') );
-		$day_of_month = intval( $date->format('j') );
-		
-		return intval(floor(($day_of_first + $day_of_month - 2) / 7) + 1);
-	}
-
 	public function next() {
 		$isInFuture = false;
 		if ( $this->dtObj >= $this->today ) {
@@ -102,12 +94,23 @@ class EventDate {
 		switch( $this->periodicity ) {
 			case 1:
 				// weekly
-				// ! strtotime/modify: if today is Fr and you want 'this Tu', you'll get next Tuesday
+// ! strtotime/modify: if today is Fr and you want 'this Tu', you'll get next Tuesday
 				$nextDate->modify( $this->weekDay );
+
 				if ( 0 === $this->weekToSkip ) break;
+
+// when two weeks are chosen to be skipped, the fifth is always skipped
+				if (  0 !== $this->secondWeekToSkip ) {
+					$fifthWeekday = clone $nextDate;
+					$fifthWeekday->modify('fifth ' . $this->weekDay . ' of this month');
+					if ( $nextDate == $fifthWeekday ) {
+						echo "\nSSSSSSSSSSSSSSSSkipping fifth:" . $nextDate->format( 'D d-m-Y G:i' ). "\n";
+						$nextDate->modify( '+1 week' );
+					}
+				}
+				
 				$weekIndexToSkip = $this->getWeekIndexAsWord( $this->weekToSkip );
 				$dateToSkip = clone $nextDate;
-
 				$secondDateToSkip = clone $nextDate;
 
 				$dateToSkip->modify( $weekIndexToSkip . ' ' . $this->weekDay . ' of this month' );
@@ -118,22 +121,27 @@ class EventDate {
 					$nextDate->modify( '+1 week' );
 				}
 
-				if ( 0 === $this->secondWeekToSkip ) break;
-
-				$secondWeekIndexToSkip = $this->getWeekIndexAsWord( $this->secondWeekToSkip );
-				$secondDateToSkip->modify( $secondWeekIndexToSkip . ' ' . $this->weekDay . ' of this month' );
-				if ( $secondDateToSkip < $nextDate ) {
-					$secondDateToSkip->modify( $secondWeekIndexToSkip . ' ' . $this->weekDay . ' of next month' );
-				}
-				if ( $nextDate == $secondDateToSkip ) {
-					$nextDate->modify( '+1 week' );
+				if ( 0 !== $this->secondWeekToSkip ) {
+					$secondWeekIndexToSkip = $this->getWeekIndexAsWord( $this->secondWeekToSkip );
+					$secondDateToSkip->modify( $secondWeekIndexToSkip . ' ' . $this->weekDay . ' of this month' );
+					if ( $secondDateToSkip < $nextDate ) {
+						$secondDateToSkip->modify( $secondWeekIndexToSkip . ' ' . $this->weekDay . ' of next month' );
+					}
+					if ( $nextDate == $secondDateToSkip ) {
+						$nextDate->modify( '+1 week' );
+					}
 				}
 
 // when two weeks are chosen to be skipped, the fifth is always skipped
-				if ( 5 === $this->getWeekOfMonth( $nextDate ) ) {
-					$nextDate->modify( '+1 week' );
+				if (  0 !== $this->secondWeekToSkip ) {
+					$fifthWeekday = clone $nextDate;
+					$fifthWeekday->modify('fifth ' . $this->weekDay . ' of this month');
+					if ( $nextDate == $fifthWeekday ) {
+						echo "\nSSSSSSSSSSSSSSSSkipping fifth:" . $nextDate->format( 'D d-m-Y G:i' ). "\n";
+						$nextDate->modify( '+1 week' );
+					}
 				}
-
+				
 				break;
 			case 2:
 				// biweekly

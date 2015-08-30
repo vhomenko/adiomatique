@@ -91,21 +91,21 @@ function post_meta_box( $post ) {
 		<br>
 		<span id="adi_week_to_skip_box">
 		<select id="adi_event_week_to_skip" name="adi_event_week_to_skip" onchange="window.ADI.toggleSecondWeekToSkipBox()">
-			<option value="0" <?php selected( $week_to_skip, 0 ); ?>>Keine</option>
-			<option value="1" <?php selected( $week_to_skip, 1 ); ?>>Erste</option>
-			<option value="2" <?php selected( $week_to_skip, 2 ); ?>>Zweite</option>
-			<option value="3" <?php selected( $week_to_skip, 3 ); ?>>Dritte</option>
-			<option value="4" <?php selected( $week_to_skip, 4 ); ?>>Vierte</option>
+			<option value="0" <?php selected( $week_to_skip, 0 ); ?>>Keinen</option>
+			<option value="1" <?php selected( $week_to_skip, 1 ); ?>>Ersten</option>
+			<option value="2" <?php selected( $week_to_skip, 2 ); ?>>Zweiten</option>
+			<option value="3" <?php selected( $week_to_skip, 3 ); ?>>Dritten</option>
+			<option value="4" <?php selected( $week_to_skip, 4 ); ?>>Vierten</option>
 		</select>
-		Woche des Monats überspringen.<br></span>
+		Wochentag des Monats überspringen.<br></span>
 		<span id="adi_second_week_to_skip_box">
 		<select id="adi_event_second_week_to_skip" name="adi_event_second_week_to_skip">
-			<option value="0" <?php selected( $second_week_to_skip, 0 ); ?>>Keine</option>
-			<option value="2" <?php selected( $second_week_to_skip, 2 ); ?>>Zweite</option>
-			<option value="3" <?php selected( $second_week_to_skip, 3 ); ?>>Dritte</option>
-			<option value="4" <?php selected( $second_week_to_skip, 4 ); ?>>Vierte</option>
+			<option value="0" <?php selected( $second_week_to_skip, 0 ); ?>>Keinen</option>
+			<option value="2" <?php selected( $second_week_to_skip, 2 ); ?>>Zweiten</option>
+			<option value="3" <?php selected( $second_week_to_skip, 3 ); ?>>Dritten</option>
+			<option value="4" <?php selected( $second_week_to_skip, 4 ); ?>>Vierten</option>
 		</select>
-		zusätzliche Woche des Monats überspringen. <br><em>Bei zwei beliebigen Wochen, wird die fünfte stets übersprungen!</em><br></span>
+		zusätzlichen Wochentag des Monats überspringen. <br><em>Der fünfte Wochentag wird (falls vorhanden) immer automatisch übersprungen!</em><br></span>
 	</p>
 	<hr>
 	<p>
