@@ -104,7 +104,6 @@ class EventDate {
 					$fifthWeekday = clone $nextDate;
 					$fifthWeekday->modify('fifth ' . $this->weekDay . ' of this month');
 					if ( $nextDate == $fifthWeekday ) {
-						echo "\nSSSSSSSSSSSSSSSSkipping fifth:" . $nextDate->format( 'D d-m-Y G:i' ). "\n";
 						$nextDate->modify( '+1 week' );
 					}
 				}
