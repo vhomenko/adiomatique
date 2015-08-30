@@ -44,6 +44,10 @@ jQuery(document).ready(function(){
 		}
 	}
 	window.ADI.toggleSecondWeekToSkipBox = function () {
+		if ( '1' !== document.getElementById( 'adi_event_periodicity' ).value ) {
+			jQuery( '#adi_second_week_to_skip_box' ).hide();
+			return;
+		}
 		var weekToSkip = document.getElementById( 'adi_event_week_to_skip' ).value;
 		var secondWeekToSkip = document.getElementById( 'adi_event_second_week_to_skip' ).value;
 		if ( '0' === weekToSkip ) {
