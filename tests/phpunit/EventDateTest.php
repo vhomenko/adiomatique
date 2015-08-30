@@ -425,6 +425,15 @@ class EventDateTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals( $expect, $e->format() );
 	}
 
+	function testWeeklyDateWhichIsPassedInTheCurrentWeekPlusNotSecondNotThirdWeekday() {
+		$event = new \DateTime( 'Thu 01-03-2012 0:45' );
+		$today = new \DateTime( 'Sat 03-03-2012' );
+		$expect = 'Thu 22-03-2012 0:45';
+
+		$e = new EventDate( $event, $today, WEEKLY, 2, 3 );
+		$this->assertEquals( $expect, $e->format() );
+	}
+
 }
 
 ?>

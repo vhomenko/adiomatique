@@ -50,8 +50,8 @@ class Event {
 	public function set( $dateTime, $periodicity, $weekToSkip, $secondWeekToSkip, $location, $titlepageID ) {
 		$this->date = new EventDate( $dateTime, null, $periodicity, $weekToSkip, $secondWeekToSkip );
 		$this->periodicity = $periodicity;
-		$this->weekToSkip = $weekToSkip;
-		$this->secondWeekToSkip = $secondWeekToSkip;
+		$this->weekToSkip = $this->date->weekToSkip;
+		$this->secondWeekToSkip = $this->date->secondWeekToSkip;
 		$this->location = $location;
 		$this->titlepageID = $titlepageID;
 		$titlepage = get_post( $this->titlepageID );
@@ -121,7 +121,7 @@ class Event {
 			$titlepageID
 		);
 
-		$this->storeAll( $dateTime->getTimestamp(), $periodicity, $weekToSkip, $secondWeekToSkip, $location, $titlepageID );
+		$this->storeAll( $dateTime->getTimestamp(), $periodicity, $this->weekToSkip, $this->secondWeekToSkip, $location, $titlepageID );
 	}
 
 	private function update() {
