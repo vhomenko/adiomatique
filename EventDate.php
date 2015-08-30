@@ -15,6 +15,7 @@ class EventDate {
 	var $dayOfMonth;
 	var $periodicity;
 	var $weekToSkip;
+	var $secondWeekToSkip;
 	var $today;
 	var $isUpdated = false;
 
@@ -27,7 +28,7 @@ class EventDate {
 		'Saturday' => 'Samstag',
 		'Sunday' => 'Sonntag' );
 
-	public function __construct ( $dateTime, $today, $periodicity, $weekToSkip = 0 ) {
+	public function __construct ( $dateTime, $today, $periodicity, $weekToSkip = 0, $secondWeekToSkip = 0 ) {
 		$this->dtObj = $dateTime;
 		$this->timestamp = $this->dtObj->getTimestamp();
 		$this->periodicity = $periodicity;
@@ -37,6 +38,12 @@ class EventDate {
 			throw new Exception( 'EventDate: Invalid WeekToSkip index: ' . print_r( $weekToSkip, true ) );
 		}
 		$this->weekToSkip = $weekToSkip;
+
+		$isValidSecondWeekToSkipIndex = ( is_numeric( $secondWeekToSkip ) && -1 < $secondWeekToSkip && 5 > $secondWeekToSkip && ( $secondWeekToSkip === 0 || $secondWeekToSkip > $weekToSkip ) );
+		if ( ! $isValidSecondWeekToSkipIndex ) {
+			throw new Exception( 'EventDate: Invalid secondWeekToSkip index: ' . print_r( $secondWeekToSkip, true ) );
+		}
+		$this->secondWeekToSkip = $secondWeekToSkip;
 
 		if ( ! $today ) $today = new \DateTime();
 		$this->today = $today;
@@ -69,11 +76,19 @@ class EventDate {
 		return $this->dtObj < $this->today;
 	}
 
+	public function getWeekOfMonth( $date ) {
+		$first_of_month = new \DateTime($date->format('Y/m/1'));
+		$day_of_first = intval( $first_of_month->format('N') );
+		$day_of_month = intval( $date->format('j') );
+		
+		return intval(floor(($day_of_first + $day_of_month - 2) / 7) + 1);
+	}
+
 	public function next() {
 		$isInFuture = false;
 		if ( $this->dtObj >= $this->today ) {
-			if ( $this->isMonthly() ||
-				( $this->isWeekly() && $this->weekToSkip ) ) {
+			if ( $this->isMonthly() || /*WHY weekToSkip ref? tests are okay*/
+				( $this->isWeekly() /*&& $this->weekToSkip*/ ) ) {
 					$isInFuture = true;
 				} else return false;
 		}
@@ -83,11 +98,14 @@ class EventDate {
 		switch( $this->periodicity ) {
 			case 1:
 				// weekly
-				// ! strtotime/modify: if todays is Fr and you want this Tu, you'll get next Tuesday
+				// ! strtotime/modify: if today is Fr and you want 'this Tu', you'll get next Tuesday
 				$nextDate->modify( $this->weekDay );
 				if ( 0 === $this->weekToSkip ) break;
 				$weekIndexToSkip = $this->getWeekIndexAsWord( $this->weekToSkip );
 				$dateToSkip = clone $nextDate;
+
+				$secondDateToSkip = clone $nextDate;
+
 				$dateToSkip->modify( $weekIndexToSkip . ' ' . $this->weekDay . ' of this month' );
 				if ( $dateToSkip < $nextDate ) {
 					$dateToSkip->modify( $weekIndexToSkip . ' ' . $this->weekDay . ' of next month' );
@@ -95,6 +113,23 @@ class EventDate {
 				if ( $nextDate == $dateToSkip ) {
 					$nextDate->modify( '+1 week' );
 				}
+
+				if ( 0 === $this->secondWeekToSkip ) break;
+
+				$secondWeekIndexToSkip = $this->getWeekIndexAsWord( $this->secondWeekToSkip );
+				$secondDateToSkip->modify( $secondWeekIndexToSkip . ' ' . $this->weekDay . ' of this month' );
+				if ( $secondDateToSkip < $nextDate ) {
+					$secondDateToSkip->modify( $secondWeekIndexToSkip . ' ' . $this->weekDay . ' of next month' );
+				}
+				if ( $nextDate == $secondDateToSkip ) {
+					$nextDate->modify( '+1 week' );
+				}
+
+// when two weeks are chosen to be skipped, the fifth is always skipped
+				if ( 5 === $this->getWeekOfMonth( $nextDate ) ) {
+					$nextDate->modify( '+1 week' );
+				}
+
 				break;
 			case 2:
 				// biweekly

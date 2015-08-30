@@ -389,6 +389,42 @@ class EventDateTest extends \PHPUnit_Framework_TestCase {
 		$e = new EventDate( $event, $today, BIWEEKLY );
 		$this->assertEquals( $expect, $e->format() );
 	}
+	function testFutureWeeklyDatePlusNotFirstAndThirdWeekday() {
+		$event = new \DateTime( 'Wed 09-09-2015 20:00' );
+		$today = new \DateTime( 'Sun 30-08-2015 14:36' );
+		$expect = 'Wed 09-09-2015 20:00';
+
+		$e = new EventDate( $event, $today, WEEKLY, 1, 3 );
+		$this->assertEquals( $expect, $e->format() );
+	}
+
+	function testWeeklyDatePlusNotFirstAndThirdWeekday() {
+		$event = new \DateTime( 'Wed 09-09-2015 20:00' );
+		$today = new \DateTime( 'Sun 01-10-2015 14:36' );
+		$expect = 'Wed 14-10-2015 20:00';
+
+		$e = new EventDate( $event, $today, WEEKLY, 1, 3 );
+		$this->assertEquals( $expect, $e->format() );
+	}
+
+	function testFutureWeeklyDatePlusNotFirstAndSecondWeek() {
+		$event = new \DateTime( 'Mon 01-12-2014 0:00' );
+		$today = new \DateTime( 'Fri 16-03-2012 14:36' );
+		$expect = 'Mon 15-12-2014 0:00';
+
+		$e = new EventDate( $event, $today, WEEKLY, 1, 2 );
+		$this->assertEquals( $expect, $e->format() );
+	}
+
+	function testWeeklyDatePlusNotThirdAndFourthWeekdayNeitherFifth() {
+		$event = new \DateTime( 'Thu 09-07-2015 20:00' );
+		$today = new \DateTime( 'Fri 10-07-2015 14:36' );
+		$expect = 'Thu 06-08-2015 20:00';
+
+		$e = new EventDate( $event, $today, WEEKLY, 3, 4 );
+		$this->assertEquals( $expect, $e->format() );
+	}
+
 }
 
 ?>
