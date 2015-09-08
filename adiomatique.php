@@ -2,31 +2,29 @@
 /**
  * Plugin Name: Adiomatique
  * Description: Einfache Terminverwaltung.
- * Version: 14
+ * Version: 15
  * Author: Vitali Homenko
  * Author URI: mailto:vitali.homenko@gmail.com
  * License: GPL-3.0
- 
-
-	Adiomatique – simple event management for WordPress
-	Copyright (C) 2015 Vitali Homenko
-
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
-
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-
+ *
+ *
+ * Adiomatique – simple event management for WordPress
+ * Copyright (C) 2015 Vitali Homenko
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
 namespace adi;
 
 defined( 'ABSPATH' ) or die( '' );
@@ -50,8 +48,10 @@ if ( defined( 'ADIOMATIQUE_DEV' ) ) {
 }
 
 
-
 add_filter( 'the_content', 'adi\add_event_data', 20 );
+add_shortcode( 'adi_termine', 'adi\the_events' );
+
+
 
 function add_event_data( $content ) {
 	$id = get_the_ID();
@@ -115,7 +115,6 @@ function display_post( $id ) {
 
 }
 
-add_shortcode( 'adi_termine', 'adi\the_events' );
 
 function the_events( $atts ) {
 	wp_enqueue_style( 'adiomatique-css', plugins_url() . '/adiomatique/css/adiomatique.css' );

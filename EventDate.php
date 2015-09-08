@@ -2,22 +2,23 @@
 
 namespace adi;
 
+require_once "WeekdayBlacklist.php";
+
 class EventDate {
-	var $timestamp;
-	var $dtObj;
-	var $date;
-	var $fullDate;
-	var $time;
-	var $weekDay;
-	var $weekDayIndex;
-	var $weekDayDE;
-	var $weekNum;
-	var $dayOfMonth;
-	var $periodicity;
-	var $weekToSkip;
-	var $secondWeekToSkip;
-	var $today;
-	var $isUpdated = false;
+	public $dt;
+	public $date;
+	public $fullDate;
+	public $time;
+	public $weekday;
+	public $weekdayIndex;
+	public $weekdayDE;
+	public $weekNum;
+	public $dayOfMonth;
+	public $periodicity;
+	public $weekdayBlacklist;
+	private $today;
+	public $timestamp;
+	public $isUpdated = false;
 
 	private $WEEKDAYS_DICT = array(
 		'Monday' => 'Montag',
@@ -28,48 +29,34 @@ class EventDate {
 		'Saturday' => 'Samstag',
 		'Sunday' => 'Sonntag' );
 
-	public function __construct ( $dateTime, $today, $periodicity, $weekToSkip = 0, $secondWeekToSkip = 0 ) {
-		$this->dtObj = $dateTime;
-		$this->timestamp = $this->dtObj->getTimestamp();
-		$this->periodicity = $periodicity;
-
-		$isValidWeekToSkipIndex = ( is_numeric( $weekToSkip ) && -1 < $weekToSkip && 5 > $weekToSkip );
-		if ( ! $isValidWeekToSkipIndex ) {
-			error_log( 'EventDate: Invalid WeekToSkip index: ' . print_r( $weekToSkip, true ) );
-			$this->weekToSkip = 0;
-		} else {
-			$this->weekToSkip = $weekToSkip;
-		}
-
-		$isValidSecondWeekToSkipIndex = ( is_numeric( $secondWeekToSkip ) && -1 < $secondWeekToSkip && 5 > $secondWeekToSkip && ( $secondWeekToSkip === 0 || $secondWeekToSkip > $weekToSkip ) );
-		if ( ! $isValidSecondWeekToSkipIndex ) {
-			error_log( 'EventDate: Invalid secondWeekToSkip index: ' . print_r( $secondWeekToSkip, true ) );
-			$this->secondWeekToSkip = 0;
-		} else {
-			$this->secondWeekToSkip = $secondWeekToSkip;
-		}
-
-		if ( ! $today ) $today = new \DateTime();
-		$this->today = $today;
+	public function __construct ( $eventDT, $todayDT, $periodicity, $firstWeekdayToSkip = 0, $secondWeekdayToSkip = 0 ) {
+		$this->dt = $eventDT;
+		if ( ! isset( $todayDT ) )
+			$this->today = new \DateTime();
+		else
+			$this->today = $todayDT;
 		$this->today->setTime( 0, 0 );
+		$this->periodicity = $periodicity;
+		$this->weekdayBlacklist = new WeekdayBlacklist( $firstWeekdayToSkip, $secondWeekdayToSkip );
 
 		$this->updateFields();
-		$this->next();
+		$this->update();
 	}
 
 	private function updateFields() {
-		$this->time = $this->dtObj->format( 'H:i' );
-		$this->date = $this->dtObj->format( 'd.m' );
-		$this->fullDate = $this->dtObj->format( 'd.m.y' );
-		$this->weekNum = intval( $this->dtObj->format( 'W' ) );
-		$this->weekDay = $this->dtObj->format( 'l' );
-		$this->weekDayDE = $this->WEEKDAYS_DICT[$this->weekDay];
-		$this->dayOfMonth = intval( $this->dtObj->format( 'j' ) );
-		$this->weekDayIndex = intval( $this->dtObj->format( 'N' ) );
+		$this->timestamp = $this->dt->getTimestamp();
+		$this->time = $this->dt->format( 'H:i' );
+		$this->date = $this->dt->format( 'd.m' );
+		$this->fullDate = $this->dt->format( 'd.m.y' );
+		$this->weekNum = intval( $this->dt->format( 'W' ) );
+		$this->weekday = $this->dt->format( 'l' );
+		$this->weekdayDE = $this->WEEKDAYS_DICT[$this->weekday];
+		$this->dayOfMonth = intval( $this->dt->format( 'j' ) );
+		$this->weekdayIndex = intval( $this->dt->format( 'N' ) );
 	}
 
 	public function format() {
-		return $this->dtObj->format( 'D d-m-Y G:i' );
+		return $this->dt->format( 'D d-m-Y G:i' );
 	}
 
 	public function isPeriodic() {
@@ -77,134 +64,62 @@ class EventDate {
 	}
 
 	public function isPassed() {
-		return $this->dtObj < $this->today;
+		return $this->dt < $this->today;
 	}
 
-	public function next() {
-		$isInFuture = false;
-		if ( $this->dtObj >= $this->today ) {
-			if ( $this->isMonthly() || /*WHY weekToSkip ref? tests are okay*/
-				( $this->isWeekly() /*&& $this->weekToSkip*/ ) ) {
-					$isInFuture = true;
-				} else return false;
-		}
-		$nextDate = clone $this->today;
-		if ( $isInFuture ) $nextDate = clone $this->dtObj;
+	private function update() {
+		$end = clone $this->today;
+		if ( $this->dt > $this->today )
+			$end = clone $this->dt; // for dates way in the future
 
-		switch( $this->periodicity ) {
+		switch ( $this->periodicity ) {
 			case 1:
-				// weekly
-// ! strtotime/modify: if today is Fr and you want 'this Tu', you'll get next Tuesday
-				$nextDate->modify( $this->weekDay );
-
-				if ( 0 === $this->weekToSkip ) break;
-
-// when two weeks are chosen to be skipped, the fifth is always skipped
-				if (  0 !== $this->secondWeekToSkip ) {
-					$fifthWeekday = clone $nextDate;
-					$fifthWeekday->modify('fifth ' . $this->weekDay . ' of this month');
-					if ( $nextDate == $fifthWeekday ) {
-						$nextDate->modify( '+1 week' );
+				$interval = new \DateInterval( 'P1W' );
+				$end->modify( '+6 weeks' );
+				$period = new \DatePeriod( $this->dt, $interval, $end );
+				foreach ( $period as $dt ) {
+					if ( $dt >= $this->today ) {
+						if ( false !== $this->weekdayBlacklist->verify( $dt ) ) {
+							$this->dt = $dt;
+							break;
+						}
 					}
 				}
-				
-				$weekIndexToSkip = $this->getWeekIndexAsWord( $this->weekToSkip );
-				$dateToSkip = clone $nextDate;
-				$secondDateToSkip = clone $nextDate;
-
-				$dateToSkip->modify( $weekIndexToSkip . ' ' . $this->weekDay . ' of this month' );
-				if ( $dateToSkip < $nextDate ) {
-					$dateToSkip->modify( $weekIndexToSkip . ' ' . $this->weekDay . ' of next month' );
-				}
-				if ( $nextDate == $dateToSkip ) {
-					$nextDate->modify( '+1 week' );
-				}
-
-				if ( 0 !== $this->secondWeekToSkip ) {
-					$secondWeekIndexToSkip = $this->getWeekIndexAsWord( $this->secondWeekToSkip );
-					$secondDateToSkip->modify( $secondWeekIndexToSkip . ' ' . $this->weekDay . ' of this month' );
-					if ( $secondDateToSkip < $nextDate ) {
-						$secondDateToSkip->modify( $secondWeekIndexToSkip . ' ' . $this->weekDay . ' of next month' );
-					}
-					if ( $nextDate == $secondDateToSkip ) {
-						$nextDate->modify( '+1 week' );
-					}
-				}
-
-// when two weeks are chosen to be skipped, the fifth is always skipped
-				if (  0 !== $this->secondWeekToSkip ) {
-					$fifthWeekday = clone $nextDate;
-					$fifthWeekday->modify('fifth ' . $this->weekDay . ' of this month');
-					if ( $nextDate == $fifthWeekday ) {
-						echo "\nSSSSSSSSSSSSSSSSkipping fifth:" . $nextDate->format( 'D d-m-Y G:i' ). "\n";
-						$nextDate->modify( '+1 week' );
-					}
-				}
-				
 				break;
 			case 2:
-				// biweekly
-				$is_event_weeknum_even = ( 0 === $this->weekNum % 2 );
-				$current_weeknum = intval( $this->today->format( 'W' ) );
-				$is_current_weeknum_even = ( 0 === $current_weeknum % 2 );
-				$both_are_on_even_weeks = $is_current_weeknum_even === $is_event_weeknum_even;
-
-				$current_weekday_index = intval( $this->today->format( 'N' ) );
-				$event_day_passed_in_current_week = $this->weekDayIndex < $current_weekday_index;
-
-				$nextDate->modify( 'this ' . $this->weekDay );
-
-				if ( $event_day_passed_in_current_week ) {
-					if ( $both_are_on_even_weeks ) {
-						$nextDate->modify( '+1 week' );
-					}
-				} else {
-					if ( ! $both_are_on_even_weeks ) {
-						$nextDate->modify( '+1 week' );
-					}
+				$interval = new \DateInterval( 'P2W' );
+				$end->modify( '+2 weeks' );
+				$period = new \DatePeriod( $this->dt, $interval, $end );
+				foreach ( $period as $dt ) {
+					$this->dt = $dt;
 				}
 				break;
 			case 4:
-				// monthly
-				$weekIndex = $this->getWeekIndex();
-				if ( ! $weekIndex ) {
-					error_log( $this->format() . ' 5th week of the month. Resetting');
+				$weekDayIndex = $this->weekdayBlacklist->getWeekDayIndex( $this->dt );
+				if ( -1 === $weekDayIndex ) {
+					error_log( $this->format() . ' 5th weekday of the month. Resetting');
 					$this->periodicity = 0;
 					$this->isUpdated = true;
-					return false;
+					return;
 				}
-				$weekIndexWord = $this->getWeekIndexAsWord( $weekIndex );
-				$nextDate->modify( $weekIndexWord . ' ' . $this->weekDay . ' of this month' );
+				$weekDayIndexWord = $this->getWeekdayIndexAsWord( $weekDayIndex );
+				$weekDay = $this->dt->format( 'l' );
+				$nextDate = clone $this->today;
+				$nextDate->modify( $weekDayIndexWord . ' ' . $weekDay . ' of this month' );
 				if ( $nextDate < $this->today ) {
-					$nextDate->modify( $weekIndexWord . ' ' . $this->weekDay . ' of next month' );
+					$nextDate->modify( $weekDayIndexWord . ' ' . $weekDay . ' of next month' );
 				}
+				$hour = intval( $this->dt->format( 'H' ) );
+				$min = intval( $this->dt->format( 'i' ) );
+				$nextDate->setTime( $hour, $min );
+				$this->dt = $nextDate;
 				break;
 			case 0:
-			default: 
-				return false;
+			default:
+				break;
 		}
-		$hour = intval( $this->dtObj->format( 'H' ) );
-		$min = intval( $this->dtObj->format( 'i' ) );
-		$nextDate->setTime( $hour, $min );
-
-		$this->dtObj = $nextDate;
-
-		$this->timestamp = $this->dtObj->getTimestamp();
 		$this->updateFields();
 		$this->isUpdated = true;
-	}
-
-	function getWeekIndex() {
-		$dom = $this->dayOfMonth;
-		if ( 8 > $dom ) {
-			return 1;
-		} else if ( 15 > $dom ) { 
-			return 2;
-		} else if ( 22 > $dom ) { 
-			return 3;
-		} else if ( 29 > $dom ) { 
-			return 4;
-		} else return false;
 	}
 
 	public function isWeekly() {
@@ -219,7 +134,7 @@ class EventDate {
 		return 4 === $this->periodicity;
 	}
 
-	function getWeekIndexAsWord( $index ) {
+	function getWeekdayIndexAsWord( $index ) {
 		switch( $index ) {
 			case 1:
 				return 'first';
@@ -239,10 +154,10 @@ class EventDate {
 			case 1:
 				$indices = ' jeden ';
 
-				$w2s = $this->weekToSkip;
-				$secondW2s = $this->secondWeekToSkip;
+				$w2s = $this->weekdayBlacklist->firstWeekdayToSkip;
+				$secondW2s = $this->weekdayBlacklist->secondWeekdayToSkip;
 
-				if ( 0 === $w2s && 0 === $secondW2s) return $indices . $this->weekDayDE;
+				if ( 0 === $w2s && 0 === $secondW2s ) return $indices . $this->weekdayDE;
 
 				if ( 1 !== $w2s ) {
 					$indices .= '1. ';
@@ -262,7 +177,7 @@ class EventDate {
 				} else {
 					$indices = substr_replace( $indices, ' und', 9, 0 );
 				}
-				return $indices . $this->weekDayDE . ' des Monats';
+				return $indices . $this->weekdayDE . ' des Monats';
 			case 2:
 				$p = ' jede ';
 
@@ -270,9 +185,9 @@ class EventDate {
 					$p .= 'un';
 				}
 
-				return $p . 'gerade Woche am ' . $this->weekDayDE;
+				return $p . 'gerade Woche am ' . $this->weekdayDE;
 			case 4:
-				return ' jeden ' . $this->getWeekIndex() . '. ' . $this->weekDayDE . ' des Monats';
+				return ' jeden ' . $this->weekdayBlacklist->getWeekdayIndex( $this->dt ) . '. ' . $this->weekdayDE . ' des Monats';
 		}
 	}
 }

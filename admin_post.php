@@ -44,6 +44,7 @@ function add_post_meta_boxes( $type ) {
 	wp_enqueue_style( 'jquery-ui-timepicker-css', plugins_url() . '/adiomatique/css/jquery.ui.timepicker.css' );
 	wp_enqueue_script( 'jquery-ui-timepicker', plugins_url() . '/adiomatique/js/jquery.ui.timepicker.js' );
 	wp_enqueue_script( 'adi-admin-post', plugins_url() . '/adiomatique/js/admin_post.js' );
+	
 	add_meta_box(
 		'adi_for_posts',
 		'Adiomatique: Veranstaltungstermin',

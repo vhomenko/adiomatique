@@ -7,6 +7,7 @@ require_once( 'EventDate.php' );
 
 class Event {
 
+	private $dt;
 	private $ID;
 	private $date;
 	private $storage;
@@ -34,11 +35,11 @@ class Event {
 
 		$this->timestamp = $this->storage->getInt( $this->KEYS['timestamp'] );
 		if ( 0 === $this->timestamp ) return;
-		$this->dtObj = new \DateTime( '@' . $this->timestamp );
-		$this->dtObj->setTimezone( new \DateTimeZone( TZ ) );
+		$this->dt = new \DateTime( '@' . $this->timestamp );
+		$this->dt->setTimezone( new \DateTimeZone( TZ ) );
 
 		$this->set(
-			$this->dtObj,
+			$this->dt,
 			$this->storage->getInt( $this->KEYS['periodicity'] ),
 			$this->storage->getInt( $this->KEYS['week_to_skip'] ),
 			$this->storage->getInt( $this->KEYS['second_week_to_skip'] ),
@@ -50,8 +51,6 @@ class Event {
 	public function set( $dateTime, $periodicity, $weekToSkip, $secondWeekToSkip, $location, $titlepageID ) {
 		$this->date = new EventDate( $dateTime, null, $periodicity, $weekToSkip, $secondWeekToSkip );
 		$this->periodicity = $periodicity;
-		$this->weekToSkip = $this->date->weekToSkip;
-		$this->secondWeekToSkip = $this->date->secondWeekToSkip;
 		$this->location = $location;
 		$this->titlepageID = $titlepageID;
 		$titlepage = get_post( $this->titlepageID );
@@ -121,7 +120,7 @@ class Event {
 			$titlepageID
 		);
 
-		$this->storeAll( $dateTime->getTimestamp(), $periodicity, $this->weekToSkip, $this->secondWeekToSkip, $location, $titlepageID );
+		$this->storeAll( $dateTime->getTimestamp(), $periodicity, $weekToSkip, $secondWeekToSkip, $location, $titlepageID );
 	}
 
 	private function update() {
@@ -153,7 +152,7 @@ class Event {
 	}
 
 	public function getWeekDay() {
-		return $this->date->weekDayDE;
+		return $this->date->weekdayDE;
 	}
 
 	public function getTimestamp() {
@@ -161,17 +160,17 @@ class Event {
 	}
 
 	public function getDateTime() {
-		return $this->date->dtObj;
+		return $this->date->dt;
 	}
 
 	public function getWeekToSkip() {
 		if ( $this->isEmpty ) return 0;
-		return $this->date->weekToSkip;
+		return $this->date->weekdayBlacklist->firstWeekdayToSkip;
 	}
 
 	public function getSecondWeekToSkip() {
 		if ( $this->isEmpty ) return 0;
-		return $this->date->secondWeekToSkip;
+		return $this->date->weekdayBlacklist->secondWeekdayToSkip;
 	}
 
 	public function isOnTheSameDay( $e ) {
