@@ -140,7 +140,7 @@ function the_events( $atts ) {
 		$output .= '<div>';
 
 		if ( ! $e->isOnTheSameDay( $prevE ) ) {
-			$output .= "<div class='adi_date'><span>" . $e->getDate() . "</span><span>" . $e->getWeekDay() . "</span></div>";
+			$output .= "<div class='adi_date'><span>" . $e->getDate() . "</span><span>" . $e->getWeekday() . "</span></div>";
 		}
 
 		$output .= "<div class='adi_time'><span>" . $e->getTime() . "</span><span>" . $e->getLink() . "</span></div>";
