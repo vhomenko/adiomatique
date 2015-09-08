@@ -10,24 +10,12 @@ class EventDate {
 	public $fullDate;
 	public $time;
 	public $weekday;
-	public $weekdayIndex;
-	public $weekdayDE;
-	public $weekNum;
-	public $dayOfMonth;
+	private $weekNum;
 	public $periodicity;
 	public $weekdayBlacklist;
 	private $today;
 	public $timestamp;
 	public $isUpdated = false;
-
-	private $WEEKDAYS_DICT = array(
-		'Monday' => 'Montag',
-		'Tuesday' => 'Dienstag',
-		'Wednesday' => 'Mittwoch',
-		'Thursday' => 'Donnerstag',
-		'Friday' => 'Freitag',
-		'Saturday' => 'Samstag',
-		'Sunday' => 'Sonntag' );
 
 	public function __construct ( $eventDT, $todayDT, $periodicity, $firstWeekdayToSkip = 0, $secondWeekdayToSkip = 0 ) {
 		$this->dt = $eventDT;
@@ -50,21 +38,18 @@ class EventDate {
 		$this->fullDate = $this->dt->format( 'd.m.y' );
 		$this->weekNum = intval( $this->dt->format( 'W' ) );
 		$this->weekday = $this->dt->format( 'l' );
-		$this->weekdayDE = $this->WEEKDAYS_DICT[$this->weekday];
-		$this->dayOfMonth = intval( $this->dt->format( 'j' ) );
-		$this->weekdayIndex = intval( $this->dt->format( 'N' ) );
 	}
 
 	public function format() {
 		return $this->dt->format( 'D d-m-Y G:i' );
 	}
 
-	public function isPeriodic() {
-		return 0 < $this->periodicity;
-	}
-
 	public function isPassed() {
 		return $this->dt < $this->today;
+	}
+
+	public function isOnOddWeek() {
+		return 0 !== $this->weekNum % 2;
 	}
 
 	private function update() {
@@ -121,7 +106,7 @@ class EventDate {
 		$this->updateFields();
 		$this->isUpdated = true;
 	}
-
+/*
 	public function isWeekly() {
 		return 1 === $this->periodicity;
 	}
@@ -133,7 +118,7 @@ class EventDate {
 	public function isMonthly() {
 		return 4 === $this->periodicity;
 	}
-
+*/
 	function getWeekdayIndexAsWord( $index ) {
 		switch( $index ) {
 			case 1:
@@ -147,49 +132,6 @@ class EventDate {
 		}
 	}
 
-	public function getPeriodicityDesc() {
-		switch( $this->periodicity ) {
-			case 0:
-				return;
-			case 1:
-				$indices = ' jeden ';
-
-				$w2s = $this->weekdayBlacklist->firstWeekdayToSkip;
-				$secondW2s = $this->weekdayBlacklist->secondWeekdayToSkip;
-
-				if ( 0 === $w2s && 0 === $secondW2s ) return $indices . $this->weekdayDE;
-
-				if ( 1 !== $w2s ) {
-					$indices .= '1. ';
-				}
-				if ( 2 !== $w2s && 2 !== $secondW2s ) {
-					$indices .= '2. ';
-				}
-				if ( 3 !== $w2s && 3 !== $secondW2s ) {
-					$indices .= '3. ';
-				}
-				if ( 4 !== $w2s && 4 !== $secondW2s ) {
-					$indices .= '4. ';
-				}
-				
-				if ( !$secondW2s ) {
-					$indices = substr_replace( $indices, ' und', 12, 0 );
-				} else {
-					$indices = substr_replace( $indices, ' und', 9, 0 );
-				}
-				return $indices . $this->weekdayDE . ' des Monats';
-			case 2:
-				$p = ' jede ';
-
-				if ( 0 !== $this->weekNum % 2 ) {
-					$p .= 'un';
-				}
-
-				return $p . 'gerade Woche am ' . $this->weekdayDE;
-			case 4:
-				return ' jeden ' . $this->weekdayBlacklist->getWeekdayIndex( $this->dt ) . '. ' . $this->weekdayDE . ' des Monats';
-		}
-	}
 }
 
 ?>

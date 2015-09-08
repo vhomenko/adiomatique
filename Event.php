@@ -7,10 +7,10 @@ require_once( 'EventDate.php' );
 
 class Event {
 
-	private $dt;
-	private $ID;
-	private $date;
 	private $storage;
+	private $date;
+
+	private $ID;
 	private $location;
 	private $titlepageID;
 	private $titlepageTitle;
@@ -27,6 +27,15 @@ class Event {
 
 	const DATE_TIME_FORMAT = 'd.m.y G:i';
 
+	private $WEEKDAYS_DICT = array(
+		'Monday' => 'Montag',
+		'Tuesday' => 'Dienstag',
+		'Wednesday' => 'Mittwoch',
+		'Thursday' => 'Donnerstag',
+		'Friday' => 'Freitag',
+		'Saturday' => 'Samstag',
+		'Sunday' => 'Sonntag' );
+
 	public function __construct( $ID, $doNotLoad = false ) {
 		$this->ID = $ID;
 		$this->storage = new CustomValuesStorage( $this->ID );
@@ -35,11 +44,11 @@ class Event {
 
 		$this->timestamp = $this->storage->getInt( $this->KEYS['timestamp'] );
 		if ( 0 === $this->timestamp ) return;
-		$this->dt = new \DateTime( '@' . $this->timestamp );
-		$this->dt->setTimezone( new \DateTimeZone( TZ ) );
+		$dt = new \DateTime( '@' . $this->timestamp );
+		$dt->setTimezone( new \DateTimeZone( TZ ) );
 
 		$this->set(
-			$this->dt,
+			$dt,
 			$this->storage->getInt( $this->KEYS['periodicity'] ),
 			$this->storage->getInt( $this->KEYS['week_to_skip'] ),
 			$this->storage->getInt( $this->KEYS['second_week_to_skip'] ),
@@ -50,7 +59,7 @@ class Event {
 
 	public function set( $dateTime, $periodicity, $weekToSkip, $secondWeekToSkip, $location, $titlepageID ) {
 		$this->date = new EventDate( $dateTime, null, $periodicity, $weekToSkip, $secondWeekToSkip );
-		$this->periodicity = $periodicity;
+		/*$this->periodicity = $periodicity;*/
 		$this->location = $location;
 		$this->titlepageID = $titlepageID;
 		$titlepage = get_post( $this->titlepageID );
@@ -60,35 +69,6 @@ class Event {
 
 		$this->isEmpty = false;
 		$this->update();
-	}
-
-	public function normalizeTime( $time ) {
-		$arr = explode( ':', $time );
-		$h = $arr[0];
-		$m = $arr[1];
-
-		if ( 1 === strlen( $h ) )
-			$h = '0' . $h;
-		if ( 1 === strlen( $m ) )
-			$m = '0' . $m;
-
-		return $h . ':' . $m;
-	}
-
-	public function normalizeDate( $date ) {
-		$arr = explode( '.', $date );
-		$d = $arr[0];
-		$m = $arr[1];
-		$y = $arr[2];
-
-		if ( 1 === strlen( $d ) )
-			$d = '0' . $d;
-		if ( 1 === strlen( $m ) )
-			$m = '0' . $m;
-		if ( 4 === strlen( $y ) )
-			$y = substr( $y, 2 );
-
-		return $d . '.' . $m . '.' . $y;
 	}
 
 	public function setFromPost( $time, $date, $periodicity, $weekToSkip, $secondWeekToSkip, $location, $titlepageID ) {
@@ -124,12 +104,101 @@ class Event {
 	}
 
 	private function update() {
-		if ( ! $this->date->isPeriodic() && $this->date->isPassed() ) {
+		if ( ! $this->isPeriodic() && $this->date->isPassed() ) {
 			$this->archivate();
 		} else if ( $this->date->isUpdated ) {
 			$this->storeDate();
 		}
 	}
+
+/** UTILS */
+
+	private function normalizeTime( $time ) {
+		$arr = explode( ':', $time );
+		$h = $arr[0];
+		$m = $arr[1];
+
+		if ( 1 === strlen( $h ) )
+			$h = '0' . $h;
+		if ( 1 === strlen( $m ) )
+			$m = '0' . $m;
+
+		return $h . ':' . $m;
+	}
+
+	private function normalizeDate( $date ) {
+		$arr = explode( '.', $date );
+		$d = $arr[0];
+		$m = $arr[1];
+		$y = $arr[2];
+
+		if ( 1 === strlen( $d ) )
+			$d = '0' . $d;
+		if ( 1 === strlen( $m ) )
+			$m = '0' . $m;
+		if ( 4 === strlen( $y ) )
+			$y = substr( $y, 2 );
+
+		return $d . '.' . $m . '.' . $y;
+	}
+
+	public function getTitlepageLink() {
+		$link = '';
+		if ( ! empty( $this->titlepageID ) ) {
+			$link = '<a href="' . get_page_link( $this->titlepageID ) . '">' . $this->titlepageTitle . '</a>';
+		}
+		return $link;
+	}
+
+	public function getLink() {
+		return '<a href="' . wp_get_shortlink( $this->ID ) . '">' . $this->title . '</a>';
+	}
+
+	public function getPeriodicityDesc() {
+		switch( $this->date->periodicity ) {
+			case 0:
+				return;
+			case 1:
+				$indices = ' jeden ';
+
+				$w2s = $this->date->weekdayBlacklist->firstWeekdayToSkip;
+				$secondW2s = $this->date->weekdayBlacklist->secondWeekdayToSkip;
+
+				if ( 0 === $w2s && 0 === $secondW2s ) return $indices . $this->getWeekday();
+
+				if ( 1 !== $w2s ) {
+					$indices .= '1. ';
+				}
+				if ( 2 !== $w2s && 2 !== $secondW2s ) {
+					$indices .= '2. ';
+				}
+				if ( 3 !== $w2s && 3 !== $secondW2s ) {
+					$indices .= '3. ';
+				}
+				if ( 4 !== $w2s && 4 !== $secondW2s ) {
+					$indices .= '4. ';
+				}
+				
+				if ( ! $secondW2s ) {
+					$indices = substr_replace( $indices, ' und', 12, 0 );
+				} else {
+					$indices = substr_replace( $indices, ' und', 9, 0 );
+				}
+				return $indices . $this->getWeekday() . ' des Monats';
+			case 2:
+				$p = ' jede ';
+
+				if ( $this->date->isOnOddWeek() ) {
+					$p .= 'un';
+				}
+
+				return $p . 'gerade Woche am ' . $this->getWeekday();
+			case 4:
+				return ' jeden ' . $this->date->weekdayBlacklist->getWeekdayIndex( $this->date->dt ) . '. ' . $this->getWeekday() . ' des Monats';
+		}
+	}
+
+/** WRAPPERS */
 
 	private function archivate() {
 		$this->setCategory( EVENTS_ARCHIVE_CAT_ID );
@@ -137,6 +206,11 @@ class Event {
 
 	public function setCategory( $catID ) {
 		wp_set_post_terms( $this->ID, array( $catID ), 'category' );
+	}
+
+	public function isOnTheSameDay( $e ) {
+		if ( empty( $e ) ) return false;
+		return $this->getDate() == $e->getDate();
 	}
 
 	public function getDate() {
@@ -151,8 +225,8 @@ class Event {
 		return $this->date->time;
 	}
 
-	public function getWeekDay() {
-		return $this->date->weekdayDE;
+	public function getWeekday() {
+		return $this->WEEKDAYS_DICT[$this->date->weekday];
 	}
 
 	public function getTimestamp() {
@@ -171,23 +245,6 @@ class Event {
 	public function getSecondWeekToSkip() {
 		if ( $this->isEmpty ) return 0;
 		return $this->date->weekdayBlacklist->secondWeekdayToSkip;
-	}
-
-	public function isOnTheSameDay( $e ) {
-		if ( empty( $e ) ) return false;
-		return $this->getDate() == $e->getDate();
-	}
-
-	public function getTitlepageLink() {
-		$link = '';
-		if ( ! empty( $this->titlepageID ) ) {
-			$link = '<a href="' . get_page_link( $this->titlepageID ) . '">' . $this->titlepageTitle . '</a>';
-		}
-		return $link;
-	}
-
-	public function getLink() {
-		return '<a href="' . wp_get_shortlink( $this->ID ) . '">' . $this->title . '</a>';
 	}
 
 	public function getTitle() {
@@ -209,11 +266,7 @@ class Event {
 	}
 
 	public function isPeriodic() {
-		return $this->date->isPeriodic();
-	}
-
-	public function getPeriodicityDesc() {
-		return $this->date->getPeriodicityDesc();
+		return 0 < $this->date->periodicity;
 	}
 
 	public function getTitlepageID() {
@@ -228,6 +281,9 @@ class Event {
 	public function isEmpty() {
 		return $this->isEmpty;
 	}
+
+
+/** STORAGE */
 
 	private function storeDate() {
 		$this->storage->update( $this->KEYS['timestamp'], $this->getTimestamp() );
