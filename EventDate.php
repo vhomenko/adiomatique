@@ -54,8 +54,10 @@ class EventDate {
 
 	private function update() {
 		$end = clone $this->today;
+
+		// needed for weekly and biweekly
 		if ( $this->dt > $this->today )
-			$end = clone $this->dt; // for dates way in the future
+			$end = clone $this->dt;
 
 		switch ( $this->periodicity ) {
 			case 1:
