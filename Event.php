@@ -22,7 +22,7 @@ class Event {
 		'location' => 'adi_event_location',
 		'periodicity' => 'adi_event_periodicity',
 		'week_to_skip' => 'adi_event_week_to_skip',
-		'second_week_to_skip' => 'adi_event_second_week_to_skip',
+		'extra_week_to_skip' => 'adi_event_extra_week_to_skip',
 		'titlepage_id' => 'adi_event_titlepage_id' );
 
 	const DATE_TIME_FORMAT = 'd.m.y G:i';
@@ -51,15 +51,14 @@ class Event {
 			$dt,
 			$this->storage->getInt( $this->KEYS['periodicity'] ),
 			$this->storage->getInt( $this->KEYS['week_to_skip'] ),
-			$this->storage->getInt( $this->KEYS['second_week_to_skip'] ),
+			$this->storage->getInt( $this->KEYS['extra_week_to_skip'] ),
 			$this->storage->getStr( $this->KEYS['location'] ),
 			$this->storage->getInt( $this->KEYS['titlepage_id'] )
 		);
 	}
 
-	public function set( $dateTime, $periodicity, $weekToSkip, $secondWeekToSkip, $location, $titlepageID ) {
-		$this->date = new EventDate( $dateTime, null, $periodicity, $weekToSkip, $secondWeekToSkip );
-		/*$this->periodicity = $periodicity;*/
+	public function set( $dateTime, $periodicity, $weekToSkip, $extraWeekToSkip, $location, $titlepageID ) {
+		$this->date = new EventDate( $dateTime, null, $periodicity, $weekToSkip, $extraWeekToSkip );
 		$this->location = $location;
 		$this->titlepageID = $titlepageID;
 		$titlepage = get_post( $this->titlepageID );
@@ -71,7 +70,7 @@ class Event {
 		$this->update();
 	}
 
-	public function setFromPost( $time, $date, $periodicity, $weekToSkip, $secondWeekToSkip, $location, $titlepageID ) {
+	public function setFromPost( $time, $date, $periodicity, $weekToSkip, $extraWeekToSkip, $location, $titlepageID ) {
 
 		if ( empty( $time ) ) {
 			$this->deleteStorage();
@@ -95,12 +94,12 @@ class Event {
 			$dateTime,
 			$periodicity,
 			$weekToSkip,
-			$secondWeekToSkip,
+			$extraWeekToSkip,
 			$location,
 			$titlepageID
 		);
 
-		$this->storeAll( $dateTime->getTimestamp(), $periodicity, $weekToSkip, $secondWeekToSkip, $location, $titlepageID );
+		$this->storeAll( $dateTime->getTimestamp(), $periodicity, $weekToSkip, $extraWeekToSkip, $location, $titlepageID );
 	}
 
 	private function update() {
@@ -162,24 +161,24 @@ class Event {
 				$indices = ' jeden ';
 
 				$w2s = $this->date->weekdayBlacklist->firstWeekdayToSkip;
-				$secondW2s = $this->date->weekdayBlacklist->secondWeekdayToSkip;
+				$extraW2s = $this->date->weekdayBlacklist->extraWeekdayToSkip;
 
-				if ( 0 === $w2s && 0 === $secondW2s ) return $indices . $this->getWeekday();
+				if ( 0 === $w2s && 0 === $extraW2s ) return $indices . $this->getWeekday();
 
 				if ( 1 !== $w2s ) {
 					$indices .= '1. ';
 				}
-				if ( 2 !== $w2s && 2 !== $secondW2s ) {
+				if ( 2 !== $w2s && 2 !== $extraW2s ) {
 					$indices .= '2. ';
 				}
-				if ( 3 !== $w2s && 3 !== $secondW2s ) {
+				if ( 3 !== $w2s && 3 !== $extraW2s ) {
 					$indices .= '3. ';
 				}
-				if ( 4 !== $w2s && 4 !== $secondW2s ) {
+				if ( 4 !== $w2s && 4 !== $extraW2s ) {
 					$indices .= '4. ';
 				}
 				
-				if ( ! $secondW2s ) {
+				if ( ! $extraW2s ) {
 					$indices = substr_replace( $indices, ' und', 12, 0 );
 				} else {
 					$indices = substr_replace( $indices, ' und', 9, 0 );
@@ -242,9 +241,9 @@ class Event {
 		return $this->date->weekdayBlacklist->firstWeekdayToSkip;
 	}
 
-	public function getSecondWeekToSkip() {
+	public function getExtraWeekToSkip() {
 		if ( $this->isEmpty ) return 0;
-		return $this->date->weekdayBlacklist->secondWeekdayToSkip;
+		return $this->date->weekdayBlacklist->extraWeekdayToSkip;
 	}
 
 	public function getTitle() {
@@ -290,11 +289,11 @@ class Event {
 		$this->storage->update( $this->KEYS['periodicity'], $this->getPeriodicity() );
 	}
 
-	private function storeAll( $timestamp, $periodicity, $weekToSkip, $secondWeekToSkip, $location, $titlepageID ) {
+	private function storeAll( $timestamp, $periodicity, $weekToSkip, $extraWeekToSkip, $location, $titlepageID ) {
 		$this->storage->update( $this->KEYS['timestamp'], $timestamp );
 		$this->storage->update( $this->KEYS['periodicity'], $periodicity );
 		$this->storage->update( $this->KEYS['week_to_skip'], $weekToSkip );
-		$this->storage->update( $this->KEYS['second_week_to_skip'], $secondWeekToSkip );
+		$this->storage->update( $this->KEYS['extra_week_to_skip'], $extraWeekToSkip );
 		$this->storage->update( $this->KEYS['location'], $location );
 		$this->storage->update( $this->KEYS['titlepage_id'], $titlepageID );
 	}
@@ -303,7 +302,7 @@ class Event {
 		$this->storage->delete( $this->KEYS['timestamp'] );
 		$this->storage->delete( $this->KEYS['periodicity'] );
 		$this->storage->delete( $this->KEYS['week_to_skip'] );
-		$this->storage->delete( $this->KEYS['second_week_to_skip'] );
+		$this->storage->delete( $this->KEYS['extra_week_to_skip'] );
 		$this->storage->delete( $this->KEYS['location'] );
 		$this->storage->delete( $this->KEYS['titlepage_id'] );
 	}

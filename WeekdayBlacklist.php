@@ -4,32 +4,32 @@ namespace adi;
 
 class WeekdayBlacklist {
 	private $allowedWeekdayIndices;
-	public $firstWeekdayToSkip;
-	public $secondWeekdayToSkip;
+	public $weekdayToSkip;
+	public $extraWeekdayToSkip;
 
-	function __construct( $firstWeekdayToSkip = 0, $secondWeekdayToSkip = 0 ) {
-		$isValidFirstWeekdayToSkipIndex = ( is_numeric( $firstWeekdayToSkip ) && -1 < $firstWeekdayToSkip && 5 > $firstWeekdayToSkip );
+	function __construct( $weekdayToSkip = 0, $extraWeekdayToSkip = 0 ) {
+		$isValidFirstWeekdayToSkipIndex = ( is_numeric( $weekdayToSkip ) && -1 < $weekdayToSkip && 5 > $weekdayToSkip );
 		if ( ! $isValidFirstWeekdayToSkipIndex ) {
-			error_log( 'EventDate: Invalid WeekToSkip index: ' . print_r( $firstWeekdayToSkip, true ) );
-			$firstWeekdayToSkip = 0;
+			error_log( 'EventDate: Invalid WeekToSkip index: ' . print_r( $weekdayToSkip, true ) );
+			$weekdayToSkip = 0;
 		}
-		$this->firstWeekdayToSkip = $firstWeekdayToSkip;
+		$this->weekdayToSkip = $weekdayToSkip;
 
-		$isValidSecondWeekdayToSkipIndex = ( is_numeric( $secondWeekdayToSkip ) && -1 < $secondWeekdayToSkip && 5 > $secondWeekdayToSkip && ( $secondWeekdayToSkip === 0 || $secondWeekdayToSkip > $firstWeekdayToSkip ) );
-		if ( ! $isValidSecondWeekdayToSkipIndex ) {
-			error_log( 'EventDate: Invalid secondWeekdayToSkip index: ' . print_r( $secondWeekdayToSkip, true ) );
-			$this->secondWeekdayToSkip = 0;
+		$isValidExtraWeekdayToSkipIndex = ( is_numeric( $extraWeekdayToSkip ) && -1 < $extraWeekdayToSkip && 5 > $extraWeekdayToSkip && ( $extraWeekdayToSkip === 0 || $extraWeekdayToSkip > $weekdayToSkip ) && 1 !== $extraWeekdayToSkip );
+		if ( ! $isValidExtraWeekdayToSkipIndex ) {
+			error_log( 'EventDate: Invalid extraWeekdayToSkip index: ' . print_r( $extraWeekdayToSkip, true ) );
+			$this->extraWeekdayToSkip = 0;
 		}
-		$this->secondWeekdayToSkip = $secondWeekdayToSkip;
+		$this->extraWeekdayToSkip = $extraWeekdayToSkip;
 
 		$this->allowedWeekdayIndices = [ 1, 2, 3, 4 ];
 
-		if ( $firstWeekdayToSkip ) {
-			$pos = array_search( $firstWeekdayToSkip, $this->allowedWeekdayIndices );
+		if ( $weekdayToSkip ) {
+			$pos = array_search( $weekdayToSkip, $this->allowedWeekdayIndices );
 			array_splice( $this->allowedWeekdayIndices, $pos, 1 );
 		}
-		if ( $secondWeekdayToSkip ) {
-			$pos = array_search( $secondWeekdayToSkip, $this->allowedWeekdayIndices );
+		if ( $extraWeekdayToSkip ) {
+			$pos = array_search( $extraWeekdayToSkip, $this->allowedWeekdayIndices );
 			array_splice( $this->allowedWeekdayIndices, $pos, 1 );
 		}
 	}

@@ -78,7 +78,7 @@ function post_meta_box( $post ) {
 
 ?>
 
-<form method="post">
+<form method="post" autocomplete="off" >
 	<p>
 		<em>Die Termineingaben werden gespeichert, wenn eine <strong>Uhrzeit</strong> eingetragen wird!</em><br>
 		<input style="text-align:center;" type="text" name="adi_event_date" id="adi_event_date" value="<?php echo $date ?>" size="8" />

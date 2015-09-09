@@ -17,7 +17,7 @@ class EventDate {
 	public $timestamp;
 	public $isUpdated = false;
 
-	public function __construct ( $eventDT, $todayDT, $periodicity, $firstWeekdayToSkip = 0, $secondWeekdayToSkip = 0 ) {
+	public function __construct ( $eventDT, $todayDT, $periodicity, $weekdayToSkip = 0, $extraWeekdayToSkip = 0 ) {
 		$this->dt = $eventDT;
 		if ( ! isset( $todayDT ) )
 			$this->today = new \DateTime();
@@ -25,7 +25,7 @@ class EventDate {
 			$this->today = $todayDT;
 		$this->today->setTime( 0, 0 );
 		$this->periodicity = $periodicity;
-		$this->weekdayBlacklist = new WeekdayBlacklist( $firstWeekdayToSkip, $secondWeekdayToSkip );
+		$this->weekdayBlacklist = new WeekdayBlacklist( $weekdayToSkip, $extraWeekdayToSkip );
 
 		$this->updateFields();
 		$this->update();
@@ -110,19 +110,7 @@ class EventDate {
 		$this->updateFields();
 		$this->isUpdated = true;
 	}
-/*
-	public function isWeekly() {
-		return 1 === $this->periodicity;
-	}
 
-	public function isBiweekly() {
-		return 2 === $this->periodicity;
-	}
-
-	public function isMonthly() {
-		return 4 === $this->periodicity;
-	}
-*/
 	function getWeekdayIndexAsWord( $index ) {
 		switch( $index ) {
 			case 1:
