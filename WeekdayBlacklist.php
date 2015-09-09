@@ -8,9 +8,9 @@ class WeekdayBlacklist {
 	public $extraWeekdayToSkip;
 
 	function __construct( $weekdayToSkip = 0, $extraWeekdayToSkip = 0 ) {
-		$isValidFirstWeekdayToSkipIndex = ( is_numeric( $weekdayToSkip ) && -1 < $weekdayToSkip && 5 > $weekdayToSkip );
-		if ( ! $isValidFirstWeekdayToSkipIndex ) {
-			error_log( 'EventDate: Invalid WeekToSkip index: ' . print_r( $weekdayToSkip, true ) );
+		$isValidWeekdayToSkipIndex = ( is_numeric( $weekdayToSkip ) && -1 < $weekdayToSkip && 5 > $weekdayToSkip );
+		if ( ! $isValidWeekdayToSkipIndex ) {
+			error_log( 'EventDate: Invalid weekdayToSkip index: ' . print_r( $weekdayToSkip, true ) );
 			$weekdayToSkip = 0;
 		}
 		$this->weekdayToSkip = $weekdayToSkip;

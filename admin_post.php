@@ -72,7 +72,7 @@ function post_meta_box( $post ) {
 
 	$periodicity = $e->getPeriodicity();
 	$week_to_skip = $e->getWeekToSkip();
-	$extra_week_to_skip = $e->getSecondWeekToSkip();
+	$extra_week_to_skip = $e->getExtraWeekToSkip();
 	$location = $e->getLocation();
 	$titlepage_id = $e->getTitlepageID();
 
@@ -91,7 +91,7 @@ function post_meta_box( $post ) {
 		</select>
 		<br>
 		<span id="adi_week_to_skip_box">
-		<select id="adi_event_week_to_skip" name="adi_event_week_to_skip" onchange="window.ADI.toggleSecondWeekToSkipBox()">
+		<select id="adi_event_week_to_skip" name="adi_event_week_to_skip" onchange="window.ADI.toggleExtraWeekToSkipBox()">
 			<option value="0" <?php selected( $week_to_skip, 0 ); ?>>Keinen</option>
 			<option value="1" <?php selected( $week_to_skip, 1 ); ?>>Ersten</option>
 			<option value="2" <?php selected( $week_to_skip, 2 ); ?>>Zweiten</option>

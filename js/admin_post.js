@@ -43,19 +43,19 @@ jQuery(document).ready(function(){
 			}
 		}
 	}
-	window.ADI.toggleSecondWeekToSkipBox = function () {
+	window.ADI.toggleExtraWeekToSkipBox = function () {
 		if ( '1' !== document.getElementById( 'adi_event_periodicity' ).value ) {
 			jQuery( '#adi_extra_week_to_skip_box' ).hide();
 			return;
 		}
 		var weekToSkip = document.getElementById( 'adi_event_week_to_skip' ).value;
-		var secondWeekToSkip = document.getElementById( 'adi_event_extra_week_to_skip' ).value;
+		var extraWeekToSkip = document.getElementById( 'adi_event_extra_week_to_skip' ).value;
 		if ( '0' === weekToSkip ) {
 			jQuery( '#adi_extra_week_to_skip_box' ).hide();
 		} else {
 			jQuery( '#adi_extra_week_to_skip_box' ).show();
 
-			if ( weekToSkip >= secondWeekToSkip ) {
+			if ( weekToSkip >= extraWeekToSkip ) {
 				jQuery('#adi_event_extra_week_to_skip > option[value="0"]').prop("selected", true);
 			}
 			if ( weekToSkip > 1 ) {
@@ -70,7 +70,7 @@ jQuery(document).ready(function(){
 		}
 	}
 	window.ADI.toggleWeekToSkipBox();
-	window.ADI.toggleSecondWeekToSkipBox();
+	window.ADI.toggleExtraWeekToSkipBox();
 	window.ADI.resetEventData = function () {
 		jQuery( '#adi_event_time' ).val( '' );
 
