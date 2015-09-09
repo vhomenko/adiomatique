@@ -33,37 +33,37 @@ jQuery(document).ready(function(){
 	window.ADI.toggleWeekToSkipBox = function () {
 		if ( '1' !== document.getElementById( 'adi_event_periodicity' ).value ) {
 			jQuery( '#adi_week_to_skip_box' ).hide();
-			jQuery( '#adi_second_week_to_skip_box' ).hide();
+			jQuery( '#adi_extra_week_to_skip_box' ).hide();
 		} else {
 			jQuery( '#adi_week_to_skip_box' ).show();
 			if ( '0' !== document.getElementById( 'adi_week_to_skip_box' ).value ) {
-				jQuery( '#adi_second_week_to_skip_box' ).show();
+				jQuery( '#adi_extra_week_to_skip_box' ).show();
 			} else {
-				jQuery( '#adi_second_week_to_skip_box' ).hide();
+				jQuery( '#adi_extra_week_to_skip_box' ).hide();
 			}
 		}
 	}
 	window.ADI.toggleSecondWeekToSkipBox = function () {
 		if ( '1' !== document.getElementById( 'adi_event_periodicity' ).value ) {
-			jQuery( '#adi_second_week_to_skip_box' ).hide();
+			jQuery( '#adi_extra_week_to_skip_box' ).hide();
 			return;
 		}
 		var weekToSkip = document.getElementById( 'adi_event_week_to_skip' ).value;
-		var secondWeekToSkip = document.getElementById( 'adi_event_second_week_to_skip' ).value;
+		var secondWeekToSkip = document.getElementById( 'adi_event_extra_week_to_skip' ).value;
 		if ( '0' === weekToSkip ) {
-			jQuery( '#adi_second_week_to_skip_box' ).hide();
+			jQuery( '#adi_extra_week_to_skip_box' ).hide();
 		} else {
-			jQuery( '#adi_second_week_to_skip_box' ).show();
+			jQuery( '#adi_extra_week_to_skip_box' ).show();
 
 			if ( weekToSkip >= secondWeekToSkip ) {
-				jQuery('#adi_event_second_week_to_skip > option[value="0"]').prop("selected", true);
+				jQuery('#adi_event_extra_week_to_skip > option[value="0"]').prop("selected", true);
 			}
 			if ( weekToSkip > 1 ) {
 				for ( var i = 2; i < 5; i++ ) {
 					if ( i <= weekToSkip ) {
-						jQuery('#adi_event_second_week_to_skip > option[value="' + i + '"]').attr("disabled", "disabled");
+						jQuery('#adi_event_extra_week_to_skip > option[value="' + i + '"]').attr("disabled", "disabled");
 					} else {
-						jQuery('#adi_event_second_week_to_skip > option[value="' + i + '"]').removeAttr("disabled");
+						jQuery('#adi_event_extra_week_to_skip > option[value="' + i + '"]').removeAttr("disabled");
 					}
 				}
 			}
@@ -84,7 +84,7 @@ jQuery(document).ready(function(){
 
 		document.getElementById( 'adi_event_periodicity' ).value = '0';
 		document.getElementById( 'adi_event_week_to_skip' ).value = '0';
-		document.getElementById( 'adi_event_second_week_to_skip' ).value = '0';
+		document.getElementById( 'adi_event_extra_week_to_skip' ).value = '0';
 		window.ADI.toggleWeekToSkipBox();
 		document.getElementById( 'adi_event_location' ).value = '';
 		document.getElementById( 'adi_event_titlepage_id' ).value = '0';

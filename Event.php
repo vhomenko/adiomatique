@@ -160,7 +160,7 @@ class Event {
 			case 1:
 				$indices = ' jeden ';
 
-				$w2s = $this->date->weekdayBlacklist->firstWeekdayToSkip;
+				$w2s = $this->date->weekdayBlacklist->weekdayToSkip;
 				$extraW2s = $this->date->weekdayBlacklist->extraWeekdayToSkip;
 
 				if ( 0 === $w2s && 0 === $extraW2s ) return $indices . $this->getWeekday();
@@ -238,7 +238,7 @@ class Event {
 
 	public function getWeekToSkip() {
 		if ( $this->isEmpty ) return 0;
-		return $this->date->weekdayBlacklist->firstWeekdayToSkip;
+		return $this->date->weekdayBlacklist->weekdayToSkip;
 	}
 
 	public function getExtraWeekToSkip() {

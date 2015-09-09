@@ -72,7 +72,7 @@ function post_meta_box( $post ) {
 
 	$periodicity = $e->getPeriodicity();
 	$week_to_skip = $e->getWeekToSkip();
-	$second_week_to_skip = $e->getSecondWeekToSkip();
+	$extra_week_to_skip = $e->getSecondWeekToSkip();
 	$location = $e->getLocation();
 	$titlepage_id = $e->getTitlepageID();
 
@@ -99,12 +99,12 @@ function post_meta_box( $post ) {
 			<option value="4" <?php selected( $week_to_skip, 4 ); ?>>Vierten</option>
 		</select>
 		Wochentag des Monats überspringen.<br></span>
-		<span id="adi_second_week_to_skip_box">
-		<select id="adi_event_second_week_to_skip" name="adi_event_second_week_to_skip">
-			<option value="0" <?php selected( $second_week_to_skip, 0 ); ?>>Keinen</option>
-			<option value="2" <?php selected( $second_week_to_skip, 2 ); ?>>Zweiten</option>
-			<option value="3" <?php selected( $second_week_to_skip, 3 ); ?>>Dritten</option>
-			<option value="4" <?php selected( $second_week_to_skip, 4 ); ?>>Vierten</option>
+		<span id="adi_extra_week_to_skip_box">
+		<select id="adi_event_extra_week_to_skip" name="adi_event_extra_week_to_skip">
+			<option value="0" <?php selected( $extra_week_to_skip, 0 ); ?>>Keinen</option>
+			<option value="2" <?php selected( $extra_week_to_skip, 2 ); ?>>Zweiten</option>
+			<option value="3" <?php selected( $extra_week_to_skip, 3 ); ?>>Dritten</option>
+			<option value="4" <?php selected( $extra_week_to_skip, 4 ); ?>>Vierten</option>
 		</select>
 		zusätzlichen Wochentag des Monats überspringen. <br><em>Der fünfte Wochentag wird (falls vorhanden) immer automatisch übersprungen!</em><br></span>
 	</p>
@@ -160,7 +160,7 @@ function save_meta( $post_id ) {
 		sanitize_text_field( $_POST['adi_event_date'] ),
 					 intval( $_POST['adi_event_periodicity'] ),
 					 intval( $_POST['adi_event_week_to_skip'] ),
-					 intval( $_POST['adi_event_second_week_to_skip'] ),
+					 intval( $_POST['adi_event_extra_week_to_skip'] ),
 		sanitize_text_field( $_POST['adi_event_location'] ),
 					 intval( $_POST['adi_event_titlepage_id'] )
 	);
