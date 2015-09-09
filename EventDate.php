@@ -52,6 +52,11 @@ class EventDate {
 		return 0 !== $this->weekNum % 2;
 	}
 
+/**
+ * Updating is done only towards future, so that periodic event can be
+ * published early on.
+ *
+ */
 	private function update() {
 		// we don't sort out future dates at this point to be
 		// able to correct the weekly ones with weekdays to skip
