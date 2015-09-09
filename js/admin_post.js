@@ -56,9 +56,9 @@ jQuery(document).ready(function(){
 			jQuery( '#adi_extra_week_to_skip_box' ).show();
 
 			if ( weekToSkip >= extraWeekToSkip ) {
-				jQuery('#adi_event_extra_week_to_skip > option[value="0"]').prop("selected", true);
+				jQuery( '#adi_event_extra_week_to_skip > option[value="0"]' ).prop("selected", true );
 			}
-			if ( weekToSkip > 1 ) {
+			if ( weekToSkip >= 1 ) {
 				for ( var i = 2; i < 5; i++ ) {
 					if ( i <= weekToSkip ) {
 						jQuery('#adi_event_extra_week_to_skip > option[value="' + i + '"]').attr("disabled", "disabled");
