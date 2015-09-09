@@ -53,15 +53,17 @@ class EventDate {
 	}
 
 	private function update() {
+		// we don't sort out future dates at this point to be
+		// able to correct the weekly ones with weekdays to skip
 		$end = clone $this->today;
-
-		// needed for weekly and biweekly
-		if ( $this->dt > $this->today )
-			$end = clone $this->dt;
 
 		switch ( $this->periodicity ) {
 			case 1:
 				$interval = new \DateInterval( 'P1W' );
+				// this is for correcting future weekly dates
+				// when weekdays to skip are a factor
+				if ( $this->dt > $this->today )
+					$end = clone $this->dt;
 				$end->modify( '+6 weeks' );
 				$period = new \DatePeriod( $this->dt, $interval, $end );
 				foreach ( $period as $dt ) {
@@ -84,7 +86,7 @@ class EventDate {
 			case 4:
 				$weekDayIndex = $this->weekdayBlacklist->getWeekDayIndex( $this->dt );
 				if ( -1 === $weekDayIndex ) {
-					error_log( $this->format() . ' 5th weekday of the month. Resetting');
+					error_log( $this->format() . ' 5th weekday of the month given. Resetting periodicity only');
 					$this->periodicity = 0;
 					$this->isUpdated = true;
 					return;
