@@ -53,7 +53,7 @@ class EventDate {
 	}
 
 /**
- * Updating is done only towards future, so that periodic event can be
+ * Updating is done only towards future, so that periodic events can be
  * published early on.
  *
  */
